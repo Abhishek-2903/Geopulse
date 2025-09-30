@@ -1,0 +1,38 @@
+{
+  "name": "geopulse-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GeoPulse - Revolutionary Map Solutions",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@supabase/auth-helpers-nextjs": "^0.8.7",
+    "@supabase/supabase-js": "^2.38.5",
+    "next": "14.0.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "styled-jsx": "^5.1.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.56.0",
+    "eslint-config-next": "14.0.4"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "keywords": [
+    "maps",
+    "gis",
+    "mbtiles",
+    "geospatial",
+    "tiles",
+    "offline-maps"
+  ],
+  "author": "GeoPulse Team",
+  "license": "MIT"
+}

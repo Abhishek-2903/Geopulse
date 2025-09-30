@@ -1,0 +1,38 @@
+cd "C:\Users\Mechphy Software Fro\Desktop\geopulse_recovered"
+
+# Create/update .gitignore
+@"
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Testing
+coverage/
+
+# Next.js
+.next/
+out/
+build/
+dist/
+
+# Production
+*.log
+
+# Environment variables
+.env
+.env.local
+.env*.local
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+*.pem
+
+# Vercel
+.vercel
+"@ | Out-File -FilePath ".gitignore" -Encoding utf8 -Force
