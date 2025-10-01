@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { supabase, dbHelpers } from '../lib/supabase';
+import { supabase, dbHelpers } from '../lib/Supabase';
 import { useRouter } from 'next/router';
 
 export default function AuthModal({ showModal, setShowModal, mapStyles }) {

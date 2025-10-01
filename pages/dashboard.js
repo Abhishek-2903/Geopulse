@@ -10,7 +10,7 @@ import ProgressDisplay from '../components/ProgressDisplay';
 import UsageStats from '../components/UsageStats';
 
 // Dynamically import Leaflet to avoid SSR issues
-const DynamicMap = dynamic(() => import("../components/Mapselector"), {
+const DynamicMap = dynamic(() => import("../components/MapSelector"), {
   ssr: false,
   loading: () => (
     <div style={{
