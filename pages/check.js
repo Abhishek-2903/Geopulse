@@ -1,97 +1,47 @@
 import { useState, useEffect, useRef } from 'react';
 import { loadModules } from 'esri-loader';
 import AuthModal from './AuthModal';
-import ChatQuery from './ChatQuery';
 
 export default function Home() {
   const [mapLoaded, setMapLoaded] = useState(false);
   const [currentLocation, setCurrentLocation] = useState({
     lat: 40.7128,
     lng: -74.0060,
-    zoom: 14,
+    zoom: 12
   });
-  const [basemapType, setBasemapType] = useState('topo-vector');
   const mapRef = useRef(null);
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [showPolicyNotification, setShowPolicyNotification] = useState(false);
 
   useEffect(() => {
-    // Check if user has already agreed to the privacy policy
-    const hasAgreed = localStorage.getItem('privacyPolicyAgreed');
-    if (!hasAgreed) {
-      setShowPolicyNotification(true);
-    }
-
     const timer = setTimeout(() => setMapLoaded(true), 1500);
     return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
     if (mapRef.current && mapLoaded) {
-      loadModules(['esri/Map', 'esri/views/MapView', 'esri/layers/TileLayer'], { css: true })
-        .then(([ArcGISMap, MapView, TileLayer]) => {
+      loadModules(['esri/Map', 'esri/views/MapView'], { css: true })
+        .then(([ArcGISMap, MapView]) => {
           const map = new ArcGISMap({
-            basemap: basemapType === 'outdoor' ? {
-              baseLayers: [
-                new TileLayer({
-                  url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer'
-                })
-              ]
-            } : basemapType
+            basemap: 'topo-vector'
           });
 
-          const view = new MapView({
+          new MapView({
             container: mapRef.current,
             map: map,
             center: [currentLocation.lng, currentLocation.lat],
             zoom: currentLocation.zoom
           });
-
-          console.log(`Loading basemap: ${basemapType}`);
-
-          return () => {
-            if (view) {
-              view.destroy();
-            }
-          };
         })
-        .catch((err) => console.error('Error loading map:', err));
+        .catch((err) => console.error(err));
     }
-  }, [mapLoaded, basemapType]);
-
-  const mapTypes = [
-    { id: 'topo-vector', label: 'Terrain' },
-    { id: 'satellite', label: 'Satellite' },
-    { id: 'national-geographic', label: 'Nat Geo' },
-    { id: 'streets-vector', label: 'Street' },
-    { id: 'hybrid', label: 'Hybrid' },
-    { id: 'outdoor', label: 'Outdoor' }
-  ];
-
-  const handleMapTypeChange = (type) => {
-    setBasemapType(type);
-  };
-
-  const companies = [
-    { icon: '🏢', name: 'TechCorp', color: '#000000' },
-    { icon: '🏭', name: 'MapIndustries', color: '#333333' },
-    { icon: '🎓', name: 'GeoUniversity', color: '#000000' },
-    { icon: '🏛️', name: 'CityGov', color: '#333333' },
-    { icon: '🚁', name: 'DroneLogistics', color: '#000000' },
-    { icon: '🏗️', name: 'BuildPro', color: '#333333' }
-  ];
-
-  const handlePolicyAgree = () => {
-    localStorage.setItem('privacyPolicyAgreed', 'true');
-    setShowPolicyNotification(false);
-  };
+  }, [mapLoaded]);
 
   const mapStyles = {
     container: {
       minHeight: '100vh',
-      background: '#ffffff',
-      color: '#000000',
+      background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%)',
+      color: 'white',
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
     },
     nav: {
@@ -100,9 +50,9 @@ export default function Home() {
       left: 0,
       right: 0,
       zIndex: 1000,
-      background: 'rgba(255, 255, 255, 0.95)',
+      background: 'rgba(15, 15, 35, 0.95)',
       backdropFilter: 'blur(20px)',
-      borderBottom: '1px solid rgba(0, 0, 0, 0.2)',
+      borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
       padding: '16px 32px'
     },
     navContent: {
@@ -120,33 +70,37 @@ export default function Home() {
     logoIcon: {
       width: '48px',
       height: '48px',
-      background: '#000000',
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       borderRadius: '12px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      fontSize: '24px',
-      color: '#ffffff'
+      fontSize: '24px'
     },
     logoText: {
       fontSize: '28px',
       fontWeight: '800',
       margin: 0,
-      color: '#000000'
+      background: 'linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%)',
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent',
+      backgroundClip: 'text'
     },
     authBtn: {
       display: 'flex',
       alignItems: 'center',
       gap: '12px',
       padding: '12px 24px',
-      background: '#000000',
-      color: '#ffffff',
+      background: 'white',
+      color: '#333',
       border: 'none',
       borderRadius: '50px',
       fontSize: '16px',
       fontWeight: '600',
-      cursor: 'pointer',
+      cursor: isLoading ? 'not-allowed' : 'pointer',
       transition: 'all 0.3s ease',
+      opacity: isLoading ? 0.7 : 1,
+      transform: 'translateY(0)',
       boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)'
     },
     hero: {
@@ -168,15 +122,17 @@ export default function Home() {
       fontWeight: '900',
       lineHeight: '1.1',
       margin: '0 0 32px 0',
-      letterSpacing: '-2px',
-      color: '#000000'
+      letterSpacing: '-2px'
     },
     heroGradient: {
-      color: '#000000'
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent',
+      backgroundClip: 'text'
     },
     heroDesc: {
       fontSize: '24px',
-      color: '#333333',
+      color: '#b0b0b0',
       maxWidth: '900px',
       margin: '0 auto 48px',
       lineHeight: '1.6'
@@ -190,22 +146,24 @@ export default function Home() {
     },
     primaryBtn: {
       padding: '18px 40px',
-      background: '#000000',
-      color: '#ffffff',
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      color: 'white',
       border: 'none',
       borderRadius: '50px',
       fontSize: '20px',
       fontWeight: '700',
-      cursor: 'pointer',
+      cursor: isLoading ? 'not-allowed' : 'pointer',
       transition: 'all 0.3s ease',
       minWidth: '220px',
-      boxShadow: '0 8px 25px rgba(0, 0, 0, 0.3)'
+      opacity: isLoading ? 0.7 : 1,
+      transform: 'translateY(0)',
+      boxShadow: '0 8px 25px rgba(102, 126, 234, 0.3)'
     },
     secondaryBtn: {
       padding: '18px 40px',
       background: 'transparent',
-      color: '#000000',
-      border: '2px solid rgba(0, 0, 0, 0.3)',
+      color: 'white',
+      border: '2px solid rgba(255, 255, 255, 0.3)',
       borderRadius: '50px',
       fontSize: '20px',
       fontWeight: '700',
@@ -214,11 +172,12 @@ export default function Home() {
       minWidth: '220px'
     },
     mapSection: {
-      background: 'rgba(0, 0, 0, 0.1)',
+      background: 'rgba(255, 255, 255, 0.05)',
       backdropFilter: 'blur(20px)',
       borderRadius: '32px',
       padding: '40px',
-      border: '1px solid rgba(0, 0, 0, 0.2)'
+      border: '1px solid rgba(255, 255, 255, 0.1)',
+      boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)'
     },
     mapGrid: {
       display: 'grid',
@@ -227,10 +186,10 @@ export default function Home() {
       alignItems: 'start'
     },
     mapContainer: {
-      background: 'rgba(255, 255, 255, 0.8)',
+      background: 'rgba(15, 15, 35, 0.8)',
       borderRadius: '24px',
       padding: '24px',
-      border: '1px solid rgba(0, 0, 0, 0.2)',
+      border: '1px solid rgba(255, 255, 255, 0.1)',
       position: 'relative',
       overflow: 'hidden'
     },
@@ -243,8 +202,7 @@ export default function Home() {
     mapTitle: {
       fontSize: '20px',
       fontWeight: '700',
-      margin: 0,
-      color: '#000000'
+      margin: 0
     },
     liveIndicator: {
       display: 'flex',
@@ -254,7 +212,7 @@ export default function Home() {
     liveDot: {
       width: '12px',
       height: '12px',
-      background: '#30b116ff',
+      background: '#00ff88',
       borderRadius: '50%',
       animation: 'pulse 2s infinite'
     },
@@ -262,62 +220,27 @@ export default function Home() {
       width: '100%',
       height: '400px',
       borderRadius: '16px',
-      border: '1px solid rgba(0, 0, 0, 0.2)'
+      border: '1px solid rgba(255, 255, 255, 0.1)'
     },
     coordinates: {
       position: 'absolute',
       top: '16px',
       left: '16px',
-      background: 'rgba(255, 255, 255, 0.7)',
+      background: 'rgba(0, 0, 0, 0.7)',
       padding: '8px 16px',
       borderRadius: '20px',
       fontSize: '14px',
-      backdropFilter: 'blur(10px)',
-      color: '#000000'
+      backdropFilter: 'blur(10px)'
     },
     zoomLevel: {
       position: 'absolute',
       bottom: '16px',
       right: '16px',
-      background: 'rgba(255, 255, 255, 0.7)',
+      background: 'rgba(0, 0, 0, 0.7)',
       padding: '8px 16px',
       borderRadius: '20px',
       fontSize: '14px',
-      backdropFilter: 'blur(10px)',
-      color: '#000000'
-    },
-    mapTypeSelector: {
-      position: 'absolute',
-      top: '3px',
-      right: '82px',
-      background: 'hsla(90, 22%, 78%, 0.95)',
-      borderRadius: '20px',
-      padding: '10px',
-      border: '1px solid rgba(0, 0, 0, 0.2)',
-      backdropFilter: 'blur(10px)',
-      display: 'flex',
-      gap: '8px',
-      width: '550px',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      zIndex: 10
-    },
-    mapTypeButton: {
-      flex: '1',
-      padding: '8px 12px',
-      border: 'none',
-      borderRadius: '12px',
-      background: 'transparent',
-      color: '#333333',
-      fontSize: '14px',
-      fontWeight: '600',
-      cursor: 'pointer',
-      transition: 'all 0.3s ease',
-      textAlign: 'center'
-    },
-    mapTypeButtonActive: {
-      background: '#000000',
-      color: '#ffffff'
+      backdropFilter: 'blur(10px)'
     },
     sidePanel: {
       display: 'flex',
@@ -325,17 +248,20 @@ export default function Home() {
       gap: '24px'
     },
     marketingCard: {
-      background: 'rgba(255, 255, 255, 0.8)',
+      background: 'rgba(15, 15, 35, 0.8)',
       borderRadius: '20px',
       padding: '24px',
-      border: '1px solid rgba(0, 0, 0, 0.2)',
+      border: '1px solid rgba(255, 255, 255, 0.1)',
       textAlign: 'center'
     },
     marketingTitle: {
       fontSize: '24px',
       fontWeight: '700',
       marginBottom: '16px',
-      color: '#000000'
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent',
+      backgroundClip: 'text'
     },
     marketingList: {
       listStyleType: 'none',
@@ -348,118 +274,14 @@ export default function Home() {
       alignItems: 'center',
       gap: '12px',
       marginBottom: '12px',
-      fontSize: '16px',
-      color: '#000000'
+      fontSize: '16px'
     },
     marketingIcon: {
       fontSize: '20px'
     },
-    trustSection: {
-      padding: '80px 32px',
-      background: 'rgba(0, 0, 0, 0.05)'
-    },
-    trustContainer: {
-      maxWidth: '1400px',
-      margin: '0 auto'
-    },
-    statsBar: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-      gap: '32px',
-      marginBottom: '80px',
-      padding: '40px',
-      background: 'rgba(255, 255, 255, 0.8)',
-      borderRadius: '24px',
-      border: '1px solid rgba(0, 0, 0, 0.2)'
-    },
-    statItem: {
-      textAlign: 'center'
-    },
-    statNumber: {
-      fontSize: '48px',
-      fontWeight: '900',
-      color: '#000000',
-      marginBottom: '8px'
-    },
-    statLabel: {
-      fontSize: '16px',
-      color: '#333333'
-    },
-    trustTitle: {
-      textAlign: 'center',
-      fontSize: '36px',
-      fontWeight: '700',
-      marginBottom: '20px',
-      color: '#000000'
-    },
-    logosContainer: {
-      overflow: 'hidden',
-      marginBottom: '80px',
-      position: 'relative'
-    },
-    logosTrack: {
-      display: 'flex',
-      gap: '24px',
-      animation: 'scroll 7.6s linear infinite'
-    },
-    logoCard: {
-      background: 'rgba(255, 255, 483, 0.8)',
-      borderRadius: '16px',
-      padding: '32px 24px',
-      border: '1px solid rgba(0, 0, 0, 0.2)',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      gap: '16px',
-      transition: 'all 0.3s ease',
-      cursor: 'pointer',
-      minWidth: '200px',
-      flexShrink: 0
-    },
-    companyLogo: {
-      fontSize: '48px',
-      opacity: 0.9,
-      transition: 'all 0.3s ease'
-    },
-    companyName: {
-      fontSize: '16px',
-      fontWeight: '600',
-      color: '#333333'
-    },
-    badgesSection: {
-      marginTop: '80px'
-    },
-    badgesGrid: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-      gap: '24px'
-    },
-    badge: {
-      background: 'rgba(255, 255, 255, 0.8)',
-      borderRadius: '16px',
-      padding: '32px 24px',
-      border: '1px solid rgba(0, 0, 0, 0.2)',
-      textAlign: 'center',
-      transition: 'all 0.3s ease'
-    },
-    badgeIcon: {
-      fontSize: '48px',
-      marginBottom: '16px',
-      color: '#000000'
-    },
-    badgeText: {
-      fontSize: '18px',
-      fontWeight: '600',
-      color: '#000000'
-    },
-    badgeSubtext: {
-      fontSize: '14px',
-      color: '#666666',
-      marginTop: '8px'
-    },
     featuresSection: {
       padding: '80px 32px',
-      background: 'rgba(0, 0, 0, 0.05)'
+      background: 'rgba(255, 255, 255, 0.02)'
     },
     featuresContainer: {
       maxWidth: '1400px',
@@ -468,8 +290,7 @@ export default function Home() {
     featuresTitle: {
       textAlign: 'center',
       fontSize: '36px',
-      marginBottom: '48px',
-      color: '#000000'
+      marginBottom: '48px'
     },
     featuresGrid: {
       display: 'grid',
@@ -477,32 +298,34 @@ export default function Home() {
       gap: '32px'
     },
     featureCard: {
-      background: 'rgba(255, 255, 255, 0.8)',
+      background: 'rgba(15, 15, 35, 0.8)',
       borderRadius: '20px',
       padding: '32px',
-      border: '1px solid rgba(0, 0, 0, 0.2)',
+      border: '1px solid rgba(255, 255, 255, 0.1)',
       textAlign: 'center',
       transition: 'all 0.3s ease'
     },
     featureIcon: {
       fontSize: '48px',
       marginBottom: '16px',
-      color: '#000000'
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent',
+      backgroundClip: 'text'
     },
     featureTitle: {
       fontSize: '24px',
       fontWeight: '700',
-      marginBottom: '16px',
-      color: '#000000'
+      marginBottom: '16px'
     },
     featureDesc: {
       fontSize: '16px',
-      color: '#333333',
+      color: '#b0b0b0',
       lineHeight: '1.6'
     },
     reviewsSection: {
       padding: '80px 32px',
-      background: 'rgba(0, 0, 0, 0.05)'
+      background: 'rgba(255, 255, 255, 0.02)'
     },
     reviewsContainer: {
       maxWidth: '1400px',
@@ -511,8 +334,7 @@ export default function Home() {
     reviewsTitle: {
       textAlign: 'center',
       fontSize: '36px',
-      marginBottom: '48px',
-      color: '#000000'
+      marginBottom: '48px'
     },
     reviewsGrid: {
       display: 'grid',
@@ -520,10 +342,10 @@ export default function Home() {
       gap: '32px'
     },
     reviewCard: {
-      background: 'rgba(255, 255, 255, 0.8)',
+      background: 'rgba(15, 15, 35, 0.8)',
       borderRadius: '20px',
       padding: '32px',
-      border: '1px solid rgba(0, 0, 0, 0.2)'
+      border: '1px solid rgba(255, 255, 255, 0.1)'
     },
     reviewHeader: {
       display: 'flex',
@@ -535,175 +357,72 @@ export default function Home() {
       width: '48px',
       height: '48px',
       borderRadius: '50%',
-      background: '#000000'
+      background: '#667eea'
     },
     reviewName: {
       fontSize: '18px',
-      fontWeight: '600',
-      color: '#000000'
+      fontWeight: '600'
     },
     reviewStars: {
-      color: '#000000',
+      color: '#ffd700',
       marginBottom: '16px'
     },
     reviewText: {
-      color: '#333333',
+      color: '#b0b0b0',
       lineHeight: '1.6'
     },
     modal: {
       position: 'fixed',
       top: 0,
       left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(255, 255, 255, 0.7)',
-      zIndex: 2000,
+      width: '100%',
+      height: '100%',
+      background: 'rgba(0, 0, 0, 0.5)',
       display: 'flex',
-      alignItems: 'center',
       justifyContent: 'center',
-      backdropFilter: 'blur(5px)',
-      animation: 'fadeIn 0.3s ease-in-out'
+      alignItems: 'center',
+      zIndex: 2000
     },
     modalContent: {
-      background: 'rgba(255, 255, 255, 0.95)',
+      background: 'rgba(15, 15, 35, 0.95)',
+      padding: '40px',
       borderRadius: '20px',
-      padding: '32px',
       width: '400px',
-      maxWidth: '90%',
-      border: '1px solid rgba(0, 0, 0, 0.2)',
-      boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
-      transform: 'scale(1)',
-      animation: 'slideIn 0.3s ease-in-out',
-      maxHeight: '90vh',
-      overflowY: 'auto'
+      textAlign: 'center'
     },
     modalTitle: {
       fontSize: '24px',
-      fontWeight: '700',
-      margin: '0 0 16px 0',
-      color: '#000000',
-      textAlign: 'center'
+      marginBottom: '20px'
     },
     input: {
       width: '100%',
-      padding: '12px 16px',
-      borderRadius: '8px',
-      border: '1px solid rgba(0, 0, 0, 0.2)',
-      background: 'rgba(0, 0, 0, 0.05)',
-      color: '#000000',
-      fontSize: '16px',
-      marginBottom: '16px',
-      boxSizing: 'border-box'
+      padding: '10px',
+      marginBottom: '10px',
+      background: 'rgba(0, 0, 0, 0.5)',
+      border: '1px solid #00ffff',
+      color: 'white',
+      borderRadius: '5px'
     },
     select: {
       width: '100%',
-      padding: '12px 16px',
-      borderRadius: '8px',
-      border: '1px solid rgba(0, 0, 0, 0.2)',
-      background: 'rgba(255, 255, 255, 0.95)',
-      color: '#000000',
-      fontSize: '16px',
-      marginBottom: '16px',
-      boxSizing: 'border-box',
-      appearance: 'none',
-      backgroundImage: 'url("data:image/svg+xml;utf8,<svg fill=\"black\" height=\"24\" viewBox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M7 10l5 5 5-5z\"/></svg>")',
-      backgroundRepeat: 'no-repeat',
-      backgroundPosition: 'right 12px top 50%',
-      backgroundSize: '16px'
-    },
-    error: {
-      color: '#000000',
-      background: 'rgba(0, 0, 0, 0.1)',
-      padding: '8px 12px',
-      borderRadius: '6px',
-      marginBottom: '16px',
-      fontSize: '14px',
-      border: '1px solid rgba(0, 0, 0, 0.3)'
+      padding: '10px',
+      marginBottom: '10px',
+      background: 'rgba(0, 0, 0, 0.5)',
+      border: '1px solid #00ffff',
+      color: 'white',
+      borderRadius: '5px'
     },
     toggleBtn: {
-      width: '100%',
-      padding: '12px',
-      background: 'transparent',
-      color: '#333333',
-      border: '1px solid rgba(0, 0, 0, 0.2)',
-      borderRadius: '8px',
-      fontSize: '14px',
-      cursor: 'pointer',
-      transition: 'all 0.3s ease',
-      marginTop: '12px'
-    },
-    policyNotification: {
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(255, 255, 255, 0.7)',
-      zIndex: 2000,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backdropFilter: 'blur(5px)',
-      animation: 'fadeIn 0.3s ease-in-out'
-    },
-    policyNotificationContent: {
-      background: 'rgba(255, 255, 255, 0.95)',
-      borderRadius: '20px',
-      padding: '32px',
-      width: '400px',
-      maxWidth: '90%',
-      border: '1px solid rgba(0, 0, 0, 0.2)',
-      boxShadow: '0 10px 30px rgba(0, 0, 0, 0.2)',
-      textAlign: 'center',
-      animation: 'slideIn 0.3s ease-in-out'
-    },
-    policyNotificationTitle: {
-      fontSize: '20px',
-      fontWeight: '700',
-      marginBottom: '16px',
-      color: '#000000'
-    },
-    policyNotificationText: {
-      fontSize: '16px',
-      color: '#333333',
-      marginBottom: '24px',
-      lineHeight: '1.6'
-    },
-    policyNotificationLink: {
-      color: '#000000',
-      textDecoration: 'underline',
-      fontWeight: '600'
-    },
-    policyNotificationButton: {
-      padding: '12px 24px',
-      background: '#000000',
-      color: '#ffffff',
+      background: 'none',
       border: 'none',
-      borderRadius: '50px',
-      fontSize: '16px',
-      fontWeight: '600',
+      color: '#00ffff',
       cursor: 'pointer',
-      transition: 'all 0.3s ease',
-      boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)'
+      marginTop: '10px'
+    },
+    error: {
+      color: 'red',
+      marginBottom: '10px'
     }
-  };
-
-  const updatedAuthBtnStyle = {
-    ...mapStyles.authBtn,
-    cursor: 'pointer'
-  };
-
-  const updatedPrimaryBtnStyle = {
-    ...mapStyles.primaryBtn,
-    cursor: 'pointer'
-  };
-
-  const updatedMarketingBtnStyle = {
-    ...mapStyles.primaryBtn,
-    padding: '12px 24px',
-    fontSize: '16px',
-    minWidth: 'auto',
-    cursor: 'pointer'
   };
 
   return (
@@ -714,33 +433,12 @@ export default function Home() {
           50% { opacity: 0.5; }
         }
         
-        @keyframes scroll {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        
-        @keyframes slideIn {
-          from { 
-            opacity: 0; 
-            transform: scale(0.95) translateY(-20px); 
-          }
-          to { 
-            opacity: 1; 
-            transform: scale(1) translateY(0); 
-          }
-        }
-        
         .hover-scale:hover {
           transform: translateY(-2px) scale(1.02);
         }
         
         .hover-glow:hover {
-          boxShadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+          boxShadow: 0 8px 30px rgba(102, 126, 234, 0.4);
         }
         
         @keyframes spin {
@@ -750,71 +448,17 @@ export default function Home() {
 
         .feature-card:hover {
           transform: translateY(-5px);
-          boxShadow: 0 8px 30px rgba(0, 0, 0, 0.4);
-        }
-
-        .logo-card:hover {
-          transform: translateY(-5px) scale(1.05);
-          border-color: rgba(0, 0, 0, 0.5);
-        }
-
-        .badge-card:hover {
-          transform: translateY(-5px);
-          border-color: rgba(0, 0, 0, 0.5);
-        }
-
-        .map-type-button:hover {
-          background: rgba(0, 0, 0, 0.1);
-          color: #000000;
+          boxShadow: 0 8px 30px rgba(102, 126, 234, 0.4);
         }
 
         @media (max-width: 1024px) {
           .map-grid {
             grid-template-columns: 1fr !important;
           }
-          .map-type-selector {
-            width: 100% !important;
-            flex-wrap: wrap;
-            justify-content: center !important;
-            padding: 8px 16px !important;
-            top: -60px !important;
-          }
-          .map-type-button {
-            flex: 0 0 auto !important;
-            min-width: 80px !important;
-          }
-        }
-
-        .modal-close {
-          position: absolute;
-          top: 12px;
-          right: 16px;
-          background: none;
-          border: none;
-          color: #333333;
-          font-size: 24px;
-          cursor: pointer;
-          padding: 0;
-          width: 32px;
-          height: 32px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border-radius: 50%;
-          transition: all 0.3s ease;
-        }
-
-        .modal-close:hover {
-          background: rgba(0, 0, 0, 0.1);
-          color: #000000;
-        }
-
-        .policy-notification-button:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
         }
       `}</style>
 
+      {/* Navigation */}
       <nav style={mapStyles.nav}>
         <div style={mapStyles.navContent}>
           <div style={mapStyles.logo}>
@@ -822,18 +466,31 @@ export default function Home() {
             <h1 style={mapStyles.logoText}>GeoPulse</h1>
           </div>
           <button
-            onClick={() => {
-              console.log('Opening modal');
-              setShowModal(true);
-            }}
-            style={updatedAuthBtnStyle}
+            onClick={() => setShowModal(true)}
+            disabled={isLoading}
+            style={mapStyles.authBtn}
             className="hover-scale hover-glow"
           >
-            <span>Sign In / Sign Up</span>
+            {isLoading ? (
+              <>
+                <div style={{
+                  width: '20px',
+                  height: '20px',
+                  border: '2px solid #ddd',
+                  borderTop: '2px solid #667eea',
+                  borderRadius: '50%',
+                  animation: 'spin 1s linear infinite'
+                }} />
+                <span>Processing...</span>
+              </>
+            ) : (
+              <span>Sign In / Sign Up</span>
+            )}
           </button>
         </div>
       </nav>
 
+      {/* Hero Section */}
       <section style={mapStyles.hero}>
         <div style={mapStyles.heroContainer}>
           <div style={mapStyles.heroContent}>
@@ -844,18 +501,16 @@ export default function Home() {
             </h1>
             <p style={mapStyles.heroDesc}>
               Generate high-quality map tiles, offline maps, and geospatial data with enterprise-grade APIs. 
-              Seamlessly integrated with modern GIS workflows, including adventurous maps for hiking and cycling.
+              Seamlessly integrated with QGIS and modern GIS workflows, including adventurous maps for hiking and cycling.
             </p>
             <div style={mapStyles.buttonGroup}>
               <button
-                onClick={() => {
-                  console.log('Opening modal from hero');
-                  setShowModal(true);
-                }}
-                style={updatedPrimaryBtnStyle}
+                onClick={() => setShowModal(true)}
+                disabled={isLoading}
+                style={mapStyles.primaryBtn}
                 className="hover-scale hover-glow"
               >
-                Start Free Trial
+                {isLoading ? 'Processing...' : 'Start Free Trial'}
               </button>
               <button 
                 style={mapStyles.secondaryBtn}
@@ -866,6 +521,7 @@ export default function Home() {
             </div>
           </div>
 
+          {/* Map Preview Section */}
           <div style={mapStyles.mapSection}>
             <div style={mapStyles.mapGrid} className="map-grid">
               <div style={mapStyles.mapContainer}>
@@ -873,26 +529,18 @@ export default function Home() {
                   <h3 style={mapStyles.mapTitle}>Live Map Preview</h3>
                   <div style={mapStyles.liveIndicator}>
                     <div style={mapStyles.liveDot}></div>
-                    <span style={{ fontSize: '14px', color: '#239d4eff' }}>Live</span>
+                    <span style={{ fontSize: '14px', color: '#888' }}>Live</span>
                   </div>
                 </div>
                 
                 <div ref={mapRef} style={mapStyles.mapCanvas} />
                 
-                <div style={mapStyles.mapTypeSelector} className="map-type-selector">
-                  {mapTypes.map((type) => (
-                    <button
-                      key={type.id}
-                      style={{
-                        ...mapStyles.mapTypeButton,
-                        ...(basemapType === type.id ? mapStyles.mapTypeButtonActive : {})
-                      }}
-                      onClick={() => handleMapTypeChange(type.id)}
-                      className="map-type-button"
-                    >
-                      {type.label}
-                    </button>
-                  ))}
+                <div style={mapStyles.coordinates}>
+                  Zoom: {currentLocation.zoom}
+                </div>
+                
+                <div style={mapStyles.zoomLevel}>
+                  Lat: {currentLocation.lat}, Lng: {currentLocation.lng}
                 </div>
               </div>
 
@@ -916,24 +564,19 @@ export default function Home() {
                       <span style={mapStyles.marketingIcon}>🏔️</span>
                       Detailed Topographic Views for Pros
                     </li>
-                    <li style={mapStyles.marketingItem}>
-                      <span style={mapStyles.marketingIcon}>🔗</span>
-                      Seamless GIS Integration
-                    </li>
-                    <li style={mapStyles.marketingItem}>
-                      <span style={mapStyles.marketingIcon}>⚡</span>
-                      Real-Time Data Updates
-                    </li>
                   </ul>
                   <button
-                    onClick={() => {
-                      console.log('Opening modal from marketing');
-                      setShowModal(true);
+                    onClick={() => setShowModal(true)}
+                    disabled={isLoading}
+                    style={{
+                      ...mapStyles.primaryBtn,
+                      padding: '12px 24px',
+                      fontSize: '16px',
+                      minWidth: 'auto'
                     }}
-                    style={updatedMarketingBtnStyle}
                     className="hover-scale hover-glow"
                   >
-                    Get Started Now
+                    {isLoading ? 'Processing...' : 'Get Started Now'}
                   </button>
                 </div>
               </div>
@@ -942,8 +585,46 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Features Section */}
+      <section style={mapStyles.featuresSection}>
+        <div style={mapStyles.featuresContainer}>
+          <h2 style={mapStyles.featuresTitle}>Discover Our Premium Maps</h2>
+          <div style={mapStyles.featuresGrid}>
+            <div style={mapStyles.featureCard} className="feature-card">
+              <div style={mapStyles.featureIcon}>🥾</div>
+              <h3 style={mapStyles.featureTitle}>Hiking Maps</h3>
+              <p style={mapStyles.featureDesc}>
+                Explore trails with detailed elevation profiles, waypoints, and real-time weather integration. Perfect for adventurers seeking the ultimate outdoor experience.
+              </p>
+            </div>
+            <div style={mapStyles.featureCard} className="feature-card">
+              <div style={mapStyles.featureIcon}>🚴</div>
+              <h3 style={mapStyles.featureTitle}>Cycling Maps</h3>
+              <p style={mapStyles.featureDesc}>
+                Navigate bike routes with traffic-avoiding paths, slope gradients, and custom route planning. Ride smarter and safer with our specialized cycling layers.
+              </p>
+            </div>
+            <div style={mapStyles.featureCard} className="feature-card">
+              <div style={mapStyles.featureIcon}>🛰️</div>
+              <h3 style={mapStyles.featureTitle}>Satellite Imagery</h3>
+              <p style={mapStyles.featureDesc}>
+                Access high-resolution satellite views for accurate land monitoring, urban planning, and environmental analysis. See the world from above like never before.
+              </p>
+            </div>
+            <div style={mapStyles.featureCard} className="feature-card">
+              <div style={mapStyles.featureIcon}>🏔️</div>
+              <h3 style={mapStyles.featureTitle}>Topographic Maps</h3>
+              <p style={mapStyles.featureDesc}>
+                Detailed contour lines, terrain shading, and hydrological features for precise navigation in rugged landscapes. Ideal for geologists, surveyors, and outdoor enthusiasts.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+       {/* Trust & Credibility Section */}
       <section style={mapStyles.trustSection}>
         <div style={mapStyles.trustContainer}>
+          {/* Statistics Bar */}
           <div style={mapStyles.statsBar}>
             <div style={mapStyles.statItem}>
               <div style={mapStyles.statNumber}>500M+</div>
@@ -963,6 +644,7 @@ export default function Home() {
             </div>
           </div>
 
+          {/* Features Section */}
           <section style={mapStyles.featuresSection}>
             <div style={mapStyles.featuresContainer}>
               <h2 style={mapStyles.featuresTitle}>Discover Our Premium Maps</h2>
@@ -999,9 +681,11 @@ export default function Home() {
             </div>
           </section>
 
+          {/* Customer Logos - Scrolling */}
           <h3 style={mapStyles.trustTitle}>Trusted by Leading Organizations</h3>
           <div style={mapStyles.logosContainer}>
             <div style={mapStyles.logosTrack}>
+              {/* First set of logos */}
               {companies.map((company, index) => (
                 <div key={`logo-1-${index}`} style={mapStyles.logoCard} className="logo-card">
                   <div style={{...mapStyles.companyLogo, color: company.color}}>
@@ -1010,6 +694,7 @@ export default function Home() {
                   <span style={mapStyles.companyName}>{company.name}</span>
                 </div>
               ))}
+              {/* Duplicate set for seamless loop */}
               {companies.map((company, index) => (
                 <div key={`logo-2-${index}`} style={mapStyles.logoCard} className="logo-card">
                   <div style={{...mapStyles.companyLogo, color: company.color}}>
@@ -1020,9 +705,48 @@ export default function Home() {
               ))}
             </div>
           </div>
+
+          {/* Security & Compliance Badges */}
+          <div style={mapStyles.badgesSection}>
+            <h3 style={mapStyles.trustTitle}>Security & Compliance</h3>
+            <div style={mapStyles.badgesGrid}>
+              <div style={mapStyles.badge} className="badge-card">
+                <div style={mapStyles.badgeIcon}>🔒</div>
+                <div style={mapStyles.badgeText}>SOC 2 Type II</div>
+                <div style={mapStyles.badgeSubtext}>Certified</div>
+              </div>
+              <div style={mapStyles.badge} className="badge-card">
+                <div style={mapStyles.badgeIcon}>🛡️</div>
+                <div style={mapStyles.badgeText}>GDPR Compliant</div>
+                <div style={mapStyles.badgeSubtext}>EU Data Protection</div>
+              </div>
+              <div style={mapStyles.badge} className="badge-card">
+                <div style={mapStyles.badgeIcon}>✓</div>
+                <div style={mapStyles.badgeText}>SSL Secured</div>
+                <div style={mapStyles.badgeSubtext}>256-bit Encryption</div>
+              </div>
+              <div style={mapStyles.badge} className="badge-card">
+                <div style={mapStyles.badgeIcon}>🏆</div>
+                <div style={mapStyles.badgeText}>ISO 27001</div>
+                <div style={mapStyles.badgeSubtext}>Information Security</div>
+              </div>
+              <div style={mapStyles.badge} className="badge-card">
+                <div style={mapStyles.badgeIcon}>💰</div>
+                <div style={mapStyles.badgeText}>Money Back</div>
+                <div style={mapStyles.badgeSubtext}>30-Day Guarantee</div>
+              </div>
+              <div style={mapStyles.badge} className="badge-card">
+                <div style={mapStyles.badgeIcon}>⚡</div>
+                <div style={mapStyles.badgeText}>99.9% Uptime</div>
+                <div style={mapStyles.badgeSubtext}>SLA Guaranteed</div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
+
+      {/* User Reviews Section */}
       <section style={mapStyles.reviewsSection}>
         <div style={mapStyles.reviewsContainer}>
           <h2 style={mapStyles.reviewsTitle}>User Reviews</h2>
@@ -1063,32 +787,8 @@ export default function Home() {
         </div>
       </section>
 
-      {showPolicyNotification && (
-        <div style={mapStyles.policyNotification}>
-          <div style={mapStyles.policyNotificationContent}>
-            <h3 style={mapStyles.policyNotificationTitle}>Privacy Policy Agreement</h3>
-            <p style={mapStyles.policyNotificationText}>
-              We use cookies to enhance your experience on GeoPulse. By continuing, you agree to our{' '}
-              <a href="/privacy" style={mapStyles.policyNotificationLink}>Privacy Policy</a>.
-            </p>
-            <button
-              onClick={handlePolicyAgree}
-              style={mapStyles.policyNotificationButton}
-              className="policy-notification-button"
-            >
-              Agree
-            </button>
-          </div>
-        </div>
-      )}
-
-      <AuthModal 
-        showModal={showModal} 
-        setShowModal={setShowModal} 
-        mapStyles={mapStyles} 
-      />
-
-      <ChatQuery mapStyles={mapStyles} />
+      {/* Auth Modal */}
+      <AuthModal showModal={showModal} setShowModal={setShowModal} mapStyles={mapStyles} />
     </div>
   );
 }
