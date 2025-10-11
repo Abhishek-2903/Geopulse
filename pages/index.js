@@ -17,7 +17,6 @@ export default function Home() {
   const [showPolicyNotification, setShowPolicyNotification] = useState(false);
 
   useEffect(() => {
-    // Check if user has already agreed to the privacy policy
     const hasAgreed = localStorage.getItem('privacyPolicyAgreed');
     if (!hasAgreed) {
       setShowPolicyNotification(true);
@@ -103,33 +102,34 @@ export default function Home() {
       background: 'rgba(255, 255, 255, 0.95)',
       backdropFilter: 'blur(20px)',
       borderBottom: '1px solid rgba(0, 0, 0, 0.2)',
-      padding: '16px 32px'
+      padding: 'clamp(8px, 2vw, 16px) clamp(16px, 4vw, 32px)'
     },
     navContent: {
       maxWidth: '1400px',
       margin: '0 auto',
       display: 'flex',
       justifyContent: 'space-between',
-      alignItems: 'center'
+      alignItems: 'center',
+      flexWrap: 'wrap'
     },
     logo: {
       display: 'flex',
       alignItems: 'center',
-      gap: '12px'
+      gap: 'clamp(8px, 2vw, 12px)'
     },
     logoIcon: {
-      width: '48px',
-      height: '48px',
+      width: 'clamp(36px, 10vw, 48px)',
+      height: 'clamp(36px, 10vw, 48px)',
       background: '#000000',
       borderRadius: '12px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      fontSize: '24px',
+      fontSize: 'clamp(18px, 5vw, 24px)',
       color: '#ffffff'
     },
     logoText: {
-      fontSize: '28px',
+      fontSize: 'clamp(20px, 6vw, 28px)',
       fontWeight: '800',
       margin: 0,
       color: '#000000'
@@ -137,23 +137,32 @@ export default function Home() {
     authBtn: {
       display: 'flex',
       alignItems: 'center',
-      gap: '12px',
-      padding: '12px 24px',
+      gap: 'clamp(8px, 2vw, 12px)',
+      padding: 'clamp(8px, 2vw, 12px) clamp(16px, 4vw, 24px)',
       background: '#000000',
       color: '#ffffff',
       border: 'none',
       borderRadius: '50px',
-      fontSize: '16px',
+      fontSize: 'clamp(14px, 4vw, 16px)',
       fontWeight: '600',
       cursor: 'pointer',
       transition: 'all 0.3s ease',
       boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)'
     },
+    navLink: {
+      padding: 'clamp(8px, 2vw, 12px) clamp(16px, 4vw, 24px)',
+      color: '#333333',
+      fontSize: 'clamp(14px, 4vw, 16px)',
+      fontWeight: '600',
+      cursor: 'pointer',
+      transition: 'all 0.3s ease',
+      textDecoration: 'none'
+    },
     hero: {
-      paddingTop: '120px',
-      paddingBottom: '80px',
-      paddingLeft: '32px',
-      paddingRight: '32px'
+      paddingTop: 'clamp(80px, 15vw, 120px)',
+      paddingBottom: 'clamp(40px, 10vw, 80px)',
+      paddingLeft: 'clamp(16px, 4vw, 32px)',
+      paddingRight: 'clamp(16px, 4vw, 32px)'
     },
     heroContainer: {
       maxWidth: '1400px',
@@ -161,13 +170,13 @@ export default function Home() {
     },
     heroContent: {
       textAlign: 'center',
-      marginBottom: '80px'
+      marginBottom: 'clamp(40px, 10vw, 80px)'
     },
     heroTitle: {
-      fontSize: 'clamp(48px, 8vw, 96px)',
+      fontSize: 'clamp(36px, 8vw, 72px)',
       fontWeight: '900',
       lineHeight: '1.1',
-      margin: '0 0 32px 0',
+      margin: '0 0 clamp(16px, 4vw, 32px) 0',
       letterSpacing: '-2px',
       color: '#000000'
     },
@@ -175,61 +184,61 @@ export default function Home() {
       color: '#000000'
     },
     heroDesc: {
-      fontSize: '24px',
+      fontSize: 'clamp(16px, 4vw, 20px)',
       color: '#333333',
       maxWidth: '900px',
-      margin: '0 auto 48px',
+      margin: '0 auto clamp(24px, 6vw, 48px)',
       lineHeight: '1.6'
     },
     buttonGroup: {
       display: 'flex',
-      gap: '24px',
+      gap: 'clamp(12px, 3vw, 24px)',
       justifyContent: 'center',
       flexWrap: 'wrap',
-      marginBottom: '80px'
+      marginBottom: 'clamp(40px, 10vw, 80px)'
     },
     primaryBtn: {
-      padding: '18px 40px',
+      padding: 'clamp(12px, 3vw, 18px) clamp(20px, 5vw, 40px)',
       background: '#000000',
       color: '#ffffff',
       border: 'none',
       borderRadius: '50px',
-      fontSize: '20px',
+      fontSize: 'clamp(16px, 4vw, 20px)',
       fontWeight: '700',
       cursor: 'pointer',
       transition: 'all 0.3s ease',
-      minWidth: '220px',
+      minWidth: 'clamp(180px, 40vw, 220px)',
       boxShadow: '0 8px 25px rgba(0, 0, 0, 0.3)'
     },
     secondaryBtn: {
-      padding: '18px 40px',
+      padding: 'clamp(12px, 3vw, 18px) clamp(20px, 5vw, 40px)',
       background: 'transparent',
       color: '#000000',
       border: '2px solid rgba(0, 0, 0, 0.3)',
       borderRadius: '50px',
-      fontSize: '20px',
+      fontSize: 'clamp(16px, 4vw, 20px)',
       fontWeight: '700',
       cursor: 'pointer',
       transition: 'all 0.3s ease',
-      minWidth: '220px'
+      minWidth: 'clamp(180px, 40vw, 220px)'
     },
     mapSection: {
       background: 'rgba(0, 0, 0, 0.1)',
       backdropFilter: 'blur(20px)',
-      borderRadius: '32px',
-      padding: '40px',
+      borderRadius: 'clamp(16px, 4vw, 32px)',
+      padding: 'clamp(20px, 5vw, 40px)',
       border: '1px solid rgba(0, 0, 0, 0.2)'
     },
     mapGrid: {
       display: 'grid',
-      gridTemplateColumns: '2fr 1fr',
-      gap: '32px',
+      gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr)',
+      gap: 'clamp(16px, 4vw, 32px)',
       alignItems: 'start'
     },
     mapContainer: {
       background: 'rgba(255, 255, 255, 0.8)',
-      borderRadius: '24px',
-      padding: '24px',
+      borderRadius: 'clamp(12px, 3vw, 24px)',
+      padding: 'clamp(12px, 3vw, 24px)',
       border: '1px solid rgba(0, 0, 0, 0.2)',
       position: 'relative',
       overflow: 'hidden'
@@ -238,10 +247,10 @@ export default function Home() {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginBottom: '20px'
+      marginBottom: 'clamp(10px, 3vw, 20px)'
     },
     mapTitle: {
-      fontSize: '20px',
+      fontSize: 'clamp(16px, 4vw, 20px)',
       fontWeight: '700',
       margin: 0,
       color: '#000000'
@@ -249,67 +258,67 @@ export default function Home() {
     liveIndicator: {
       display: 'flex',
       alignItems: 'center',
-      gap: '8px'
+      gap: 'clamp(4px, 1vw, 8px)'
     },
     liveDot: {
-      width: '12px',
-      height: '12px',
+      width: 'clamp(8px, 2vw, 12px)',
+      height: 'clamp(8px, 2vw, 12px)',
       background: '#30b116ff',
       borderRadius: '50%',
       animation: 'pulse 2s infinite'
     },
     mapCanvas: {
       width: '100%',
-      height: '400px',
-      borderRadius: '16px',
+      height: 'clamp(300px, 50vw, 400px)',
+      borderRadius: 'clamp(8px, 2vw, 16px)',
       border: '1px solid rgba(0, 0, 0, 0.2)'
     },
     coordinates: {
       position: 'absolute',
-      top: '16px',
-      left: '16px',
+      top: 'clamp(8px, 2vw, 16px)',
+      left: 'clamp(8px, 2vw, 16px)',
       background: 'rgba(255, 255, 255, 0.7)',
-      padding: '8px 16px',
+      padding: 'clamp(4px, 1vw, 8px) clamp(8px, 2vw, 16px)',
       borderRadius: '20px',
-      fontSize: '14px',
+      fontSize: 'clamp(12px, 3vw, 14px)',
       backdropFilter: 'blur(10px)',
       color: '#000000'
     },
     zoomLevel: {
       position: 'absolute',
-      bottom: '16px',
-      right: '16px',
+      bottom: 'clamp(8px, 2vw, 16px)',
+      right: 'clamp(8px, 2vw, 16px)',
       background: 'rgba(255, 255, 255, 0.7)',
-      padding: '8px 16px',
+      padding: 'clamp(4px, 1vw, 8px) clamp(8px, 2vw, 16px)',
       borderRadius: '20px',
-      fontSize: '14px',
+      fontSize: 'clamp(12px, 3vw, 14px)',
       backdropFilter: 'blur(10px)',
       color: '#000000'
     },
     mapTypeSelector: {
       position: 'absolute',
-      top: '3px',
-      right: '82px',
+      top: 'clamp(3px, 1vw, 3px)',
+      right: 'clamp(16px, 4vw, 82px)',
       background: 'hsla(90, 22%, 78%, 0.95)',
       borderRadius: '20px',
-      padding: '10px',
+      padding: 'clamp(5px, 1vw, 10px)',
       border: '1px solid rgba(0, 0, 0, 0.2)',
       backdropFilter: 'blur(10px)',
       display: 'flex',
-      gap: '8px',
-      width: '550px',
+      gap: 'clamp(4px, 1vw, 8px)',
+      width: 'clamp(300px, 80vw, 550px)',
       justifyContent: 'space-between',
       alignItems: 'center',
       zIndex: 10
     },
     mapTypeButton: {
       flex: '1',
-      padding: '8px 12px',
+      padding: 'clamp(4px, 1vw, 8px) clamp(6px, 1.5vw, 12px)',
       border: 'none',
       borderRadius: '12px',
       background: 'transparent',
       color: '#333333',
-      fontSize: '14px',
+      fontSize: 'clamp(12px, 3vw, 14px)',
       fontWeight: '600',
       cursor: 'pointer',
       transition: 'all 0.3s ease',
@@ -322,40 +331,40 @@ export default function Home() {
     sidePanel: {
       display: 'flex',
       flexDirection: 'column',
-      gap: '24px'
+      gap: 'clamp(12px, 3vw, 24px)'
     },
     marketingCard: {
       background: 'rgba(255, 255, 255, 0.8)',
-      borderRadius: '20px',
-      padding: '24px',
+      borderRadius: 'clamp(10px, 2.5vw, 20px)',
+      padding: 'clamp(12px, 3vw, 24px)',
       border: '1px solid rgba(0, 0, 0, 0.2)',
       textAlign: 'center'
     },
     marketingTitle: {
-      fontSize: '24px',
+      fontSize: 'clamp(18px, 5vw, 24px)',
       fontWeight: '700',
-      marginBottom: '16px',
+      marginBottom: 'clamp(8px, 2vw, 16px)',
       color: '#000000'
     },
     marketingList: {
       listStyleType: 'none',
       padding: 0,
-      margin: '0 0 24px 0',
+      margin: '0 0 clamp(12px, 3vw, 24px) 0',
       textAlign: 'left'
     },
     marketingItem: {
       display: 'flex',
       alignItems: 'center',
-      gap: '12px',
-      marginBottom: '12px',
-      fontSize: '16px',
+      gap: 'clamp(6px, 1.5vw, 12px)',
+      marginBottom: 'clamp(6px, 1.5vw, 12px)',
+      fontSize: 'clamp(14px, 3.5vw, 16px)',
       color: '#000000'
     },
     marketingIcon: {
-      fontSize: '20px'
+      fontSize: 'clamp(16px, 4vw, 20px)'
     },
     trustSection: {
-      padding: '80px 32px',
+      padding: 'clamp(40px, 10vw, 80px) clamp(16px, 4vw, 32px)',
       background: 'rgba(0, 0, 0, 0.05)'
     },
     trustContainer: {
@@ -364,101 +373,101 @@ export default function Home() {
     },
     statsBar: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-      gap: '32px',
-      marginBottom: '80px',
-      padding: '40px',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+      gap: 'clamp(16px, 4vw, 32px)',
+      marginBottom: 'clamp(40px, 10vw, 80px)',
+      padding: 'clamp(20px, 5vw, 40px)',
       background: 'rgba(255, 255, 255, 0.8)',
-      borderRadius: '24px',
+      borderRadius: 'clamp(12px, 3vw, 24px)',
       border: '1px solid rgba(0, 0, 0, 0.2)'
     },
     statItem: {
       textAlign: 'center'
     },
     statNumber: {
-      fontSize: '48px',
+      fontSize: 'clamp(32px, 8vw, 48px)',
       fontWeight: '900',
       color: '#000000',
-      marginBottom: '8px'
+      marginBottom: 'clamp(4px, 1vw, 8px)'
     },
     statLabel: {
-      fontSize: '16px',
+      fontSize: 'clamp(14px, 3.5vw, 16px)',
       color: '#333333'
     },
     trustTitle: {
       textAlign: 'center',
-      fontSize: '36px',
+      fontSize: 'clamp(24px, 6vw, 36px)',
       fontWeight: '700',
-      marginBottom: '20px',
+      marginBottom: 'clamp(10px, 2.5vw, 20px)',
       color: '#000000'
     },
     logosContainer: {
       overflow: 'hidden',
-      marginBottom: '80px',
+      marginBottom: 'clamp(40px, 10vw, 80px)',
       position: 'relative'
     },
     logosTrack: {
       display: 'flex',
-      gap: '24px',
+      gap: 'clamp(12px, 3vw, 24px)',
       animation: 'scroll 7.6s linear infinite'
     },
     logoCard: {
-      background: 'rgba(255, 255, 483, 0.8)',
-      borderRadius: '16px',
-      padding: '32px 24px',
+      background: 'rgba(255, 255, 255, 0.8)',
+      borderRadius: 'clamp(8px, 2vw, 16px)',
+      padding: 'clamp(16px, 4vw, 32px) clamp(12px, 3vw, 24px)',
       border: '1px solid rgba(0, 0, 0, 0.2)',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      gap: '16px',
+      gap: 'clamp(8px, 2vw, 16px)',
       transition: 'all 0.3s ease',
       cursor: 'pointer',
-      minWidth: '200px',
+      minWidth: 'clamp(150px, 40vw, 200px)',
       flexShrink: 0
     },
     companyLogo: {
-      fontSize: '48px',
+      fontSize: 'clamp(32px, 8vw, 48px)',
       opacity: 0.9,
       transition: 'all 0.3s ease'
     },
     companyName: {
-      fontSize: '16px',
+      fontSize: 'clamp(14px, 3.5vw, 16px)',
       fontWeight: '600',
       color: '#333333'
     },
     badgesSection: {
-      marginTop: '80px'
+      marginTop: 'clamp(40px, 10vw, 80px)'
     },
     badgesGrid: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-      gap: '24px'
+      gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+      gap: 'clamp(12px, 3vw, 24px)'
     },
     badge: {
       background: 'rgba(255, 255, 255, 0.8)',
-      borderRadius: '16px',
-      padding: '32px 24px',
+      borderRadius: 'clamp(8px, 2vw, 16px)',
+      padding: 'clamp(16px, 4vw, 32px) clamp(12px, 3vw, 24px)',
       border: '1px solid rgba(0, 0, 0, 0.2)',
       textAlign: 'center',
       transition: 'all 0.3s ease'
     },
     badgeIcon: {
-      fontSize: '48px',
-      marginBottom: '16px',
+      fontSize: 'clamp(32px, 8vw, 48px)',
+      marginBottom: 'clamp(8px, 2vw, 16px)',
       color: '#000000'
     },
     badgeText: {
-      fontSize: '18px',
+      fontSize: 'clamp(16px, 4vw, 18px)',
       fontWeight: '600',
       color: '#000000'
     },
     badgeSubtext: {
-      fontSize: '14px',
+      fontSize: 'clamp(12px, 3vw, 14px)',
       color: '#666666',
-      marginTop: '8px'
+      marginTop: 'clamp(4px, 1vw, 8px)'
     },
     featuresSection: {
-      padding: '80px 32px',
+      padding: 'clamp(40px, 10vw, 80px) clamp(16px, 4vw, 32px)',
       background: 'rgba(0, 0, 0, 0.05)'
     },
     featuresContainer: {
@@ -467,41 +476,41 @@ export default function Home() {
     },
     featuresTitle: {
       textAlign: 'center',
-      fontSize: '36px',
-      marginBottom: '48px',
+      fontSize: 'clamp(24px, 6vw, 36px)',
+      marginBottom: 'clamp(24px, 6vw, 48px)',
       color: '#000000'
     },
     featuresGrid: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-      gap: '32px'
+      gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+      gap: 'clamp(16px, 4vw, 32px)'
     },
     featureCard: {
       background: 'rgba(255, 255, 255, 0.8)',
-      borderRadius: '20px',
-      padding: '32px',
+      borderRadius: 'clamp(10px, 2.5vw, 20px)',
+      padding: 'clamp(16px, 4vw, 32px)',
       border: '1px solid rgba(0, 0, 0, 0.2)',
       textAlign: 'center',
       transition: 'all 0.3s ease'
     },
     featureIcon: {
-      fontSize: '48px',
-      marginBottom: '16px',
+      fontSize: 'clamp(32px, 8vw, 48px)',
+      marginBottom: 'clamp(8px, 2vw, 16px)',
       color: '#000000'
     },
     featureTitle: {
-      fontSize: '24px',
+      fontSize: 'clamp(18px, 5vw, 24px)',
       fontWeight: '700',
-      marginBottom: '16px',
+      marginBottom: 'clamp(8px, 2vw, 16px)',
       color: '#000000'
     },
     featureDesc: {
-      fontSize: '16px',
+      fontSize: 'clamp(14px, 3.5vw, 16px)',
       color: '#333333',
       lineHeight: '1.6'
     },
     reviewsSection: {
-      padding: '80px 32px',
+      padding: 'clamp(40px, 10vw, 80px) clamp(16px, 4vw, 32px)',
       background: 'rgba(0, 0, 0, 0.05)'
     },
     reviewsContainer: {
@@ -510,45 +519,46 @@ export default function Home() {
     },
     reviewsTitle: {
       textAlign: 'center',
-      fontSize: '36px',
-      marginBottom: '48px',
+      fontSize: 'clamp(24px, 6vw, 36px)',
+      marginBottom: 'clamp(24px, 6vw, 48px)',
       color: '#000000'
     },
     reviewsGrid: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-      gap: '32px'
+      gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+      gap: 'clamp(16px, 4vw, 32px)'
     },
     reviewCard: {
       background: 'rgba(255, 255, 255, 0.8)',
-      borderRadius: '20px',
-      padding: '32px',
+      borderRadius: 'clamp(10px, 2.5vw, 20px)',
+      padding: 'clamp(16px, 4vw, 32px)',
       border: '1px solid rgba(0, 0, 0, 0.2)'
     },
     reviewHeader: {
       display: 'flex',
       alignItems: 'center',
-      gap: '16px',
-      marginBottom: '16px'
+      gap: 'clamp(8px, 2vw, 16px)',
+      marginBottom: 'clamp(8px, 2vw, 16px)'
     },
     reviewAvatar: {
-      width: '48px',
-      height: '48px',
+      width: 'clamp(32px, 8vw, 48px)',
+      height: 'clamp(32px, 8vw, 48px)',
       borderRadius: '50%',
       background: '#000000'
     },
     reviewName: {
-      fontSize: '18px',
+      fontSize: 'clamp(16px, 4vw, 18px)',
       fontWeight: '600',
       color: '#000000'
     },
     reviewStars: {
       color: '#000000',
-      marginBottom: '16px'
+      marginBottom: 'clamp(8px, 2vw, 16px)'
     },
     reviewText: {
       color: '#333333',
-      lineHeight: '1.6'
+      lineHeight: '1.6',
+      fontSize: 'clamp(14px, 3.5vw, 16px)'
     },
     modal: {
       position: 'fixed',
@@ -566,9 +576,9 @@ export default function Home() {
     },
     modalContent: {
       background: 'rgba(255, 255, 255, 0.95)',
-      borderRadius: '20px',
-      padding: '32px',
-      width: '400px',
+      borderRadius: 'clamp(10px, 2.5vw, 20px)',
+      padding: 'clamp(16px, 4vw, 32px)',
+      width: 'clamp(300px, 90vw, 400px)',
       maxWidth: '90%',
       border: '1px solid rgba(0, 0, 0, 0.2)',
       boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
@@ -578,59 +588,59 @@ export default function Home() {
       overflowY: 'auto'
     },
     modalTitle: {
-      fontSize: '24px',
+      fontSize: 'clamp(18px, 5vw, 24px)',
       fontWeight: '700',
-      margin: '0 0 16px 0',
+      margin: '0 0 clamp(8px, 2vw, 16px) 0',
       color: '#000000',
       textAlign: 'center'
     },
     input: {
       width: '100%',
-      padding: '12px 16px',
+      padding: 'clamp(8px, 2vw, 12px) clamp(10px, 2.5vw, 16px)',
       borderRadius: '8px',
       border: '1px solid rgba(0, 0, 0, 0.2)',
       background: 'rgba(0, 0, 0, 0.05)',
       color: '#000000',
-      fontSize: '16px',
-      marginBottom: '16px',
+      fontSize: 'clamp(14px, 3.5vw, 16px)',
+      marginBottom: 'clamp(8px, 2vw, 16px)',
       boxSizing: 'border-box'
     },
     select: {
       width: '100%',
-      padding: '12px 16px',
+      padding: 'clamp(8px, 2vw, 12px) clamp(10px, 2.5vw, 16px)',
       borderRadius: '8px',
       border: '1px solid rgba(0, 0, 0, 0.2)',
       background: 'rgba(255, 255, 255, 0.95)',
       color: '#000000',
-      fontSize: '16px',
-      marginBottom: '16px',
+      fontSize: 'clamp(14px, 3.5vw, 16px)',
+      marginBottom: 'clamp(8px, 2vw, 16px)',
       boxSizing: 'border-box',
       appearance: 'none',
       backgroundImage: 'url("data:image/svg+xml;utf8,<svg fill=\"black\" height=\"24\" viewBox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M7 10l5 5 5-5z\"/></svg>")',
       backgroundRepeat: 'no-repeat',
-      backgroundPosition: 'right 12px top 50%',
-      backgroundSize: '16px'
+      backgroundPosition: 'right clamp(6px, 1.5vw, 12px) top 50%',
+      backgroundSize: 'clamp(12px, 3vw, 16px)'
     },
     error: {
       color: '#000000',
       background: 'rgba(0, 0, 0, 0.1)',
-      padding: '8px 12px',
+      padding: 'clamp(4px, 1vw, 8px) clamp(6px, 1.5vw, 12px)',
       borderRadius: '6px',
-      marginBottom: '16px',
-      fontSize: '14px',
+      marginBottom: 'clamp(8px, 2vw, 16px)',
+      fontSize: 'clamp(12px, 3vw, 14px)',
       border: '1px solid rgba(0, 0, 0, 0.3)'
     },
     toggleBtn: {
       width: '100%',
-      padding: '12px',
+      padding: 'clamp(8px, 2vw, 12px)',
       background: 'transparent',
       color: '#333333',
       border: '1px solid rgba(0, 0, 0, 0.2)',
       borderRadius: '8px',
-      fontSize: '14px',
+      fontSize: 'clamp(12px, 3vw, 14px)',
       cursor: 'pointer',
       transition: 'all 0.3s ease',
-      marginTop: '12px'
+      marginTop: 'clamp(6px, 1.5vw, 12px)'
     },
     policyNotification: {
       position: 'fixed',
@@ -648,9 +658,9 @@ export default function Home() {
     },
     policyNotificationContent: {
       background: 'rgba(255, 255, 255, 0.95)',
-      borderRadius: '20px',
-      padding: '32px',
-      width: '400px',
+      borderRadius: 'clamp(10px, 2.5vw, 20px)',
+      padding: 'clamp(16px, 4vw, 32px)',
+      width: 'clamp(300px, 90vw, 400px)',
       maxWidth: '90%',
       border: '1px solid rgba(0, 0, 0, 0.2)',
       boxShadow: '0 10px 30px rgba(0, 0, 0, 0.2)',
@@ -658,15 +668,15 @@ export default function Home() {
       animation: 'slideIn 0.3s ease-in-out'
     },
     policyNotificationTitle: {
-      fontSize: '20px',
+      fontSize: 'clamp(16px, 4vw, 20px)',
       fontWeight: '700',
-      marginBottom: '16px',
+      marginBottom: 'clamp(8px, 2vw, 16px)',
       color: '#000000'
     },
     policyNotificationText: {
-      fontSize: '16px',
+      fontSize: 'clamp(14px, 3.5vw, 16px)',
       color: '#333333',
-      marginBottom: '24px',
+      marginBottom: 'clamp(12px, 3vw, 24px)',
       lineHeight: '1.6'
     },
     policyNotificationLink: {
@@ -675,12 +685,12 @@ export default function Home() {
       fontWeight: '600'
     },
     policyNotificationButton: {
-      padding: '12px 24px',
+      padding: 'clamp(8px, 2vw, 12px) clamp(16px, 4vw, 24px)',
       background: '#000000',
       color: '#ffffff',
       border: 'none',
       borderRadius: '50px',
-      fontSize: '16px',
+      fontSize: 'clamp(14px, 3.5vw, 16px)',
       fontWeight: '600',
       cursor: 'pointer',
       transition: 'all 0.3s ease',
@@ -700,8 +710,8 @@ export default function Home() {
 
   const updatedMarketingBtnStyle = {
     ...mapStyles.primaryBtn,
-    padding: '12px 24px',
-    fontSize: '16px',
+    padding: 'clamp(8px, 2vw, 12px) clamp(16px, 4vw, 24px)',
+    fontSize: 'clamp(14px, 3.5vw, 16px)',
     minWidth: 'auto',
     cursor: 'pointer'
   };
@@ -768,7 +778,13 @@ export default function Home() {
           color: #000000;
         }
 
-        @media (max-width: 1024px) {
+        .nav-link:hover {
+          color: #000000;
+          background: rgba(0, 0, 0, 0.1);
+          border-radius: 8px;
+        }
+
+        @media (max-width: 768px) {
           .map-grid {
             grid-template-columns: 1fr !important;
           }
@@ -776,27 +792,48 @@ export default function Home() {
             width: 100% !important;
             flex-wrap: wrap;
             justify-content: center !important;
-            padding: 8px 16px !important;
-            top: -60px !important;
+            padding: clamp(4px, 1vw, 8px) !important;
+            top: clamp(-70px, -15vw, -60px) !important;
           }
           .map-type-button {
             flex: 0 0 auto !important;
-            min-width: 80px !important;
+            min-width: clamp(60px, 20vw, 80px) !important;
+            font-size: clamp(10px, 3vw, 12px) !important;
+          }
+          .logos-track {
+            animation: scroll 10s linear infinite;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .nav-content {
+            flex-direction: column;
+            gap: 8px;
+          }
+          .button-group {
+            flex-direction: column;
+            align-items: center;
+          }
+          .stats-bar {
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+          }
+          .features-grid, .reviews-grid, .badges-grid {
+            grid-template-columns: 1fr;
           }
         }
 
         .modal-close {
           position: absolute;
-          top: 12px;
-          right: 16px;
+          top: clamp(6px, 1.5vw, 12px);
+          right: clamp(8px, 2vw, 16px);
           background: none;
           border: none;
           color: #333333;
-          font-size: 24px;
+          font-size: clamp(18px, 5vw, 24px);
           cursor: pointer;
           padding: 0;
-          width: 32px;
-          height: 32px;
+          width: clamp(24px, 6vw, 32px);
+          height: clamp(24px, 6vw, 32px);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -816,21 +853,26 @@ export default function Home() {
       `}</style>
 
       <nav style={mapStyles.nav}>
-        <div style={mapStyles.navContent}>
+        <div style={mapStyles.navContent} className="nav-content">
           <div style={mapStyles.logo}>
             <div style={mapStyles.logoIcon}>🗺️</div>
             <h1 style={mapStyles.logoText}>GeoPulse</h1>
           </div>
-          <button
-            onClick={() => {
-              console.log('Opening modal');
-              setShowModal(true);
-            }}
-            style={updatedAuthBtnStyle}
-            className="hover-scale hover-glow"
-          >
-            <span>Sign In / Sign Up</span>
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px, 2vw, 16px)' }}>
+            <a href="/Documentation" style={mapStyles.navLink} className="nav-link">
+              Documentation
+            </a>
+            <button
+              onClick={() => {
+                console.log('Opening modal');
+                setShowModal(true);
+              }}
+              style={updatedAuthBtnStyle}
+              className="hover-scale hover-glow"
+            >
+              <span>Sign In / Sign Up</span>
+            </button>
+          </div>
         </div>
       </nav>
 
@@ -846,7 +888,7 @@ export default function Home() {
               Generate high-quality map tiles, offline maps, and geospatial data with enterprise-grade APIs. 
               Seamlessly integrated with modern GIS workflows, including adventurous maps for hiking and cycling.
             </p>
-            <div style={mapStyles.buttonGroup}>
+            <div style={mapStyles.buttonGroup} className="button-group">
               <button
                 onClick={() => {
                   console.log('Opening modal from hero');
@@ -873,7 +915,7 @@ export default function Home() {
                   <h3 style={mapStyles.mapTitle}>Live Map Preview</h3>
                   <div style={mapStyles.liveIndicator}>
                     <div style={mapStyles.liveDot}></div>
-                    <span style={{ fontSize: '14px', color: '#239d4eff' }}>Live</span>
+                    <span style={{ fontSize: 'clamp(12px, 3vw, 14px)', color: '#239d4eff' }}>Live</span>
                   </div>
                 </div>
                 
@@ -944,7 +986,7 @@ export default function Home() {
 
       <section style={mapStyles.trustSection}>
         <div style={mapStyles.trustContainer}>
-          <div style={mapStyles.statsBar}>
+          <div style={mapStyles.statsBar} className="stats-bar">
             <div style={mapStyles.statItem}>
               <div style={mapStyles.statNumber}>500M+</div>
               <div style={mapStyles.statLabel}>Tiles Served Monthly</div>
@@ -966,7 +1008,7 @@ export default function Home() {
           <section style={mapStyles.featuresSection}>
             <div style={mapStyles.featuresContainer}>
               <h2 style={mapStyles.featuresTitle}>Discover Our Premium Maps</h2>
-              <div style={mapStyles.featuresGrid}>
+              <div style={mapStyles.featuresGrid} className="features-grid">
                 <div style={mapStyles.featureCard} className="feature-card">
                   <div style={mapStyles.featureIcon}>🥾</div>
                   <h3 style={mapStyles.featureTitle}>Hiking Maps</h3>
@@ -1001,7 +1043,7 @@ export default function Home() {
 
           <h3 style={mapStyles.trustTitle}>Trusted by Leading Organizations</h3>
           <div style={mapStyles.logosContainer}>
-            <div style={mapStyles.logosTrack}>
+            <div style={mapStyles.logosTrack} className="logos-track">
               {companies.map((company, index) => (
                 <div key={`logo-1-${index}`} style={mapStyles.logoCard} className="logo-card">
                   <div style={{...mapStyles.companyLogo, color: company.color}}>
@@ -1026,7 +1068,7 @@ export default function Home() {
       <section style={mapStyles.reviewsSection}>
         <div style={mapStyles.reviewsContainer}>
           <h2 style={mapStyles.reviewsTitle}>User Reviews</h2>
-          <div style={mapStyles.reviewsGrid}>
+          <div style={mapStyles.reviewsGrid} className="reviews-grid">
             <div style={mapStyles.reviewCard}>
               <div style={mapStyles.reviewHeader}>
                 <div style={mapStyles.reviewAvatar}></div>
@@ -1069,7 +1111,7 @@ export default function Home() {
             <h3 style={mapStyles.policyNotificationTitle}>Privacy Policy Agreement</h3>
             <p style={mapStyles.policyNotificationText}>
               We use cookies to enhance your experience on GeoPulse. By continuing, you agree to our{' '}
-              <a href="/privacy" style={mapStyles.policyNotificationLink}>Privacy Policy</a>.
+              <a href="/PrivacyPolicy" style={mapStyles.policyNotificationLink}>Privacy Policy</a>.
             </p>
             <button
               onClick={handlePolicyAgree}
