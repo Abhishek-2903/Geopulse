@@ -403,7 +403,7 @@ export default function Home() {
     },
     logosContainer: {
       overflow: 'hidden',
-      marginBottom: 'clamp(40px, 10vw, 80px)',
+      marginBottom: 'clamp(20px, 5vw, 40px)', // Reduced gap
       position: 'relative'
     },
     logosTrack: {
@@ -695,6 +695,32 @@ export default function Home() {
       cursor: 'pointer',
       transition: 'all 0.3s ease',
       boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)'
+    },
+    footerSection: {
+      padding: 'clamp(40px, 10vw, 80px) clamp(16px, 4vw, 32px)',
+      background: 'rgba(0, 0, 0, 0.05)',
+      borderTop: '1px solid rgba(0, 0, 0, 0.2)'
+    },
+    footerContainer: {
+      maxWidth: '1400px',
+      margin: '0 auto',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: 'clamp(16px, 4vw, 32px)'
+    },
+    footerLinks: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      justifyContent: 'center',
+      gap: 'clamp(16px, 4vw, 32px)'
+    },
+    footerLink: {
+      color: '#333333',
+      fontSize: 'clamp(14px, 3.5vw, 16px)',
+      fontWeight: '600',
+      textDecoration: 'none',
+      transition: 'all 0.3s ease'
     }
   };
 
@@ -784,6 +810,11 @@ export default function Home() {
           border-radius: 8px;
         }
 
+        .footer-link:hover {
+          color: #000000;
+          text-decoration: underline;
+        }
+
         @media (max-width: 768px) {
           .map-grid {
             grid-template-columns: 1fr !important;
@@ -819,6 +850,10 @@ export default function Home() {
           }
           .features-grid, .reviews-grid, .badges-grid {
             grid-template-columns: 1fr;
+          }
+          .footer-links {
+            flex-direction: column;
+            align-items: center;
           }
         }
 
@@ -1067,40 +1102,60 @@ export default function Home() {
 
       <section style={mapStyles.reviewsSection}>
         <div style={mapStyles.reviewsContainer}>
-          <h2 style={mapStyles.reviewsTitle}>User Reviews</h2>
+          <h2 style={mapStyles.reviewsTitle}>What Our Users Say</h2>
           <div style={mapStyles.reviewsGrid} className="reviews-grid">
+            <div style={mapStyles.reviewCard}>
+              <div style={mapStyles.reviewHeader}>
+                <div style={mapStyles.reviewAvatar}></div>
+                <span style={mapStyles.reviewName}>Alvarez</span>
+              </div>
+              <div style={mapStyles.reviewStars}>★★★★★</div>
+              <p style={mapStyles.reviewText}>
+                I used the hiking maps for a weekend trip in the Rockies, and the elevation profiles were incredibly helpful for planning our route. The real-time weather updates kept us prepared.
+              </p>
+            </div>
+            <div style={mapStyles.reviewCard}>
+              <div style={mapStyles.reviewHeader}>
+                <div style={mapStyles.reviewAvatar}></div>
+                <span style={mapStyles.reviewName}>Liam </span>
+              </div>
+              <div style={mapStyles.reviewStars}>★★★★☆</div>
+              <p style={mapStyles.reviewText}>
+                The cycling routes are great for finding less busy roads, but I wish there were more options for customizing waypoints. Still, it’s been a solid tool for my daily rides.
+              </p>
+            </div>
             <div style={mapStyles.reviewCard}>
               <div style={mapStyles.reviewHeader}>
                 <div style={mapStyles.reviewAvatar}></div>
                 <span style={mapStyles.reviewName}>John Doe</span>
               </div>
               <div style={mapStyles.reviewStars}>★★★★★</div>
-              <p style={mapStyles.reviewText}>"Amazing mapping platform! The adventurous maps for hiking are spot on."</p>
+              <p style={mapStyles.reviewText}>
+                As a surveyor, the topographic maps are a lifesaver. The contour lines and terrain shading make it easy to analyze sites remotely before heading out.
+              </p>
             </div>
             <div style={mapStyles.reviewCard}>
               <div style={mapStyles.reviewHeader}>
                 <div style={mapStyles.reviewAvatar}></div>
-                <span style={mapStyles.reviewName}>Jane Smith</span>
+                <span style={mapStyles.reviewName}>Ethan</span>
               </div>
               <div style={mapStyles.reviewStars}>★★★★☆</div>
-              <p style={mapStyles.reviewText}>"Great integration with GIS tools. Cycling routes are a game-changer."</p>
+              <p style={mapStyles.reviewText}>
+                The satellite imagery is sharp and great for urban planning projects. Loading times can be a bit slow on mobile, but overall, it’s a reliable platform.
+              </p>
             </div>
-            <div style={mapStyles.reviewCard}>
-              <div style={mapStyles.reviewHeader}>
-                <div style={mapStyles.reviewAvatar}></div>
-                <span style={mapStyles.reviewName}>Alex Johnson</span>
-              </div>
-              <div style={mapStyles.reviewStars}>★★★★★</div>
-              <p style={mapStyles.reviewText}>"High-quality maps and excellent performance. Highly recommend!"</p>
-            </div>
-            <div style={mapStyles.reviewCard}>
-              <div style={mapStyles.reviewHeader}>
-                <div style={mapStyles.reviewAvatar}></div>
-                <span style={mapStyles.reviewName}>Emily Davis</span>
-              </div>
-              <div style={mapStyles.reviewStars}>★★★★★</div>
-              <p style={mapStyles.reviewText}>"The map interface is futuristic and user-friendly."</p>
-            </div>
+          </div>
+        </div>
+      </section>
+
+      <section style={mapStyles.footerSection}>
+        <div style={mapStyles.footerContainer}>
+          <div style={mapStyles.footerLinks} className="footer-links">
+            <a href="/terms" style={mapStyles.footerLink} className="footer-link">Terms of Service</a>
+            <a href="/cancel" style={mapStyles.footerLink} className="footer-link">Cancellation & Refund Policy</a>
+            <a href="/shipping" style={mapStyles.footerLink} className="footer-link">Shipping Policy</a>
+            <a href="/contact" style={mapStyles.footerLink} className="footer-link">Contact Us</a>
+            <a href="/PrivacyPolicy" style={mapStyles.footerLink} className="footer-link">Privacy Policy</a>
           </div>
         </div>
       </section>
