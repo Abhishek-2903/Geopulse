@@ -379,8 +379,10 @@ For questions or support, refer to the manifest.json file for detailed metadata.
 
     if (!sql) {
       setStatus({ show: true, message: 'Core not initialized. Please wait and try again.', type: 'error' });
-    if (!sql && exportFormat === 'mbtiles') {
-      setStatus({ show: true, message: 'Core not initialized for MBTiles. Please wait and try again.', type: 'error' });
+      if (!sql && exportFormat === 'mbtiles') {
+        setStatus({ show: true, message: 'Core not initialized for MBTiles. Please wait and try again.', type: 'error' });
+        return;
+      }
       return;
     }
 
@@ -612,35 +614,6 @@ For questions or support, refer to the manifest.json file for detailed metadata.
       if (insertError) {
         console.error('Supabase insert error:', insertError);
         throw new Error(`Failed to log generation to database: ${insertError.message}`);
-      }
-
-      const formatName = exportFormat === 'tiles' ? 'Tiles ZIP Package' : 'MBTiles';
-      setStatus({
-        show: true,
-        message: `Generation complete!\nFile: ${filename}\nFormat: ${formatName}\nSize: ${fileSizeMB.toFixed(2)} MB\nTiles: ${actualTileCount.toLocaleString()}\nRemaining downloads: ${downloadStats.downloads_remaining - 1}`,
-        type: 'success'
-      });
-        console.error('Supabase insert error details:', {
-          message: insertError.message,
-          details: insertError.details,
-          hint: insertError.hint,
-          code: insertError.code,
-          insertData: insertData
-        });
-        
-        // Log to error_logs table
-        await supabase.from('error_logs').insert({
-          user_id: user.id,
-          error_message: insertError.message,
-          context: 'map_generations_insert',
-          timestamp: new Date().toISOString()
-        });
-        
-        setStatus({
-          show: true,
-          message: `Generation completed `,
-          type: 'warning'
-        });
       } else {
         console.log('Successfully inserted to database:', insertedData);
         const formatName = normalizedFormat === 'tiles' ? 'Tiles ZIP Package' : 'MBTiles';
