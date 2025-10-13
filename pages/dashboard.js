@@ -14,7 +14,7 @@ import { dbHelpers } from '../lib/Supabase';
 // Dynamically import Leaflet to avoid SSR issues
 const DynamicMap = dynamic(() => import("../components/MapSelector"), {
   ssr: false,
-  loading: () => (
+loading: () => (
     <div style={{
       width: '100%',
       height: '100%',
@@ -215,6 +215,10 @@ export default function Dashboard() {
       type: 'success' 
     });
   };
+  // Debug export format changes
+  useEffect(() => {
+    console.log('Export format changed to:', exportFormat, 'Type:', typeof exportFormat);
+  }, [exportFormat]);
 
   const handleSignOut = async () => {
     try {
@@ -375,6 +379,8 @@ For questions or support, refer to the manifest.json file for detailed metadata.
 
     if (!sql) {
       setStatus({ show: true, message: 'Core not initialized. Please wait and try again.', type: 'error' });
+    if (!sql && exportFormat === 'mbtiles') {
+      setStatus({ show: true, message: 'Core not initialized for MBTiles. Please wait and try again.', type: 'error' });
       return;
     }
 
@@ -394,7 +400,7 @@ For questions or support, refer to the manifest.json file for detailed metadata.
     const minLon = _southWest.lng;
     const maxLon = _northEast.lng;
 
-    if (minZoom > maxZoom || minZoom < 1 || maxZoom > 22) {
+    if (minZoom > maxZoom || minZoom < 1 || maxZoom > 23) {
       setStatus({ show: true, message: 'Invalid zoom levels (1-22, min ≤ max).', type: 'error' });
       return;
     }
@@ -571,20 +577,37 @@ For questions or support, refer to the manifest.json file for detailed metadata.
       const fileSizeMB = blob.size / (1024 * 1024);
       downloadBlob(blob, filename);
 
-      console.log(`Inserting to map_generations: tile_count = ${actualTileCount}, export_format = ${exportFormat}`);
-      const { error: insertError } = await supabase
+      // FIXED: Validate and normalize export format before DB insert
+      const validFormats = ['mbtiles', 'tiles'];
+      const normalizedFormat = validFormats.includes(exportFormat) ? exportFormat : 'mbtiles';
+      const tileCountForDB = normalizedFormat === 'mbtiles' ? actualTileCount : null;
+
+      console.log('Database Insert Debug:', {
+        exportFormat: exportFormat,
+        normalizedFormat: normalizedFormat,
+        tileCountForDB: tileCountForDB,
+        actualTileCount: actualTileCount,
+        fileSizeMB: fileSizeMB
+      });
+
+      const insertData = {
+        user_id: user.id,
+        bounds: selectedBounds,
+        min_zoom: minZoom,
+        max_zoom: maxZoom,
+        tile_source: tileSource,
+        file_size_mb: parseFloat(fileSizeMB.toFixed(2)),
+        tile_count: tileCountForDB,
+        export_format: normalizedFormat,
+        status: 'completed'
+      };
+
+      console.log('Attempting to insert:', JSON.stringify(insertData, null, 2));
+
+      const { data: insertedData, error: insertError } = await supabase
         .from('map_generations')
-        .insert({
-          user_id: user.id,
-          bounds: selectedBounds,
-          min_zoom: minZoom,
-          max_zoom: maxZoom,
-          tile_source: tileSource,
-          file_size_mb: fileSizeMB,
-          tile_count: actualTileCount,
-          export_format: exportFormat,
-          status: 'completed'
-        });
+        .insert(insertData)
+        .select();
 
       if (insertError) {
         console.error('Supabase insert error:', insertError);
@@ -597,6 +620,36 @@ For questions or support, refer to the manifest.json file for detailed metadata.
         message: `Generation complete!\nFile: ${filename}\nFormat: ${formatName}\nSize: ${fileSizeMB.toFixed(2)} MB\nTiles: ${actualTileCount.toLocaleString()}\nRemaining downloads: ${downloadStats.downloads_remaining - 1}`,
         type: 'success'
       });
+        console.error('Supabase insert error details:', {
+          message: insertError.message,
+          details: insertError.details,
+          hint: insertError.hint,
+          code: insertError.code,
+          insertData: insertData
+        });
+        
+        // Log to error_logs table
+        await supabase.from('error_logs').insert({
+          user_id: user.id,
+          error_message: insertError.message,
+          context: 'map_generations_insert',
+          timestamp: new Date().toISOString()
+        });
+        
+        setStatus({
+          show: true,
+          message: `Generation completed `,
+          type: 'warning'
+        });
+      } else {
+        console.log('Successfully inserted to database:', insertedData);
+        const formatName = normalizedFormat === 'tiles' ? 'Tiles ZIP Package' : 'MBTiles';
+        setStatus({
+          show: true,
+          message: `Generation complete!\nFile: ${filename}\nFormat: ${formatName}\nSize: ${fileSizeMB.toFixed(2)} MB\nTiles: ${actualTileCount.toLocaleString()}`,
+          type: 'success'
+        });
+      }
       setProgress({ show: false, current: 0, total: 0, text: '' });
     } catch (error) {
       console.error('Generation error:', error);
@@ -605,6 +658,9 @@ For questions or support, refer to the manifest.json file for detailed metadata.
       // Refund the download on error
       await dbHelpers.addDownloads(user.id, 1);
       await fetchDownloadStats();
+      // FIXED: Same validation for error case
+      const validFormats = ['mbtiles', 'tiles'];
+      const normalizedFormat = validFormats.includes(exportFormat) ? exportFormat : 'mbtiles';
       
       const { error: insertError } = await supabase
         .from('map_generations')
@@ -614,13 +670,25 @@ For questions or support, refer to the manifest.json file for detailed metadata.
           min_zoom: minZoom,
           max_zoom: maxZoom,
           tile_source: tileSource,
-          tile_count: 0,
-          export_format: exportFormat,
+          tile_count: normalizedFormat === 'mbtiles' ? 0 : null,
+          export_format: normalizedFormat,
           status: 'failed',
           error_message: error.message
         });
+        
       if (insertError) {
         console.error('Supabase insert error (failure case):', insertError);
+        await supabase.from('error_logs').insert({
+          user_id: user.id,
+          error_message: insertError.message,
+          context: 'map_generations_insert_failure',
+          timestamp: new Date().toISOString()
+        });
+        setStatus({
+          show: true,
+          message: `Generation error: ${error.message}\nFailed to log error to database: ${insertError.message}`,
+          type: 'error'
+        });
       }
     } finally {
       setIsGenerating(false);

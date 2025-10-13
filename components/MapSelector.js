@@ -1,3 +1,4 @@
+// components/MapSelector.js
 import { useEffect, useRef, useState, useCallback } from 'react';
 import 'leaflet/dist/leaflet.css'; // Bundled CSS import (safe in Next.js)
 
@@ -11,6 +12,8 @@ export default function MapSelector({ onBoundsChange, tileSource }) {
   const mountedRef = useRef(true);
   const initAttemptRef = useRef(0);
   const [L, setL] = useState(null); // Store imported Leaflet module
+  const [latInput, setLatInput] = useState('');
+  const [lngInput, setLngInput] = useState('');
 
   const cleanup = useCallback(() => {
     if (mapInstanceRef.current) {
@@ -430,20 +433,99 @@ export default function MapSelector({ onBoundsChange, tileSource }) {
     setL(null);
   };
 
+  const handleSearch = () => {
+    const lat = parseFloat(latInput);
+    const lng = parseFloat(lngInput);
+
+    if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      setError('Invalid coordinates. Latitude must be between -90 and 90, Longitude between -180 and 180.');
+      return;
+    }
+
+    if (mapInstanceRef.current && L && mountedRef.current) {
+      mapInstanceRef.current.setView([lat, lng], 17); // Changed zoom level to 17
+      setError(null);
+      setLatInput('');
+      setLngInput('');
+      console.log(`Map centered to coordinates: [${lat}, ${lng}] at zoom level 17`);
+    }
+  };
+
   return (
     <>
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '10px',
+        padding: '10px',
+        position: 'absolute',
+        top: '7%',
+        right: '200px',
+        transform: 'translateY(-50%)',
+        zIndex: '1000',
+      }}>
+        <div style={{
+          display: 'flex',
+          gap: '10px',
+          alignItems: 'center',
+        }}>
+          <input
+            type="text"
+            placeholder="Latitude (-90 to 90)"
+            value={latInput}
+            onChange={(e) => setLatInput(e.target.value)}
+            className="modern-input"
+            style={{
+              padding: '8px',
+              borderRadius: '6px',
+              width: '150px',
+            }}
+          />
+          <input
+            type="text"
+            placeholder="Longitude (-180 to 180)"
+            value={lngInput}
+            onChange={(e) => setLngInput(e.target.value)}
+            className="modern-input"
+            style={{
+              padding: '8px',
+              borderRadius: '6px',
+              width: '150px',
+            }}
+          />
+          <button
+            onClick={handleSearch}
+            className="modern-button"
+            style={{
+              padding: '8px 16px',
+              borderRadius: '6px',
+            }}
+          >
+            Search
+          </button>
+        </div>
+        {error && (
+          <div style={{
+            color: '#ff6b6b',
+            fontSize: '12px',
+            textAlign: 'center',
+          }}>
+            {error}
+          </div>
+        )}
+      </div>
       <div
         ref={mapRef}
         style={{
           width: '100%',
-          height: '100%',
+          height: '130%', // Increased height by additional 10% (120% -> 130%)
           borderRadius: '8px',
           position: 'relative',
           background: 'linear-gradient(135deg, #0a0a0a, #1a1a2e)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          minHeight: '400px'
+          minHeight: '520px' // Adjusted minHeight (480px * 1.0833 ≈ 520px)
         }}
       >
         {!leafletReady && (
