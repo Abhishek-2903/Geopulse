@@ -8,6 +8,8 @@ import MapInterface from '../components/MapInterface';
 import StatusDisplay from '../components/StatusDisplay';
 import ProgressDisplay from '../components/ProgressDisplay';
 import UsageStats from '../components/UsageStats';
+import PaymentModal from '../components/PaymentModal';
+import { dbHelpers } from '../lib/Supabase';
 
 // Dynamically import Leaflet to avoid SSR issues
 const DynamicMap = dynamic(() => import("../components/MapSelector"), {
@@ -52,6 +54,11 @@ export default function Dashboard() {
   const [libsError, setLibsError] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [showStats, setShowStats] = useState(false);
+  
+  // Payment related states
+  const [downloadStats, setDownloadStats] = useState(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentLoading, setPaymentLoading] = useState(false);
   
   // Form states
   const [minZoom, setMinZoom] = useState(12);
@@ -138,6 +145,24 @@ export default function Dashboard() {
     };
   }, [router, supabase]);
 
+  // Fetch download stats when user is loaded
+  useEffect(() => {
+    if (user) {
+      fetchDownloadStats();
+    }
+  }, [user]);
+
+  const fetchDownloadStats = async () => {
+    if (!user) return;
+    
+    try {
+      const stats = await dbHelpers.getUserDownloadStats(user.id);
+      setDownloadStats(stats);
+    } catch (error) {
+      console.error('Error fetching download stats:', error);
+    }
+  };
+
   // Load JSZip and SQL.js dynamically
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -177,6 +202,19 @@ export default function Dashboard() {
     loadLibs();
   }, []);
 
+  const checkDownloadLimit = () => {
+    if (!downloadStats) return false;
+    return downloadStats.downloads_remaining > 0;
+  };
+
+  const handlePaymentSuccess = async () => {
+    await fetchDownloadStats(); // Refresh download stats
+    setStatus({ 
+      show: true, 
+      message: '✅ Payment successful! 100 downloads added to your account.', 
+      type: 'success' 
+    });
+  };
   // Debug export format changes
   useEffect(() => {
     console.log('Export format changed to:', exportFormat, 'Type:', typeof exportFormat);
@@ -333,8 +371,18 @@ For questions or support, refer to the manifest.json file for detailed metadata.
   };
 
   const generateMBTiles = async () => {
-    if (!sql && exportFormat === 'mbtiles') {
-      setStatus({ show: true, message: 'Core not initialized for MBTiles. Please wait and try again.', type: 'error' });
+    // Check download limit first
+    if (!checkDownloadLimit()) {
+      setShowPaymentModal(true);
+      return;
+    }
+
+    if (!sql) {
+      setStatus({ show: true, message: 'Core not initialized. Please wait and try again.', type: 'error' });
+      if (!sql && exportFormat === 'mbtiles') {
+        setStatus({ show: true, message: 'Core not initialized for MBTiles. Please wait and try again.', type: 'error' });
+        return;
+      }
       return;
     }
 
@@ -375,6 +423,19 @@ For questions or support, refer to the manifest.json file for detailed metadata.
     setStatus({ show: true, message: 'Initializing map generation...', type: 'info' });
 
     try {
+      // Deduct download count before starting generation
+      const deductSuccess = await dbHelpers.deductDownload(user.id);
+      if (!deductSuccess) {
+        throw new Error('Failed to process download. Please try again.');
+      }
+
+      // Update local state
+      setDownloadStats(prev => ({
+        ...prev,
+        downloads_remaining: prev.downloads_remaining - 1,
+        total_downloads: prev.total_downloads + 1
+      }));
+
       let blob, filename, actualTileCount = 0;
 
       if (exportFormat === 'tiles') {
@@ -551,27 +612,8 @@ For questions or support, refer to the manifest.json file for detailed metadata.
         .select();
 
       if (insertError) {
-        console.error('Supabase insert error details:', {
-          message: insertError.message,
-          details: insertError.details,
-          hint: insertError.hint,
-          code: insertError.code,
-          insertData: insertData
-        });
-        
-        // Log to error_logs table
-        await supabase.from('error_logs').insert({
-          user_id: user.id,
-          error_message: insertError.message,
-          context: 'map_generations_insert',
-          timestamp: new Date().toISOString()
-        });
-        
-        setStatus({
-          show: true,
-          message: `Generation completed `,
-          type: 'warning'
-        });
+        console.error('Supabase insert error:', insertError);
+        throw new Error(`Failed to log generation to database: ${insertError.message}`);
       } else {
         console.log('Successfully inserted to database:', insertedData);
         const formatName = normalizedFormat === 'tiles' ? 'Tiles ZIP Package' : 'MBTiles';
@@ -586,6 +628,9 @@ For questions or support, refer to the manifest.json file for detailed metadata.
       console.error('Generation error:', error);
       setStatus({ show: true, message: `Generation error: ${error.message}`, type: 'error' });
       
+      // Refund the download on error
+      await dbHelpers.addDownloads(user.id, 1);
+      await fetchDownloadStats();
       // FIXED: Same validation for error case
       const validFormats = ['mbtiles', 'tiles'];
       const normalizedFormat = validFormats.includes(exportFormat) ? exportFormat : 'mbtiles';
@@ -809,6 +854,46 @@ For questions or support, refer to the manifest.json file for detailed metadata.
             borderRadius: '20px',
             padding: '30px'
           }}>
+            {/* Download Stats Display */}
+            {downloadStats && (
+              <div style={{
+                background: downloadStats.downloads_remaining > 0 
+                  ? 'rgba(34, 197, 94, 0.1)' 
+                  : 'rgba(239, 68, 68, 0.1)',
+                border: `1px solid ${downloadStats.downloads_remaining > 0 
+                  ? 'rgba(34, 197, 94, 0.3)' 
+                  : 'rgba(239, 68, 68, 0.3)'}`,
+                borderRadius: '12px',
+                padding: '15px',
+                marginBottom: '20px',
+                textAlign: 'center'
+              }}>
+                <div style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '5px' }}>
+                  {downloadStats.downloads_remaining} Downloads Remaining
+                </div>
+                <div style={{ fontSize: '14px', opacity: 0.8 }}>
+                  Total downloads used: {downloadStats.total_downloads}
+                </div>
+                {downloadStats.downloads_remaining === 0 && (
+                  <button
+                    onClick={() => setShowPaymentModal(true)}
+                    style={{
+                      marginTop: '10px',
+                      padding: '8px 16px',
+                      background: 'linear-gradient(135deg, #3b82f6, #1e40af)',
+                      border: 'none',
+                      borderRadius: '6px',
+                      color: '#ffffff',
+                      cursor: 'pointer',
+                      fontSize: '14px'
+                    }}
+                  >
+                    Purchase More Downloads
+                  </button>
+                )}
+              </div>
+            )}
+
             <MapControls
               selectedBounds={selectedBounds}
               minZoom={minZoom}
@@ -826,6 +911,7 @@ For questions or support, refer to the manifest.json file for detailed metadata.
               libsError={libsError}
               jsZip={jsZip}
               sql={sql}
+              canGenerate={checkDownloadLimit()}
             />
             <ProgressDisplay progress={progress} />
             <StatusDisplay status={status} />
@@ -852,6 +938,15 @@ For questions or support, refer to the manifest.json file for detailed metadata.
           <UsageStats user={user} />
         </div>
       </div>
+
+      <PaymentModal
+        showModal={showPaymentModal}
+        setShowModal={setShowPaymentModal}
+        onPaymentSuccess={handlePaymentSuccess}
+        downloadStats={downloadStats}
+        isLoading={paymentLoading}
+        setIsLoading={setPaymentLoading}
+      />
     </div>
   );
 }
