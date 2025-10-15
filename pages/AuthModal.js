@@ -215,7 +215,7 @@ export default function AuthModal({ showModal, setShowModal, mapStyles }) {
                 <option value="">Select Purpose</option>
                 <option value="cycling">Cycling</option>
                 <option value="trekking">Trekking</option>
-                <option value="defence">Defence Purpose</option>
+              
                 <option value="offline_routing">Offline Routing</option>
                 <option value="other">Other</option>
               </select>
@@ -284,4 +284,5 @@ export default function AuthModal({ showModal, setShowModal, mapStyles }) {
       </div>
     </div>
   );
+
 }
