@@ -132,39 +132,70 @@ export default function MapSelector({ onBoundsChange, tileSource }) {
     const configs = {
       'osm': {
         url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-        attribution: '© OpenStreetMap contributors'
+        attribution: '© OpenStreetMap contributors',
+        maxNativeZoom: 19,
+        maxZoom: 22
       },
       'satellite': {
-        url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-        attribution: 'Tiles © Esri — Source: Esri, Maxar, Earthstar Geographics'
+        url: 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
+        attribution: '© Google',
+        maxNativeZoom: 22,
+        maxZoom: 24
+      },
+      'mapbox-satellite': {
+        url: 'https://api.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}@2x.jpg?access_token=YOUR_MAPBOX_TOKEN',
+        attribution: '© Mapbox © Maxar',
+        maxNativeZoom: 22,
+        maxZoom: 24
+      },
+      'hybrid': {
+        url: 'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
+        attribution: '© Google Hybrid',
+        maxNativeZoom: 22,
+        maxZoom: 24
+      },
+      'terrain': {
+        url: 'https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg',
+        attribution: '© Stamen Design © OpenStreetMap',
+        maxNativeZoom: 18,
+        maxZoom: 22
       },
       'topographic': {
         url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
-        attribution: 'Tiles © Esri — Source: Esri, DeLorme, NAVTEQ'
+        attribution: 'Tiles © Esri — DeLorme, NAVTEQ',
+        maxNativeZoom: 20,
+        maxZoom: 22
       },
       'hiking': {
-        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}',
-        attribution: 'Tiles © Esri — Source: Esri, USGS, NOAA'
-      },
-      'terrain': {
-        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer/tile/{z}/{y}/{x}',
-        attribution: 'Tiles © Esri — Source: Esri, USGS, NOAA'
+        url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+        attribution: '© OpenTopoMap (CC-BY-SA)',
+        maxNativeZoom: 17,
+        maxZoom: 22,
+        subdomains: ['a', 'b', 'c']
       },
       'cycling': {
-        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
-        attribution: 'Tiles © Esri — Source: Esri, DeLorme, NAVTEQ, TomTom'
+        url: 'https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png',
+        attribution: '© CyclOSM © OpenStreetMap',
+        maxNativeZoom: 20,
+        maxZoom: 22,
+        subdomains: ['a', 'b']
       },
       'trekking': {
-        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}',
-        attribution: 'Tiles © Esri — National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC'
+        url: 'https://tile.thunderforest.com/landscape/{z}/{x}/{y}.png?apikey=YOUR_API_KEY',
+        attribution: '© Thunderforest © OpenStreetMap',
+        maxNativeZoom: 22,
+        maxZoom: 24
       },
       'outdoor': {
-        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
-        attribution: 'Tiles © Esri — Source: Esri, DeLorme, NAVTEQ'
+        url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+        attribution: '© CARTO © OpenStreetMap',
+        maxNativeZoom: 20,
+        maxZoom: 22,
+        subdomains: ['a', 'b', 'c', 'd']
       }
     };
 
-    return configs[source] || configs['osm'];
+    return configs[source] || configs['satellite'];
   };
 
   const updateMapTiles = () => {
@@ -180,14 +211,22 @@ export default function MapSelector({ onBoundsChange, tileSource }) {
       });
 
       const config = getTileConfig(tileSource);
-      const tileLayer = L.tileLayer(config.url, {
+      const options = {
         attribution: config.attribution,
-        maxZoom: 19,
+        maxNativeZoom: config.maxNativeZoom,
+        maxZoom: config.maxZoom,
         timeout: 15000
-      });
+      };
+      
+      // Add subdomains if available
+      if (config.subdomains) {
+        options.subdomains = config.subdomains;
+      }
+      
+      const tileLayer = L.tileLayer(config.url, options);
 
       tileLayer.addTo(map);
-      console.log('Map tiles updated to:', tileSource);
+      console.log('Map tiles updated to:', tileSource, 'with maxZoom:', config.maxZoom);
     } catch (error) {
       console.error('Error updating map tiles:', error);
     }
@@ -443,11 +482,11 @@ export default function MapSelector({ onBoundsChange, tileSource }) {
     }
 
     if (mapInstanceRef.current && L && mountedRef.current) {
-      mapInstanceRef.current.setView([lat, lng], 17); // Changed zoom level to 17
+      mapInstanceRef.current.setView([lat, lng], 20); // Changed zoom level to 20 for high detail
       setError(null);
       setLatInput('');
       setLngInput('');
-      console.log(`Map centered to coordinates: [${lat}, ${lng}] at zoom level 17`);
+      console.log(`Map centered to coordinates: [${lat}, ${lng}] at zoom level 20`);
     }
   };
 
@@ -518,14 +557,14 @@ export default function MapSelector({ onBoundsChange, tileSource }) {
         ref={mapRef}
         style={{
           width: '100%',
-          height: '130%', // Increased height by additional 10% (120% -> 130%)
+          height: '130%',
           borderRadius: '8px',
           position: 'relative',
           background: 'linear-gradient(135deg, #0a0a0a, #1a1a2e)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          minHeight: '520px' // Adjusted minHeight (480px * 1.0833 ≈ 520px)
+          minHeight: '520px'
         }}
       >
         {!leafletReady && (
