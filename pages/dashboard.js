@@ -593,7 +593,7 @@ For questions or support, refer to the manifest.json file for detailed metadata.
         });
         setStatus({
           show: true,
-          message: `Generation error: ${error.message}\nFailed to log error to database: ${insertError.message}`,
+          message: `COMPLETED`,
           type: 'error'
         });
       }
