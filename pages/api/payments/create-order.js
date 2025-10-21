@@ -21,7 +21,7 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const { amount, currency = 'INR' } = req.body;
+    const { amount, currency = process.env.NEXT_PUBLIC_CURRENCY } = req.body;
 
     if (!amount || amount < 1) {
       return res.status(400).json({ error: 'Invalid amount' });
@@ -34,7 +34,7 @@ export default async function handler(req, res) {
       receipt: `order_${Date.now()}`,
       notes: {
         user_id: session.user.id,
-        downloads: 100
+        downloads: 2
       }
     });
 

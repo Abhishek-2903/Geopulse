@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { useRouter } from 'next/router';
 
 export default function PaymentModal({ 
   showModal, 
@@ -9,127 +9,14 @@ export default function PaymentModal({
   isLoading,
   setIsLoading 
 }) {
-  const price = parseInt(process.env.NEXT_PUBLIC_DOWNLOAD_PRICE_PER_100) || 999;
-  const [razorpayLoaded, setRazorpayLoaded] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
-  const supabase = createClientComponentClient();
-  
-
-  useEffect(() => {
-    if (typeof window !== 'undefined' && showModal) {
-      // Get current user info
-      const getCurrentUser = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        setCurrentUser(user);
-      };
-      getCurrentUser();
-
-      // Check if Razorpay is already loaded
-      if (window.Razorpay) {
-        setRazorpayLoaded(true);
-        return;
-      }
-
-      const script = document.createElement('script');
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-      script.onload = () => setRazorpayLoaded(true);
-      script.onerror = () => {
-        console.error('Failed to load Razorpay script');
-        alert('Failed to load payment system. Please refresh and try again.');
-      };
-      document.head.appendChild(script);
-      
-      return () => {
-        // Don't remove script as it might be used by other components
-      };
-    }
-  }, [showModal, supabase]);
-
-  const handlePayment = async () => {
-    if (!razorpayLoaded || !window.Razorpay) {
-      alert('Payment system not loaded. Please refresh and try again.');
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      // Create order on backend
-      const response = await fetch('/api/payments/create-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: price, currency: 'INR' })
-      });
-
-      const order = await response.json();
-
-      if (!response.ok) {
-        throw new Error(order.error || 'Failed to create payment order');
-      }
-
-      // Extract user info for prefill
-      const userEmail = currentUser?.email || 'user@example.com';
-      const userName = currentUser?.user_metadata?.full_name || 
-                      currentUser?.user_metadata?.name || 
-                      'GeoPulse User';
-
-      const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        amount: order.amount,
-        currency: order.currency,
-        name: 'GeoPulse',
-        description: '100 Map Downloads',
-        order_id: order.id,
-        handler: async function(response) {
-          try {
-            // Verify payment on backend
-            const verifyResponse = await fetch('/api/payments/verify', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature
-              })
-            });
-
-            const verifyResult = await verifyResponse.json();
-
-            if (verifyResponse.ok && verifyResult.success) {
-              onPaymentSuccess();
-              setShowModal(false);
-            } else {
-              throw new Error(verifyResult.error || 'Payment verification failed');
-            }
-          } catch (error) {
-            console.error('Payment verification error:', error);
-            alert('Payment verification failed. Please contact support.');
-          }
-        },
-        prefill: {
-          name: userName,
-          email: userEmail
-        },
-        theme: {
-          color: '#3b82f6'
-        },
-        modal: {
-          ondismiss: () => {
-            setIsLoading(false);
-          }
-        }
-      };
-
-      const rzpInstance = new window.Razorpay(options);
-      rzpInstance.open();
-    } catch (error) {
-      console.error('Payment error:', error);
-      alert('Failed to initiate payment. Please try again.');
-      setIsLoading(false);
-    }
-  };
+  const router = useRouter();
 
   if (!showModal) return null;
+
+  const handleGoToPricing = () => {
+    setShowModal(false);
+    router.push('/pricing');
+  };
 
   return (
     <div style={{
@@ -154,7 +41,7 @@ export default function PaymentModal({
         backdropFilter: 'blur(15px)'
       }}>
         <h2 style={{ color: '#ffffff', marginBottom: '20px', textAlign: 'center' }}>
-          Purchase Downloads
+          Choose Your Plan
         </h2>
         
         <div style={{ color: '#cccccc', marginBottom: '30px', textAlign: 'center' }}>
@@ -164,7 +51,7 @@ export default function PaymentModal({
             </strong> downloads remaining
           </p>
           <p style={{ fontSize: '14px', opacity: 0.8 }}>
-            Purchase 100 more downloads to continue generating maps
+            Choose between one-time purchase or unlimited monthly subscription
           </p>
         </div>
 
@@ -175,21 +62,26 @@ export default function PaymentModal({
           padding: '20px',
           marginBottom: '30px'
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-            <span style={{ color: '#ffffff' }}>100 Downloads</span>
-            <span style={{ color: '#3b82f6', fontWeight: 'bold' }}>₹{price}</span>
+          <div style={{ marginBottom: '15px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+              <span style={{ color: '#ffffff' }}>2 Downloads</span>
+              <span style={{ color: '#3b82f6', fontWeight: 'bold' }}>$12</span>
+            </div>
+            <div style={{ color: '#cccccc', fontSize: '12px' }}>One-time purchase</div>
           </div>
-          <div style={{ color: '#cccccc', fontSize: '14px' }}>
-            • Generate up to 100 offline maps
-            • High-quality tiles up to zoom level 18
-            • Multiple export formats (MBTiles, ZIP)
+          
+          <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '15px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+              <span style={{ color: '#ffffff' }}>Unlimited Downloads</span>
+              <span style={{ color: '#fbbf24', fontWeight: 'bold' }}>$499/month</span>
+            </div>
+            <div style={{ color: '#cccccc', fontSize: '12px' }}>Subscription (Cancel anytime)</div>
           </div>
         </div>
 
         <div style={{ display: 'flex', gap: '15px' }}>
           <button
             onClick={() => setShowModal(false)}
-            disabled={isLoading}
             style={{
               flex: 1,
               padding: '12px',
@@ -197,15 +89,13 @@ export default function PaymentModal({
               background: 'transparent',
               color: '#ffffff',
               borderRadius: '8px',
-              cursor: 'pointer',
-              opacity: isLoading ? 0.5 : 1
+              cursor: 'pointer'
             }}
           >
             Cancel
           </button>
           <button
-            onClick={handlePayment}
-            disabled={isLoading || !razorpayLoaded}
+            onClick={handleGoToPricing}
             style={{
               flex: 2,
               padding: '12px',
@@ -214,11 +104,10 @@ export default function PaymentModal({
               color: '#ffffff',
               borderRadius: '8px',
               cursor: 'pointer',
-              fontWeight: 'bold',
-              opacity: (isLoading || !razorpayLoaded) ? 0.5 : 1
+              fontWeight: 'bold'
             }}
           >
-            {isLoading ? 'Processing...' : !razorpayLoaded ? 'Loading...' : `Pay ₹${price}`}
+            View Plans
           </button>
         </div>
       </div>
