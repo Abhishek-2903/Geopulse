@@ -44,7 +44,7 @@ export default async function handler(req, res) {
     );
 
     // Add downloads to user account
-    const result = await dbHelpers.addDownloads(session.user.id, 100);
+    const result = await dbHelpers.addDownloads(session.user.id, 25);
 
     if (!result) {
       throw new Error('Failed to add downloads to user account');

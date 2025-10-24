@@ -34,7 +34,7 @@ export default async function handler(req, res) {
       receipt: `order_${Date.now()}`,
       notes: {
         user_id: session.user.id,
-        downloads: 100
+        downloads: 25
       }
     });
 

@@ -211,7 +211,7 @@ export default function Dashboard() {
     await fetchDownloadStats(); // Refresh download stats
     setStatus({ 
       show: true, 
-      message: '✅ Payment successful! 100 downloads added to your account.', 
+      message: '✅ Payment successful! 25 downloads added to your account.', 
       type: 'success' 
     });
   };

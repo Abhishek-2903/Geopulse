@@ -9,7 +9,7 @@ export default function PaymentModal({
   isLoading,
   setIsLoading 
 }) {
-  const price = parseInt(process.env.NEXT_PUBLIC_DOWNLOAD_PRICE_PER_100) || 999;
+  const price = parseInt(process.env.NEXT_PUBLIC_DOWNLOAD_PRICE_PER_100) || 299;
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const supabase = createClientComponentClient();
@@ -78,7 +78,7 @@ export default function PaymentModal({
         amount: order.amount,
         currency: order.currency,
         name: 'GeoPulse',
-        description: '100 Map Downloads',
+        description: '25 Map Downloads',
         order_id: order.id,
         handler: async function(response) {
           try {
@@ -164,7 +164,7 @@ export default function PaymentModal({
             </strong> downloads remaining
           </p>
           <p style={{ fontSize: '14px', opacity: 0.8 }}>
-            Purchase 100 more downloads to continue generating maps
+            Purchase 25 more downloads to continue generating maps
           </p>
         </div>
 
@@ -176,12 +176,12 @@ export default function PaymentModal({
           marginBottom: '30px'
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-            <span style={{ color: '#ffffff' }}>100 Downloads</span>
+            <span style={{ color: '#ffffff' }}>25 Downloads</span>
             <span style={{ color: '#3b82f6', fontWeight: 'bold' }}>${price}</span>
           </div>
           <div style={{ color: '#cccccc', fontSize: '14px' }}>
-            • Generate up to 100 offline maps
-            • High-quality tiles up to zoom level 18
+            • Generate up to 25 offline maps
+            • High-quality tiles up to zoom level 19
             • Multiple export formats (MBTiles, ZIP)
           </div>
         </div>
