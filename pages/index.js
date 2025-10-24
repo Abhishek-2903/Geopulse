@@ -1069,7 +1069,7 @@ export default function Home() {
                   <div style={mapStyles.featureIcon}>🏔️</div>
                   <h3 style={mapStyles.featureTitle}>Topographic Maps</h3>
                   <p style={mapStyles.featureDesc}>
-                    Detailed contour lines, terrain shading, and hydrological features for precise navigation in rugged landscapes. Ideal for geologists, surveyors, and outdoor enthusiasts.
+                    Detailed contour line, terrain shading, and hydrological features for precise navigation in rugged landscapes. Ideal for geologists, surveyors, and outdoor enthusiasts.
                   </p>
                 </div>
               </div>
@@ -1188,4 +1188,5 @@ export default function Home() {
       <ChatQuery mapStyles={mapStyles} />
     </div>
   );
+
 }
