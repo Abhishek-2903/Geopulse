@@ -154,7 +154,7 @@ export default function PaymentModal({
         backdropFilter: 'blur(15px)'
       }}>
         <h2 style={{ color: '#ffffff', marginBottom: '20px', textAlign: 'center' }}>
-          Purchase Downloads
+          Purchase Download
         </h2>
         
         <div style={{ color: '#cccccc', marginBottom: '30px', textAlign: 'center' }}>
