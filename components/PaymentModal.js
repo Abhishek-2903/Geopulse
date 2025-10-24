@@ -58,7 +58,7 @@ export default function PaymentModal({
       const response = await fetch('/api/payments/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: price, currency: 'INR' })
+        body: JSON.stringify({ amount: price, currency: process.env.CURRENCY || 'USD' })
       });
 
       const order = await response.json();
@@ -177,7 +177,7 @@ export default function PaymentModal({
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
             <span style={{ color: '#ffffff' }}>100 Downloads</span>
-            <span style={{ color: '#3b82f6', fontWeight: 'bold' }}>₹{price}</span>
+            <span style={{ color: '#3b82f6', fontWeight: 'bold' }}>${price}</span>
           </div>
           <div style={{ color: '#cccccc', fontSize: '14px' }}>
             • Generate up to 100 offline maps
@@ -218,7 +218,7 @@ export default function PaymentModal({
               opacity: (isLoading || !razorpayLoaded) ? 0.5 : 1
             }}
           >
-            {isLoading ? 'Processing...' : !razorpayLoaded ? 'Loading...' : `Pay ₹${price}`}
+            {isLoading ? 'Processing...' : !razorpayLoaded ? 'Loading...' : `Pay $${price}`}
           </button>
         </div>
       </div>
