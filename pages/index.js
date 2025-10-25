@@ -298,7 +298,7 @@ export default function Home() {
     mapTypeSelector: {
       position: 'absolute',
       top: 'clamp(3px, 1vw, 3px)',
-      right: 'clamp(16px, 4vw, 82px)',
+      right: '80px',
       background: 'hsla(90, 22%, 78%, 0.95)',
       borderRadius: '20px',
       padding: 'clamp(5px, 1vw, 10px)',
@@ -1190,4 +1190,5 @@ export default function Home() {
   );
 
 }
+
 
