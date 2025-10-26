@@ -1,11 +1,18 @@
 import Razorpay from 'razorpay';
 import { createPagesServerClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '@supabase/supabase-js';
 import { dbHelpers } from '../../../lib/Supabase';
 
 const razorpay = new Razorpay({
   key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
+
+// Create service role client for bypassing RLS
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -42,8 +49,9 @@ export default async function handler(req, res) {
       }
     });
 
-    // Save payment record to database
-    await dbHelpers.createPaymentRecord(
+    // Save payment record to database using admin client
+    await dbHelpers.createPaymentRecordServer(
+      supabaseAdmin,
       session.user.id,
       amount,
       currency,
