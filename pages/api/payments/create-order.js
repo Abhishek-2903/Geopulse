@@ -21,10 +21,14 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const { amount, currency = process.env.CURRENCY } = req.body;
+    const { amount, currency = process.env.CURRENCY, downloadCount = 25 } = req.body;
 
     if (!amount || amount < 1) {
       return res.status(400).json({ error: 'Invalid amount' });
+    }
+
+    if (![25, 100].includes(downloadCount)) {
+      return res.status(400).json({ error: 'Invalid download package' });
     }
 
     // Create Razorpay order
@@ -34,7 +38,7 @@ export default async function handler(req, res) {
       receipt: `order_${Date.now()}`,
       notes: {
         user_id: session.user.id,
-        downloads: 25
+        downloads: downloadCount
       }
     });
 
@@ -43,7 +47,8 @@ export default async function handler(req, res) {
       session.user.id,
       amount,
       currency,
-      order.id
+      order.id,
+      downloadCount
     );
 
     res.status(200).json(order);

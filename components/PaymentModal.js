@@ -9,7 +9,9 @@ export default function PaymentModal({
   isLoading,
   setIsLoading 
 }) {
-  const price = parseInt(process.env.NEXT_PUBLIC_DOWNLOAD_PRICE_PER_100) || 299;
+  const price25 = parseInt(process.env.NEXT_PUBLIC_DOWNLOAD_PRICE_PER_25) || 299;
+  const price100 = parseInt(process.env.NEXT_PUBLIC_DOWNLOAD_PRICE_PER_100) || 499;
+  const [selectedPackage, setSelectedPackage] = useState('25'); // Default to 25 downloads
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const supabase = createClientComponentClient();
@@ -54,11 +56,18 @@ export default function PaymentModal({
     setIsLoading(true);
 
     try {
+      const downloadCount = parseInt(selectedPackage);
+      const price = downloadCount === 25 ? price25 : price100;
+
       // Create order on backend
       const response = await fetch('/api/payments/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: price, currency: process.env.CURRENCY || 'USD' })
+        body: JSON.stringify({ 
+          amount: price, 
+          currency: process.env.CURRENCY || 'USD',
+          downloadCount: downloadCount
+        })
       });
 
       const order = await response.json();
@@ -78,7 +87,7 @@ export default function PaymentModal({
         amount: order.amount,
         currency: order.currency,
         name: 'GeoPulse',
-        description: '25 Map Downloads',
+        description: `${downloadCount} Map Downloads`,
         order_id: order.id,
         handler: async function(response) {
           try {
@@ -164,10 +173,83 @@ export default function PaymentModal({
             </strong> downloads remaining
           </p>
           <p style={{ fontSize: '14px', opacity: 0.8 }}>
-            Purchase 25 more downloads to continue generating maps
+            Choose a package to continue generating maps
           </p>
         </div>
 
+        {/* Package Selection */}
+        <div style={{ marginBottom: '30px' }}>
+          <h3 style={{ color: '#ffffff', marginBottom: '15px', fontSize: '16px' }}>
+            Select Package:
+          </h3>
+          
+          {/* 25 Downloads Package */}
+          <div 
+            onClick={() => setSelectedPackage('25')}
+            style={{
+              background: selectedPackage === '25' 
+                ? 'rgba(59, 130, 246, 0.2)' 
+                : 'rgba(255, 255, 255, 0.05)',
+              border: `1px solid ${selectedPackage === '25' 
+                ? 'rgba(59, 130, 246, 0.5)' 
+                : 'rgba(255, 255, 255, 0.15)'}`,
+              borderRadius: '12px',
+              padding: '15px',
+              marginBottom: '10px',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+              <span style={{ color: '#ffffff', fontWeight: 'bold' }}>25 Downloads</span>
+              <span style={{ color: '#3b82f6', fontWeight: 'bold' }}>${price25}</span>
+            </div>
+            <div style={{ color: '#cccccc', fontSize: '13px' }}>
+              Perfect for small projects • $11.96 per download
+            </div>
+          </div>
+
+          {/* 100 Downloads Package */}
+          <div 
+            onClick={() => setSelectedPackage('100')}
+            style={{
+              background: selectedPackage === '100' 
+                ? 'rgba(59, 130, 246, 0.2)' 
+                : 'rgba(255, 255, 255, 0.05)',
+              border: `1px solid ${selectedPackage === '100' 
+                ? 'rgba(59, 130, 246, 0.5)' 
+                : 'rgba(255, 255, 255, 0.15)'}`,
+              borderRadius: '12px',
+              padding: '15px',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              position: 'relative'
+            }}
+          >
+            <div style={{
+              position: 'absolute',
+              top: '-8px',
+              right: '10px',
+              background: 'linear-gradient(135deg, #10b981, #059669)',
+              color: '#ffffff',
+              fontSize: '10px',
+              padding: '4px 8px',
+              borderRadius: '6px',
+              fontWeight: 'bold'
+            }}>
+              BEST VALUE
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+              <span style={{ color: '#ffffff', fontWeight: 'bold' }}>100 Downloads</span>
+              <span style={{ color: '#3b82f6', fontWeight: 'bold' }}>${price100}</span>
+            </div>
+            <div style={{ color: '#cccccc', fontSize: '13px' }}>
+              Great for multiple projects • $4.99 per download
+            </div>
+          </div>
+        </div>
+
+        {/* Selected Package Details */}
         <div style={{
           background: 'rgba(59, 130, 246, 0.1)',
           border: '1px solid rgba(59, 130, 246, 0.3)',
@@ -176,11 +258,15 @@ export default function PaymentModal({
           marginBottom: '30px'
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-            <span style={{ color: '#ffffff' }}>25 Downloads</span>
-            <span style={{ color: '#3b82f6', fontWeight: 'bold' }}>${price}</span>
+            <span style={{ color: '#ffffff' }}>
+              {selectedPackage} Downloads Selected
+            </span>
+            <span style={{ color: '#3b82f6', fontWeight: 'bold' }}>
+              ${selectedPackage === '25' ? price25 : price100}
+            </span>
           </div>
           <div style={{ color: '#cccccc', fontSize: '14px' }}>
-            • Generate up to 25 offline maps
+            • Generate up to {selectedPackage} offline maps
             • High-quality tiles up to zoom level 19
             • Multiple export formats (MBTiles, ZIP)
           </div>
@@ -218,7 +304,8 @@ export default function PaymentModal({
               opacity: (isLoading || !razorpayLoaded) ? 0.5 : 1
             }}
           >
-            {isLoading ? 'Processing...' : !razorpayLoaded ? 'Loading...' : `Pay $${price}`}
+            {isLoading ? 'Processing...' : !razorpayLoaded ? 'Loading...' : 
+             `Pay $${selectedPackage === '25' ? price25 : price100}`}
           </button>
         </div>
       </div>
