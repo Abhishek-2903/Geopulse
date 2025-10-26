@@ -1,6 +1,13 @@
 import crypto from 'crypto';
 import { createPagesServerClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '@supabase/supabase-js';
 import { dbHelpers } from '../../../lib/Supabase';
+
+// Create service role client for bypassing RLS
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -31,20 +38,21 @@ export default async function handler(req, res) {
     const generatedSignature = hmac.digest('hex');
 
     if (generatedSignature !== razorpay_signature) {
-      // Update payment status as failed
-      await dbHelpers.updatePaymentStatus(razorpay_order_id, 'failed');
+      // Update payment status as failed using admin client
+      await dbHelpers.updatePaymentStatusServer(supabaseAdmin, razorpay_order_id, 'failed');
       return res.status(400).json({ error: 'Invalid payment signature' });
     }
 
-    // Update payment status as completed
-    await dbHelpers.updatePaymentStatus(
+    // Update payment status as completed using admin client
+    await dbHelpers.updatePaymentStatusServer(
+      supabaseAdmin,
       razorpay_order_id, 
       'completed', 
       razorpay_payment_id
     );
 
-    // Get the download count from the payment record
-    const { data: paymentRecord, error: paymentError } = await supabase
+    // Get the download count from the payment record using admin client
+    const { data: paymentRecord, error: paymentError } = await supabaseAdmin
       .from('payments')
       .select('downloads_purchased')
       .eq('razorpay_order_id', razorpay_order_id)
