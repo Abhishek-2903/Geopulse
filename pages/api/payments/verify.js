@@ -43,8 +43,22 @@ export default async function handler(req, res) {
       razorpay_payment_id
     );
 
+    // Get the download count from the payment record
+    const { data: paymentRecord, error: paymentError } = await supabase
+      .from('payments')
+      .select('downloads_purchased')
+      .eq('razorpay_order_id', razorpay_order_id)
+      .single();
+
+    if (paymentError) {
+      console.error('Failed to fetch payment record:', paymentError);
+      return res.status(500).json({ error: 'Payment verification failed' });
+    }
+
+    const downloadCount = paymentRecord?.downloads_purchased || 25;
+
     // Add downloads to user account
-    const result = await dbHelpers.addDownloads(session.user.id, 25);
+    const result = await dbHelpers.addDownloads(session.user.id, downloadCount);
 
     if (!result) {
       throw new Error('Failed to add downloads to user account');
