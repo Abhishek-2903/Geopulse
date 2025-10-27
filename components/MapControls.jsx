@@ -2,16 +2,12 @@ import React from 'react';
 
 const MapControls = ({
   selectedBounds,
-  minZoom,
-  setMinZoom,
-  maxZoom,
-  setMaxZoom,
-  tileSource,
-  setTileSource,
-  exportFormat,
-  setExportFormat,
+  minZoom, setMinZoom,
+  maxZoom, setMaxZoom,
+  tileSource, setTileSource,
+  exportFormat, setExportFormat,
   estimate,
-  generateMBTiles,
+  generateExport,  // CHANGED
   isGenerating,
   libsLoading,
   libsError,
@@ -53,70 +49,25 @@ const MapControls = ({
       </div>
 
       <div style={{ marginBottom: '20px' }}>
-        <label style={{
-          display: 'block',
-          marginBottom: '8px',
-          fontWeight: '600'
-        }}>
-          Zoom Levels
-        </label>
+        <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>Zoom Levels</label>
         <div style={{ display: 'flex', gap: '15px' }}>
           <div style={{ flex: 1 }}>
             <label style={{ fontSize: '10px', opacity: '0.7', textTransform: 'uppercase' }}>Min Zoom</label>
-            <input
-              type="number"
-              min="1"
-              max="22"
-              value={minZoom}
-              onChange={(e) => setMinZoom(parseInt(e.target.value))}
-              className="modern-input"
-              style={{
-                width: '100%',
-                padding: '10px',
-                borderRadius: '8px',
-                fontSize: '14px'
-              }}
-            />
+            <input type="number" min="1" max="22" value={minZoom} onChange={e => setMinZoom(parseInt(e.target.value))}
+              className="modern-input" style={{ width: '100%', padding: '10px', borderRadius: '8px', fontSize: '14px' }} />
           </div>
           <div style={{ flex: 1 }}>
             <label style={{ fontSize: '10px', opacity: '0.7', textTransform: 'uppercase' }}>Max Zoom</label>
-            <input
-              type="number"
-              min="1"
-              max="22"
-              value={maxZoom}
-              onChange={(e) => setMaxZoom(parseInt(e.target.value))}
-              className="modern-input"
-              style={{
-                width: '100%',
-                padding: '10px',
-                borderRadius: '8px',
-                fontSize: '14px'
-              }}
-            />
+            <input type="number" min="1" max="22" value={maxZoom} onChange={e => setMaxZoom(parseInt(e.target.value))}
+              className="modern-input" style={{ width: '100%', padding: '10px', borderRadius: '8px', fontSize: '14px' }} />
           </div>
         </div>
       </div>
 
       <div style={{ marginBottom: '20px' }}>
-        <label style={{
-          display: 'block',
-          marginBottom: '8px',
-          fontWeight: '600'
-        }}>
-          Map Source
-        </label>
-        <select
-          value={tileSource}
-          onChange={(e) => setTileSource(e.target.value)}
-          className="modern-select"
-          style={{
-            width: '100%',
-            padding: '12px',
-            borderRadius: '8px',
-            fontSize: '14px'
-          }}
-        >
+        <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>Map Source</label>
+        <select value={tileSource} onChange={e => setTileSource(e.target.value)}
+          className="modern-select" style={{ width: '100%', padding: '12px', borderRadius: '8px', fontSize: '14px' }}>
           <optgroup label="Standard Maps">
             <option value="osm">Terrain Map</option>
             <option value="satellite">Satellite Imagery</option>
@@ -133,27 +84,19 @@ const MapControls = ({
       </div>
 
       <div style={{ marginBottom: '25px' }}>
-        <label style={{
-          display: 'block',
-          marginBottom: '8px',
-          fontWeight: '600'
-        }}>
-          Output Format
-        </label>
-        <select
-          value={exportFormat}
-          onChange={(e) => setExportFormat(e.target.value)}
-          className="modern-select"
-          style={{
-            width: '100%',
-            padding: '12px',
-            borderRadius: '8px',
-            fontSize: '14px'
-          }}
-        >
+        <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>Output Format</label>
+        <select value={exportFormat} onChange={e => setExportFormat(e.target.value)}
+          className="modern-select" style={{ width: '100%', padding: '12px', borderRadius: '8px', fontSize: '14px' }}>
           <option value="mbtiles">MBTiles Database (.mbtiles)</option>
           <option value="tiles">Tiles ZIP Package (.zip)</option>
+          <option value="gpkg">GeoPackage (.gpkg)</option>
+          <option value="geotiff">GeoTIFF (single raster)</option>
         </select>
+        {['gpkg', 'geotiff'].includes(exportFormat) && (
+          <div style={{ fontSize: '11px', opacity: 0.7, marginTop: '4px' }}>
+            Raster merged at zoom {minZoom}
+          </div>
+        )}
       </div>
 
       {estimate && (
@@ -164,20 +107,14 @@ const MapControls = ({
           padding: '15px',
           marginBottom: '25px'
         }}>
-          <h4 style={{
-            margin: '0 0 10px 0',
-            fontSize: '16px',
-            fontWeight: '600'
-          }}>
-            Generation Estimate
-          </h4>
+          <h4 style={{ margin: '0 0 10px 0', fontSize: '16px', fontWeight: '600' }}>Generation Estimate</h4>
           <div style={{ fontSize: '12px', fontFamily: 'monospace', opacity: 0.9 }}>
             Tiles: {estimate.total.toLocaleString()}<br />
             Est. Size: {estimate.estimatedSize.toFixed(1)} MB<br />
             Est. Time: {estimate.estimatedTime < 60 ? estimate.estimatedTime + 's' : Math.round(estimate.estimatedTime / 60) + 'm'}<br />
             {estimate.total > 2000 && (
               <div style={{ marginTop: '10px', fontWeight: '600', color: '#f59e0b' }}>
-                ⚠️ Large operation - may take time
+                Warning: Large operation - may take time
               </div>
             )}
           </div>
@@ -185,12 +122,7 @@ const MapControls = ({
       )}
 
       {libsLoading && (
-        <div style={{
-          textAlign: 'center',
-          marginBottom: '20px',
-          fontSize: '14px',
-          opacity: 0.7
-        }}>
+        <div style={{ textAlign: 'center', marginBottom: '20px', fontSize: '14px', opacity: 0.7 }}>
           <div className="loading-spinner" style={{ display: 'inline-block', marginRight: '10px' }}></div>
           Loading core libraries...
         </div>
@@ -198,20 +130,16 @@ const MapControls = ({
 
       {libsError && (
         <div style={{
-          padding: '15px',
-          borderRadius: '8px',
-          fontSize: '13px',
-          background: 'rgba(239, 68, 68, 0.1)',
-          color: '#ef4444',
-          border: '1px solid rgba(239, 68, 68, 0.3)',
-          marginBottom: '20px'
+          padding: '15px', borderRadius: '8px', fontSize: '13px',
+          background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444',
+          border: '1px solid rgba(239, 68, 68, 0.3)', marginBottom: '20px'
         }}>
           {libsError}
         </div>
       )}
 
       <button
-        onClick={generateMBTiles}
+        onClick={generateExport}
         disabled={isGenerating || !selectedBounds || libsLoading || !jsZip || !sql}
         className="modern-button"
         style={{
