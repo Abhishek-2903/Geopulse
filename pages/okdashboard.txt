@@ -211,10 +211,11 @@ export default function Dashboard() {
     await fetchDownloadStats(); // Refresh download stats
     setStatus({ 
       show: true, 
-      message: '✅ Payment successful! 25 downloads added to your account.', 
+      message: '✅ Payment successful! Downloads added to your account.', 
       type: 'success' 
     });
   };
+
   // Debug export format changes
   useEffect(() => {
     console.log('Export format changed to:', exportFormat, 'Type:', typeof exportFormat);
