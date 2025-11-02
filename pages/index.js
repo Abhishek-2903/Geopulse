@@ -49,7 +49,7 @@ export default function Home() {
                 latitude: currentLocation.lat,
                 z: 1000 // Altitude for 3D view
               },
-              tilt: 60, // Tilt for 3D perspective
+              tilt: 10, // Tilt for 3D perspective
               heading: 0
             }
           });
@@ -1427,7 +1427,7 @@ export default function Home() {
             <div style={mapStyles.reviewCard} className="review-card">
               <div style={mapStyles.reviewHeader}>
                 <div style={mapStyles.reviewAvatar}></div>
-                <span style={mapStyles.reviewName}>IIT MANDI</span>
+                <span style={mapStyles.reviewName}>Sam</span>
               </div>
               <div style={mapStyles.reviewStars}>★★★★☆</div>
               <p style={mapStyles.reviewText}>
