@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { loadModules } from 'esri-loader';
 import AuthModal from './AuthModal';
 import ChatQuery from './ChatQuery';
-
+import Head from 'next/head';
 export default function Home() {
   const [mapLoaded, setMapLoaded] = useState(false);
   const [currentLocation, setCurrentLocation] = useState({
@@ -951,6 +951,20 @@ export default function Home() {
 
   return (
     <div style={mapStyles.container}>
+    <Head>
+  <title>Offline Maps Download | GeoPulse – GIS & Satellite Maps</title>
+  <meta name="description" content="Download offline maps including satellite, hiking, cycling and topographic maps. High-resolution GIS maps for offline navigation." />
+  <meta name="keywords" content="offline maps, download offline maps, GIS offline maps, satellite maps offline, hiking maps offline" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://geopulesforu.business/" />
+
+  <meta property="og:title" content="Offline Maps Download | GeoPulse" />
+  <meta property="og:description" content="High-resolution offline GIS, hiking and satellite maps." />
+  <meta property="og:url" content="https://geopulesforu.business/" />
+  <meta property="og:type" content="website" />
+</Head>
+
+
       <style jsx>{`
         @keyframes pulse {
           0%, 100% { opacity: 1; }
@@ -1552,3 +1566,4 @@ export default function Home() {
     </div>
   );
 }
+
