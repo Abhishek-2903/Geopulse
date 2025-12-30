@@ -1,5 +1,4 @@
 import Link from 'next/link';
-
 export default function PrivacyPolicy() {
   const styles = {
     container: {
@@ -20,6 +19,11 @@ export default function PrivacyPolicy() {
       marginBottom: 'clamp(24px, 6vw, 48px)',
       color: '#000000',
       textAlign: 'center'
+    },
+    headerContainer: {
+      position: 'relative',
+      textAlign: 'center',
+      marginBottom: 'clamp(24px, 6vw, 48px)'
     },
     section: {
       marginBottom: 'clamp(24px, 6vw, 48px)'
@@ -64,7 +68,7 @@ export default function PrivacyPolicy() {
       fontWeight: '600'
     }
   };
-
+  const titleStyle = { ...styles.title, marginBottom: 0 };
   return (
     <div style={styles.container}>
       <style jsx>{`
@@ -75,19 +79,84 @@ export default function PrivacyPolicy() {
           .content {
             max-width: 100%;
           }
+          .header-container {
+            padding-top: 60px;
+          }
+          .home-button {
+            position: absolute;
+            top: 0;
+            right: 50%;
+            transform: translateX(50%);
+            font-size: 0.875rem;
+            padding: 8px 16px;
+          }
         }
-        
+       
         .footer-link:hover {
           text-decoration: underline;
         }
+        .header-container {
+          position: relative;
+          text-align: center;
+          margin-bottom: clamp(24px, 6vw, 48px);
+        }
+        .title-link {
+          color: #000000;
+          text-decoration: none;
+          transition: color 0.2s ease;
+        }
+        .title-link:hover {
+          color: #4a5568;
+        }
+        .home-button {
+          position: absolute;
+          top: 0;
+          right: 0;
+          padding: 10px 24px;
+          background: #000000;
+          color: #ffffff;
+          border: none;
+          border-radius: 8px;
+          font-weight: 600;
+          font-size: 0.95rem;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          text-decoration: none;
+          display: inline-block;
+        }
+        .home-button:hover {
+          background: #333333;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
       `}</style>
-
       <div style={styles.content}>
-        <h1 style={styles.title}>Privacy Policy</h1>
-
+        <div className="header-container">
+          <a
+            href="https://geopulesforu.business/"
+            className="home-button"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Go to GeoPulse home page"
+          >
+            Go to Home
+          </a>
+          <h1 style={titleStyle}>
+            <a
+              href="https://geopulesforu.business/"
+              className="title-link"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="GeoPulse home page"
+            >
+              GeoPulse
+            </a>{' '}
+            Privacy Policy
+          </h1>
+        </div>
         <div style={styles.section}>
           <p style={styles.paragraph}>
-            GeoPulse Limited ("we", "us", "our") are committed to protecting and respecting your privacy and keeping your Personal Information secure. This policy, together with our Terms of Service and any other documents that they refer to, sets out:
+            <a href="https://geopulesforu.business/" target="_blank" rel="noopener noreferrer" style={styles.link}>GeoPulse</a> Limited ("we", "us", "our") are committed to protecting and respecting your privacy and keeping your Personal Information secure. This policy, together with our Terms of Service and any other documents that they refer to, sets out:
           </p>
           <ul style={styles.list}>
             <li style={styles.listItem}>Details of the Personal Information that we may collect from you;</li>
@@ -97,13 +166,12 @@ export default function PrivacyPolicy() {
             <li style={styles.listItem}>Information about your rights.</li>
           </ul>
           <p style={styles.paragraph}>
-            Please read this policy carefully to understand our views and practices regarding your personal data and how we will treat it. Any capitalized terms used herein without definition shall have the meaning given to them in the Terms of Service. The data controller is GeoPulse Limited of 1 Victoria Street, Bristol, England, BS1 6AA, UK (registered at Companies House with company number 08388830 and trading as GeoPulse).
+            Please read this policy carefully to understand our views and practices regarding your personal data and how we will treat it. Any capitalized terms used herein without definition shall have the meaning given to them in the Terms of Service. The data controller is <a href="https://geopulesforu.business/" target="_blank" rel="noopener noreferrer" style={styles.link}>GeoPulse</a> Limited of 1 Victoria Street, Bristol, England, BS1 6AA, UK (registered at Companies House with company number 08388830 and trading as GeoPulse).
           </p>
           <p style={styles.paragraph}>
-            By visiting or using the geopulse.com website or Services in any manner, you acknowledge that you accept the practices and policies outlined in this Privacy Policy and you hereby consent that we will collect, use, and share your information in the following ways.
+            By visiting or using the <a href="https://geopulesforu.business/" target="_blank" rel="noopener noreferrer">geopulesforu.business</a> website or Services in any manner, you acknowledge that you accept the practices and policies outlined in this Privacy Policy and you hereby consent that we will collect, use, and share your information in the following ways.
           </p>
         </div>
-
         <div style={styles.section}>
           <h2 style={styles.sectionTitle}>1. What information do we collect?</h2>
           <h3 style={{ ...styles.sectionTitle, fontSize: 'clamp(16px, 4vw, 20px)' }}>Information you provide us directly</h3>
@@ -127,14 +195,12 @@ export default function PrivacyPolicy() {
             We may also collect information that your browser sends whenever you visit our Service ("Log Data"). This Log Data may include information such as your device Internet Protocol ("IP") address, operating system, browser type, browser version, language, time zone, the pages of our Service that you visit, the time and date of your visit, the time spent on those pages and other statistics. In addition, we may use third-party services, such as Google Analytics and Intercom that collect, monitor and analyze this type of information in order to increase functionality of our Service. These third-parties may use cookies to help us analyze how our users are using the Service and they have their own Privacy Policies addressing how they use such information. Features of the Service may require you to opt-in to providing your specific geographic locations, as determined through GPS, Bluetooth, or WiFi signals.
           </p>
         </div>
-
         <div style={styles.section}>
           <h2 style={styles.sectionTitle}>2. How we store your information</h2>
           <p style={styles.paragraph}>
-            Personal Information collected by GeoPulse Limited is securely stored on our servers and is not accessible by our employees or third parties except for use as indicated below. It should be noted that the transmission of information via the internet is not completely secure. Although we will do our best to protect your personal data, we cannot guarantee the security of your data transmitted to our site and any transmission is at your own risk. Once we have received your information, we use strict procedures and security features to try to prevent unauthorised access.
+            Personal Information collected by <a href="https://geopulesforu.business/" target="_blank" rel="noopener noreferrer" style={styles.link}>GeoPulse</a> Limited is securely stored on our servers and is not accessible by our employees or third parties except for use as indicated below. It should be noted that the transmission of information via the internet is not completely secure. Although we will do our best to protect your personal data, we cannot guarantee the security of your data transmitted to our site and any transmission is at your own risk. Once we have received your information, we use strict procedures and security features to try to prevent unauthorised access.
           </p>
         </div>
-
         <div style={styles.section}>
           <h2 style={styles.sectionTitle}>3. How we use your information</h2>
           <h3 style={{ ...styles.sectionTitle, fontSize: 'clamp(16px, 4vw, 20px)' }}>Provision of Services</h3>
@@ -143,10 +209,9 @@ export default function PrivacyPolicy() {
           </p>
           <h3 style={{ ...styles.sectionTitle, fontSize: 'clamp(16px, 4vw, 20px)' }}>Marketing and Communications</h3>
           <p style={styles.paragraph}>
-            We may use your Personal Information to contact you with newsletters, marketing or promotional materials and other information that may be of interest to you. You may opt out of receiving any or all of these communications from us by following the unsubscribe link or instructions provided in any email we send, or by contacting us. GeoPulse uses remarketing services to advertise on third-party websites to you after you visited our Service. We and our third-party vendors use cookies to inform, optimize and serve ads based on your past visits to our Service.
+            We may use your Personal Information to contact you with newsletters, marketing or promotional materials and other information that may be of interest to you. You may opt out of receiving any or all of these communications from us by following the unsubscribe link or instructions provided in any email we send, or by contacting us. <a href="https://geopulesforu.business/" target="_blank" rel="noopener noreferrer" style={styles.link}>GeoPulse</a> uses remarketing services to advertise on third-party websites to you after you visited our Service. We and our third-party vendors use cookies to inform, optimize and serve ads based on your past visits to our Service.
           </p>
         </div>
-
         <div style={styles.section}>
           <h2 style={styles.sectionTitle}>4. Who do we share your information with?</h2>
           <h3 style={{ ...styles.sectionTitle, fontSize: 'clamp(16px, 4vw, 20px)' }}>Service providers</h3>
@@ -155,7 +220,7 @@ export default function PrivacyPolicy() {
           </p>
           <h3 style={{ ...styles.sectionTitle, fontSize: 'clamp(16px, 4vw, 20px)' }}>Recurly</h3>
           <p style={styles.paragraph}>
-            Recurly provides subscription management services. Payment information is required to use the Service, and may include your name, address, and credit card information. This information is used solely for billing purposes by our PCI-certified payment provider, Recurly. Your credit card information is encrypted and transmitted to Recurly securely via HTTPS. You can learn more about Recurly’s security practices (<a href="https://recurly.com/security/" style={styles.link}>https://recurly.com/security/</a>), and Privacy Policy (<a href="https://recurly.com/legal/privacy" style={styles.link}>https://recurly.com/legal/privacy</a>). Your credit card details are never stored on our servers, and no one at GeoPulse Limited can access them. Authorized staff involved in customer Account billing may have access to your payment card expiration date to ensure your payment information remains valid. Recurly subscription management is provided by Recurly, Inc.
+            Recurly provides subscription management services. Payment information is required to use the Service, and may include your name, address, and credit card information. This information is used solely for billing purposes by our PCI-certified payment provider, Recurly. Your credit card information is encrypted and transmitted to Recurly securely via HTTPS. You can learn more about Recurly’s security practices (<a href="https://recurly.com/security/" style={styles.link}>https://recurly.com/security/</a>), and Privacy Policy (<a href="https://recurly.com/legal/privacy" style={styles.link}>https://recurly.com/legal/privacy</a>). Your credit card details are never stored on our servers, and no one at <a href="https://geopulesforu.business/" target="_blank" rel="noopener noreferrer" style={styles.link}>GeoPulse</a> Limited can access them. Authorized staff involved in customer Account billing may have access to your payment card expiration date to ensure your payment information remains valid. Recurly subscription management is provided by Recurly, Inc.
           </p>
           <h3 style={{ ...styles.sectionTitle, fontSize: 'clamp(16px, 4vw, 20px)' }}>Stripe</h3>
           <p style={styles.paragraph}>
@@ -171,41 +236,45 @@ export default function PrivacyPolicy() {
           </p>
           <h3 style={{ ...styles.sectionTitle, fontSize: 'clamp(16px, 4vw, 20px)' }}>Dropbox</h3>
           <p style={styles.paragraph}>
-            Dropbox is used to provide the GeoPulse Data Sync tool. For information about what type of data Dropbox collects and stores, please visit their Terms (<a href="https://www.dropbox.com/terms" style={styles.link}>https://www.dropbox.com/terms</a>) and Privacy Policy (<a href="https://www.dropbox.com/terms#privacy" style={styles.link}>https://www.dropbox.com/terms#privacy</a>). Dropbox is provided by Dropbox, Inc.
+            Dropbox is used to provide the <a href="https://geopulesforu.business/" target="_blank" rel="noopener noreferrer" style={styles.link}>GeoPulse</a> Data Sync tool. For information about what type of data Dropbox collects and stores, please visit their Terms (<a href="https://www.dropbox.com/terms" style={styles.link}>https://www.dropbox.com/terms</a>) and Privacy Policy (<a href="https://www.dropbox.com/terms#privacy" style={styles.link}>https://www.dropbox.com/terms#privacy</a>). Dropbox is provided by Dropbox, Inc.
           </p>
         </div>
-
         <div style={styles.section}>
           <h2 style={styles.sectionTitle}>5. How long do we keep your information?</h2>
           <p style={styles.paragraph}>
             Following termination or deactivation of your Account, we may retain your profile information and User Data for a commercially reasonable time for backup, archival, or audit purposes.
           </p>
         </div>
-
         <div style={styles.section}>
           <h2 style={styles.sectionTitle}>6. Disclosure and compliance with laws</h2>
           <p style={styles.paragraph}>
-            From time to time, and only in cases where Service delivery or compliance with law enforcement requires, we may disclose your Personal Information to selected third parties, including: in the event that we sell or buy any business or assets, the prospective seller or buyer of such business or assets; if GeoPulse Limited or substantially all of its assets are acquired by a third party, to the relevant third party; business parties and subcontractors for the purposes of providing the GeoPulse Limited Services; analytics providers that assist us in the improvement and optimization of our website and Service; law enforcement agencies or other third parties: We may disclose your Personal Information where required to do so by law or subpoena, or if we believe that such action is necessary to comply with the law and the reasonable requests of law enforcement, or to protect the security or integrity of our Service.
+            From time to time, and only in cases where Service delivery or compliance with law enforcement requires, we may disclose your Personal Information to selected third parties, including: in the event that we sell or buy any business or assets, the prospective seller or buyer of such business or assets; if <a href="https://geopulesforu.business/" target="_blank" rel="noopener noreferrer" style={styles.link}>GeoPulse</a> Limited or substantially all of its assets are acquired by a third party, to the relevant third party; business parties and subcontractors for the purposes of providing the <a href="https://geopulesforu.business/" target="_blank" rel="noopener noreferrer" style={styles.link}>GeoPulse</a> Limited Services; analytics providers that assist us in the improvement and optimization of our website and Service; law enforcement agencies or other third parties: We may disclose your Personal Information where required to do so by law or subpoena, or if we believe that such action is necessary to comply with the law and the reasonable requests of law enforcement, or to protect the security or integrity of our Service.
           </p>
         </div>
-
         <div style={styles.section}>
           <h2 style={styles.sectionTitle}>7. What are your privacy rights?</h2>
           <p style={styles.paragraph}>
             You have the right to request we not process your Personal Information for marketing purposes. You can exercise your right to prevent such processing by unsubscribing from our emails, newsletters, and other communications. You can exercise this right at any time by contacting us at <a href="mailto:support@geopulse.com" style={styles.link}>support@geopulse.com</a>. You have the right to access information held about you. Any access request may be subject to a reasonable fee to meet our costs in providing you details of the Personal Information we hold about you.
           </p>
         </div>
-
         <div style={styles.section}>
           <h2 style={styles.sectionTitle}>8. Changes to this Privacy Policy</h2>
           <p style={styles.paragraph}>
             We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page. You are advised to review this Privacy Policy periodically for any changes. Changes to this Privacy Policy are effective when they are posted on this page.
           </p>
         </div>
-
-       
-
-       
+        <footer style={styles.footer}>
+          <p style={styles.paragraph}>Last updated: December 30, 2025</p>
+          <a
+            href="https://geopulesforu.business/"
+            style={styles.footerLink}
+            className="footer-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Back to Home
+          </a>
+        </footer>
       </div>
     </div>
   );
