@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 
 const ShippingPolicy = () => {
   const [activeSection, setActiveSection] = useState('overview');
-
   const sections = [
     { id: 'overview', title: 'Overview' },
     { id: 'digital-delivery', title: 'Digital Delivery' },
@@ -11,7 +10,6 @@ const ShippingPolicy = () => {
     { id: 'technical-requirements', title: 'Technical Requirements' },
     { id: 'support', title: 'Support' },
   ];
-
   const scrollToSection = (id) => {
     setActiveSection(id);
     const element = document.getElementById(id);
@@ -19,48 +17,70 @@ const ShippingPolicy = () => {
       element.scrollIntoView({ behavior: 'smooth' });
     }
   };
-
   const styles = `
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
-
     body {
       font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif;
       line-height: 1.6;
     }
-
     .ship-container {
       min-height: 100vh;
       background: #ffffff;
       color: #1a1a1a;
       padding: 48px 20px;
     }
-
     .ship-wrapper {
       max-width: 1200px;
       margin: 0 auto;
     }
-
     .ship-header {
       text-align: center;
       margin-bottom: 48px;
+      position: relative;
     }
-
     .ship-header h1 {
       font-size: 2.5rem;
       font-weight: 700;
       margin-bottom: 16px;
       color: #000000;
     }
-
+    .ship-header h1 a {
+      color: #000000;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    .ship-header h1 a:hover {
+      color: #4a5568;
+    }
     .ship-header p {
       font-size: 1.125rem;
       color: #4a5568;
     }
-
+    .home-button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      padding: 10px 24px;
+      background: #000000;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .home-button:hover {
+      background: #333333;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
     .ship-nav-container {
       position: sticky;
       top: 16px;
@@ -72,7 +92,6 @@ const ShippingPolicy = () => {
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       margin-bottom: 32px;
     }
-
     .ship-nav-list {
       list-style: none;
       display: flex;
@@ -80,7 +99,6 @@ const ShippingPolicy = () => {
       justify-content: center;
       gap: 12px;
     }
-
     .ship-nav-button {
       padding: 10px 20px;
       border-radius: 8px;
@@ -92,7 +110,6 @@ const ShippingPolicy = () => {
       background: #ffffff;
       color: #2c3e50;
     }
-
     .ship-nav-button:hover {
       background: #000000;
       color: #ffffff;
@@ -100,24 +117,20 @@ const ShippingPolicy = () => {
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
-
     .ship-nav-button.active {
       background: #000000;
       color: #ffffff;
       border-color: #000000;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
-
     .ship-nav-button:focus {
       outline: 2px solid #333333;
       outline-offset: 2px;
     }
-
     .ship-main-content {
       max-width: 900px;
       margin: 0 auto;
     }
-
     .ship-section {
       margin-bottom: 48px;
       padding: 32px;
@@ -125,7 +138,6 @@ const ShippingPolicy = () => {
       border: 1px solid #e5e5e5;
       border-radius: 12px;
     }
-
     .ship-section h2 {
       font-size: 1.875rem;
       font-weight: 600;
@@ -134,7 +146,6 @@ const ShippingPolicy = () => {
       border-bottom: 2px solid #000000;
       padding-bottom: 12px;
     }
-
     .ship-section h3 {
       font-size: 1.25rem;
       font-weight: 600;
@@ -142,28 +153,33 @@ const ShippingPolicy = () => {
       margin-bottom: 16px;
       color: #000000;
     }
-
     .ship-section p {
       margin-bottom: 16px;
       color: #2c3e50;
       font-size: 1.05rem;
     }
-
     .ship-section ul {
       margin-left: 24px;
       margin-bottom: 16px;
     }
-
     .ship-section li {
       margin-bottom: 12px;
       color: #2c3e50;
     }
-
     .ship-section strong {
       color: #000000;
       font-weight: 600;
     }
-
+    .ship-section a.geopulse-link {
+      color: #000000;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s ease;
+    }
+    .ship-section a.geopulse-link:hover {
+      color: #4a5568;
+      text-decoration: underline;
+    }
     .ship-highlight {
       background: #ffffff;
       padding: 20px;
@@ -171,7 +187,6 @@ const ShippingPolicy = () => {
       border-left: 4px solid #000000;
       margin: 24px 0;
     }
-
     .ship-contact-info {
       background: #ffffff;
       padding: 20px;
@@ -179,55 +194,83 @@ const ShippingPolicy = () => {
       border: 1px solid #e0e0e0;
       margin-top: 16px;
     }
-
     .ship-footer {
       text-align: center;
       margin-top: 48px;
       padding: 32px 0;
       border-top: 1px solid #e0e0e0;
     }
-
     .ship-footer p {
       color: #6b7280;
       margin-bottom: 8px;
     }
-
     .ship-footer .copyright {
       font-size: 0.875rem;
       color: #9ca3af;
     }
-
+    .ship-footer a {
+      color: #000000;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .ship-footer a:hover {
+      text-decoration: underline;
+    }
     @media (max-width: 768px) {
+      .ship-header {
+        padding-top: 60px;
+      }
       .ship-header h1 {
         font-size: 2rem;
       }
-
+      .home-button {
+        position: absolute;
+        top: 0;
+        right: 50%;
+        transform: translateX(50%);
+        font-size: 0.875rem;
+        padding: 8px 16px;
+      }
       .ship-nav-button {
         font-size: 0.875rem;
         padding: 8px 16px;
       }
-
       .ship-section {
         padding: 20px;
       }
-
       .ship-section h2 {
         font-size: 1.5rem;
       }
     }
   `;
-
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: styles }} />
-
       <div className="ship-container">
         <div className="ship-wrapper">
           <header className="ship-header">
-            <h1>Shipping & Delivery Policy</h1>
-            <p>Last Updated: October 12, 2025</p>
+            <a
+              href="https://geopulesforu.business/"
+              className="home-button"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Go to GeoPulse home page"
+            >
+              Go to Home
+            </a>
+            <h1>
+              <a
+                href="https://geopulesforu.business/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="GeoPulse home page"
+              >
+                GeoPulse
+              </a>{' '}
+              Shipping & Delivery Policy
+            </h1>
+            <p>Last Updated: December 30, 2025</p>
           </header>
-
           <nav className="ship-nav-container">
             <ul className="ship-nav-list">
               {sections.map((section) => (
@@ -244,29 +287,26 @@ const ShippingPolicy = () => {
               ))}
             </ul>
           </nav>
-
           <main className="ship-main-content">
             <section id="overview" className="ship-section">
               <h2>Overview</h2>
               <p>
-                GeoPulse is a digital software-as-a-service (SaaS) platform that provides map tile downloading and GIS services. As we offer exclusively digital products and services, there is no physical shipping involved.
+                <a href="https://geopulesforu.business/" target="_blank" rel="noopener noreferrer" className="geopulse-link">GeoPulse</a> is a digital software-as-a-service (SaaS) platform that provides map tile downloading and GIS services. As we offer exclusively digital products and services, there is no physical shipping involved.
               </p>
-              
+             
               <div className="ship-highlight">
-                <p><strong>Important:</strong> GeoPulse does not ship any physical products. All services and deliverables are provided digitally through our online platform.</p>
+                <p><strong>Important:</strong> <a href="https://geopulesforu.business/" target="_blank" rel="noopener noreferrer" className="geopulse-link">GeoPulse</a> does not ship any physical products. All services and deliverables are provided digitally through our online platform.</p>
               </div>
-
               <p>
                 This policy outlines how we deliver our digital services to customers and what you can expect regarding access and availability.
               </p>
             </section>
-
             <section id="digital-delivery" className="ship-section">
               <h2>Digital Delivery</h2>
-              
+             
               <h3>No Physical Shipping</h3>
               <p>
-                GeoPulse provides all services digitally. We do not:
+                <a href="https://geopulesforu.business/" target="_blank" rel="noopener noreferrer" className="geopulse-link">GeoPulse</a> provides all services digitally. We do not:
               </p>
               <ul>
                 <li>Ship physical products</li>
@@ -274,10 +314,9 @@ const ShippingPolicy = () => {
                 <li>Send printed materials or documentation</li>
                 <li>Provide hardware or physical equipment</li>
               </ul>
-
               <h3>Digital Service Delivery</h3>
               <p>
-                All GeoPulse services are delivered electronically through:
+                All <a href="https://geopulesforu.business/" target="_blank" rel="noopener noreferrer" className="geopulse-link">GeoPulse</a> services are delivered electronically through:
               </p>
               <ul>
                 <li>Immediate online access to the web-based platform</li>
@@ -285,7 +324,6 @@ const ShippingPolicy = () => {
                 <li>Cloud-based storage and processing</li>
                 <li>Email notifications and communications</li>
               </ul>
-
               <h3>Instant Access</h3>
               <p>
                 Upon successful subscription or purchase, you receive:
@@ -297,21 +335,19 @@ const ShippingPolicy = () => {
                 <li>Online access to documentation and support resources</li>
               </ul>
             </section>
-
             <section id="access" className="ship-section">
               <h2>Access & Download</h2>
-              
+             
               <h3>Account Access</h3>
               <p>
                 After creating an account and subscribing to a plan:
               </p>
               <ul>
-                <li>You can log in immediately to access the GeoPulse platform</li>
+                <li>You can log in immediately to access the <a href="https://geopulesforu.business/" target="_blank" rel="noopener noreferrer" className="geopulse-link">GeoPulse</a> platform</li>
                 <li>Your account credentials are sent to your registered email address</li>
                 <li>All features of your subscription plan are immediately available</li>
                 <li>You can begin downloading map tiles right away</li>
               </ul>
-
               <h3>Download Delivery</h3>
               <p>
                 Map tiles and data are delivered through:
@@ -322,7 +358,6 @@ const ShippingPolicy = () => {
                 <li><strong>File Storage:</strong> Files are saved to your local device</li>
                 <li><strong>No Time Limits:</strong> Downloads are available as long as your subscription is active</li>
               </ul>
-
               <h3>Email Confirmations</h3>
               <p>
                 You will receive email confirmations for:
@@ -334,13 +369,12 @@ const ShippingPolicy = () => {
                 <li>Password reset requests</li>
               </ul>
             </section>
-
             <section id="delivery-time" className="ship-section">
               <h2>Delivery Timeframe</h2>
-              
+             
               <h3>Immediate Delivery</h3>
               <p>
-                GeoPulse services are delivered instantly:
+                <a href="https://geopulesforu.business/" target="_blank" rel="noopener noreferrer" className="geopulse-link">GeoPulse</a> services are delivered instantly:
               </p>
               <ul>
                 <li><strong>Account Activation:</strong> Immediate upon registration</li>
@@ -348,7 +382,6 @@ const ShippingPolicy = () => {
                 <li><strong>Feature Availability:</strong> Real-time activation of all plan features</li>
                 <li><strong>Download Speed:</strong> Dependent on your internet connection and file size</li>
               </ul>
-
               <h3>Processing Time</h3>
               <p>
                 While access is immediate, certain operations may take time:
@@ -358,7 +391,6 @@ const ShippingPolicy = () => {
                 <li><strong>Large Downloads:</strong> May take several minutes depending on the number of tiles</li>
                 <li><strong>File Export:</strong> Compression and packaging time for ZIP or MBTiles format</li>
               </ul>
-
               <h3>No Waiting Period</h3>
               <p>
                 Unlike physical products, there are no:
@@ -369,28 +401,25 @@ const ShippingPolicy = () => {
                 <li>Delivery schedules</li>
                 <li>Geographic restrictions (except those imposed by law)</li>
               </ul>
-
               <div className="ship-highlight">
                 <p><strong>Note:</strong> If you experience any delays in accessing your account or downloading files, please contact our support team immediately.</p>
               </div>
             </section>
-
             <section id="technical-requirements" className="ship-section">
               <h2>Technical Requirements</h2>
-              
+             
               <h3>Internet Connection</h3>
               <p>
-                To access GeoPulse services, you need:
+                To access <a href="https://geopulesforu.business/" target="_blank" rel="noopener noreferrer" className="geopulse-link">GeoPulse</a> services, you need:
               </p>
               <ul>
                 <li>A stable internet connection</li>
                 <li>Sufficient bandwidth for downloading map tiles</li>
                 <li>Modern web browser (Chrome, Firefox, Safari, or Edge)</li>
               </ul>
-
               <h3>Device Requirements</h3>
               <p>
-                GeoPulse is accessible from:
+                <a href="https://geopulesforu.business/" target="_blank" rel="noopener noreferrer" className="geopulse-link">GeoPulse</a> is accessible from:
               </p>
               <ul>
                 <li>Desktop computers (Windows, Mac, Linux)</li>
@@ -398,7 +427,6 @@ const ShippingPolicy = () => {
                 <li>Tablets (with compatible browsers)</li>
                 <li>Mobile devices (limited functionality)</li>
               </ul>
-
               <h3>Software Requirements</h3>
               <p>
                 To use downloaded files, you may need:
@@ -409,7 +437,6 @@ const ShippingPolicy = () => {
                 <li>SQLite database viewers for MBTiles</li>
                 <li>Mapping libraries (Leaflet, OpenLayers)</li>
               </ul>
-
               <h3>Storage Space</h3>
               <p>
                 Ensure you have adequate storage space on your device:
@@ -420,21 +447,18 @@ const ShippingPolicy = () => {
                 <li>The platform provides file size estimates before download</li>
               </ul>
             </section>
-
             <section id="support" className="ship-section">
               <h2>Support</h2>
-              
+             
               <h3>Access Issues</h3>
               <p>
-                If you experience any issues accessing GeoPulse services or downloading files, we're here to help:
+                If you experience any issues accessing <a href="https://geopulesforu.business/" target="_blank" rel="noopener noreferrer" className="geopulse-link">GeoPulse</a> services or downloading files, we're here to help:
               </p>
-
               <div className="ship-contact-info">
                 <p><strong>Email Support:</strong> geopulsee@proton.me</p>
                 <p><strong>Response Time:</strong> We typically respond within 2-3 business days</p>
                 <p><strong>Support Hours:</strong> Monday to Friday, 9:00 AM - 5:00 PM GMT</p>
               </div>
-
               <h3>Common Issues</h3>
               <p>
                 For immediate assistance with common issues:
@@ -445,7 +469,6 @@ const ShippingPolicy = () => {
                 <li><strong>Payment Issues:</strong> Verify your payment method and billing information</li>
                 <li><strong>Account Access:</strong> Check your email for activation or confirmation messages</li>
               </ul>
-
               <h3>Documentation</h3>
               <p>
                 Comprehensive documentation is available online, including:
@@ -457,7 +480,6 @@ const ShippingPolicy = () => {
                 <li>Troubleshooting guides</li>
                 <li>FAQs</li>
               </ul>
-
               <h3>Priority Support</h3>
               <p>
                 Enterprise and Agency plan customers receive:
@@ -470,13 +492,15 @@ const ShippingPolicy = () => {
               </ul>
             </section>
           </main>
-
           <footer className="ship-footer">
             <p>
               This policy is part of our Terms of Service. For complete information, please review our full Terms of Service.
             </p>
+            <p>
+              <a href="https://geopulesforu.business/" target="_blank" rel="noopener noreferrer">Back to <span className="geopulse-link">GeoPulse</span> Home</a>
+            </p>
             <p className="copyright">
-              &copy; 2025 GeoPulse. All rights reserved.
+              &copy; 2025 <a href="https://geopulesforu.business/" target="_blank" rel="noopener noreferrer" className="geopulse-link">GeoPulse</a>. All rights reserved.
             </p>
           </footer>
         </div>
