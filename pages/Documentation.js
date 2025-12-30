@@ -3,11 +3,9 @@ import React, { useState, useEffect } from 'react';
 const Documentation = () => {
   const [activeSection, setActiveSection] = useState('overview');
   const [mounted, setMounted] = useState(false);
-
   useEffect(() => {
     setMounted(true);
   }, []);
-
   const sections = [
     { id: 'overview', title: 'Overview' },
     { id: 'getting-started', title: 'Getting Started' },
@@ -18,7 +16,6 @@ const Documentation = () => {
     { id: 'troubleshooting', title: 'Troubleshooting' },
     { id: 'faqs', title: 'FAQs' },
   ];
-
   const scrollToSection = (id) => {
     setActiveSection(id);
     const element = document.getElementById(id);
@@ -26,48 +23,51 @@ const Documentation = () => {
       element.scrollIntoView({ behavior: 'smooth' });
     }
   };
-
+  const goToHome = () => {
+    window.open('https://geopulesforu.business/', '_blank', 'noopener,noreferrer');
+  };
   const styles = `
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
-
     body {
       font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif;
       line-height: 1.6;
     }
-
     .doc-container {
       min-height: 100vh;
       background: #ffffff;
       color: #1a1a1a;
       padding: 48px 20px;
     }
-
     .doc-wrapper {
       max-width: 1200px;
       margin: 0 auto;
     }
-
     .doc-header {
       text-align: center;
       margin-bottom: 48px;
     }
-
     .doc-header h1 {
       font-size: 2.5rem;
       font-weight: 700;
       margin-bottom: 16px;
       color: #000000;
     }
-
+    .doc-header h1 a {
+      color: #000000;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    .doc-header h1 a:hover {
+      color: #666666;
+    }
     .doc-header p {
       font-size: 1.125rem;
       color: #4a5568;
     }
-
     .doc-nav-container {
       position: sticky;
       top: 16px;
@@ -79,7 +79,6 @@ const Documentation = () => {
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       margin-bottom: 32px;
     }
-
     .doc-nav-list {
       list-style: none;
       display: flex;
@@ -87,7 +86,6 @@ const Documentation = () => {
       justify-content: center;
       gap: 12px;
     }
-
     .doc-nav-button {
       padding: 10px 20px;
       border-radius: 8px;
@@ -99,7 +97,6 @@ const Documentation = () => {
       background: #ffffff;
       color: #2c3e50;
     }
-
     .doc-nav-button:hover {
       background: #000000;
       color: #ffffff;
@@ -107,24 +104,20 @@ const Documentation = () => {
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
-
     .doc-nav-button.active {
       background: #000000;
       color: #ffffff;
       border-color: #000000;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
-
     .doc-nav-button:focus {
       outline: 2px solid #333333;
       outline-offset: 2px;
     }
-
     .doc-main-content {
       max-width: 900px;
       margin: 0 auto;
     }
-
     .doc-section {
       margin-bottom: 48px;
       padding: 32px;
@@ -132,7 +125,6 @@ const Documentation = () => {
       border: 1px solid #e5e5e5;
       border-radius: 12px;
     }
-
     .doc-section h2 {
       font-size: 1.875rem;
       font-weight: 600;
@@ -141,35 +133,29 @@ const Documentation = () => {
       border-bottom: 2px solid #000000;
       padding-bottom: 12px;
     }
-
     .doc-section p {
       margin-bottom: 16px;
       color: #2c3e50;
       font-size: 1.05rem;
     }
-
     .doc-section ol,
     .doc-section ul {
       margin-left: 24px;
       margin-bottom: 16px;
     }
-
     .doc-section li {
       margin-bottom: 12px;
       color: #2c3e50;
     }
-
     .doc-section ul ul,
     .doc-section ol ul {
       margin-top: 8px;
       margin-bottom: 8px;
     }
-
     .doc-section strong {
       color: #000000;
       font-weight: 600;
     }
-
     .doc-section code {
       background: #e8e8e8;
       padding: 2px 8px;
@@ -179,7 +165,6 @@ const Documentation = () => {
       color: #1a1a1a;
       border: 1px solid #d0d0d0;
     }
-
     .doc-faq-item {
       margin-bottom: 24px;
       padding: 20px;
@@ -188,69 +173,71 @@ const Documentation = () => {
       border: 1px solid #e0e0e0;
       border-left: 4px solid #000000;
     }
-
     .doc-faq-item dt {
       font-weight: 600;
       font-size: 1.1rem;
       color: #000000;
       margin-bottom: 8px;
     }
-
     .doc-faq-item dd {
       color: #4a5568;
       line-height: 1.7;
     }
-
     .doc-footer {
       text-align: center;
       margin-top: 48px;
       padding: 32px 0;
       border-top: 1px solid #e0e0e0;
     }
-
     .doc-footer p {
       color: #6b7280;
       margin-bottom: 8px;
     }
-
     .doc-footer .copyright {
       font-size: 0.875rem;
       color: #9ca3af;
     }
-
     @media (max-width: 768px) {
       .doc-header h1 {
         font-size: 2rem;
       }
-
       .doc-nav-button {
         font-size: 0.875rem;
         padding: 8px 16px;
       }
-
       .doc-section {
         padding: 20px;
       }
-
       .doc-section h2 {
         font-size: 1.5rem;
       }
     }
   `;
-
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: styles }} />
-
       <div className="doc-container">
         <div className="doc-wrapper">
           <header className="doc-header">
-            <h1>GeoPulse Map Download Documentation</h1>
+            <h1>
+              <a href="https://geopulesforu.business/" target="_blank" rel="noopener noreferrer">
+                GeoPulse
+              </a>{' '}
+              Map Download Documentation
+            </h1>
             <p>A comprehensive guide to downloading map tiles using GeoPulse</p>
           </header>
-
           <nav className="doc-nav-container">
             <ul className="doc-nav-list">
+              <li>
+                <button
+                  onClick={goToHome}
+                  className="doc-nav-button"
+                  aria-label="Go to Home Page"
+                >
+                  Home
+                </button>
+              </li>
               {sections.map((section) => (
                 <li key={section.id}>
                   <button
@@ -265,7 +252,6 @@ const Documentation = () => {
               ))}
             </ul>
           </nav>
-
           <main className="doc-main-content">
             <section id="overview" className="doc-section">
               <h2>Overview</h2>
@@ -273,7 +259,6 @@ const Documentation = () => {
                 GeoPulse is a web-based tool that allows authenticated users to select a geographic area, configure map settings (such as zoom levels and tile sources), and download map tiles for offline use in GIS software or mapping applications. The application supports multiple tile sources (e.g., OpenStreetMap, satellite imagery) and two export formats: MBTiles and ZIP.
               </p>
             </section>
-
             <section id="getting-started" className="doc-section">
               <h2>Getting Started</h2>
               <ol>
@@ -292,7 +277,6 @@ const Documentation = () => {
                 </li>
               </ol>
             </section>
-
             <section id="map-interface" className="doc-section">
               <h2>Using the Map Interface</h2>
               <p>The map interface is powered by Leaflet and allows you to select a geographic area for downloading map tiles.</p>
@@ -325,7 +309,6 @@ const Documentation = () => {
                 </li>
               </ol>
             </section>
-
             <section id="configuring-settings" className="doc-section">
               <h2>Configuring Map Download Settings</h2>
               <p>The control panel on the left side of the dashboard allows you to customize your map download.</p>
@@ -364,7 +347,6 @@ const Documentation = () => {
                 </li>
               </ol>
             </section>
-
             <section id="downloading-tiles" className="doc-section">
               <h2>Downloading Map Tiles</h2>
               <ol>
@@ -393,7 +375,6 @@ const Documentation = () => {
                 </li>
               </ol>
             </section>
-
             <section id="using-files" className="doc-section">
               <h2>Using Downloaded Files</h2>
               <ol>
@@ -416,7 +397,6 @@ const Documentation = () => {
                 </li>
               </ol>
             </section>
-
             <section id="troubleshooting" className="doc-section">
               <h2>Troubleshooting</h2>
               <ul>
@@ -459,7 +439,6 @@ const Documentation = () => {
                 </li>
               </ul>
             </section>
-
             <section id="faqs" className="doc-section">
               <h2>FAQs</h2>
               <div className="doc-faq-item">
@@ -484,7 +463,6 @@ const Documentation = () => {
               </div>
             </section>
           </main>
-
           <footer className="doc-footer">
             <p>
               For additional support, refer to the application's help section or contact the GeoPulse support team.
