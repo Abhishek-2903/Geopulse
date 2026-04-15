@@ -1313,8 +1313,8 @@ export default function Home() {
         <div className="gp-hero-inner">
           <div className="gp-hero-content">
             <div className="gp-hero-badge">
-              <span className="gp-hero-badge-dot"></span>
-              Now with AI-powered route planning
+           
+            
             </div>
             <h1 className="gp-hero-title">
               Maps That Move<br />
