@@ -18,6 +18,10 @@ export default function Home() {
   const [showPolicyNotification, setShowPolicyNotification] = useState(false);
   const [showFloatingCTA, setShowFloatingCTA] = useState(false);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const [openFaq, setOpenFaq] = useState(null);
+  const [liveCount, setLiveCount] = useState(47);
+  const [recentSignup, setRecentSignup] = useState(null);
+  const [showComparison, setShowComparison] = useState(false);
 
   useEffect(() => {
     const hasAgreed = localStorage.getItem('privacyPolicyAgreed');
@@ -33,6 +37,40 @@ export default function Home() {
       clearTimeout(timer);
       clearTimeout(ctaTimer);
     };
+  }, []);
+
+  // Simulate live viewer count fluctuation
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLiveCount((prev) => {
+        const change = Math.floor(Math.random() * 5) - 2;
+        return Math.max(30, Math.min(80, prev + change));
+      });
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Simulate recent signup toasts (social proof)
+  useEffect(() => {
+    const names = [
+      { name: 'Priya', location: 'Mumbai, India', time: '2 min ago' },
+      { name: 'James', location: 'Austin, TX', time: '4 min ago' },
+      { name: 'Yuki', location: 'Tokyo, Japan', time: '5 min ago' },
+      { name: 'Carlos', location: 'São Paulo, Brazil', time: '7 min ago' },
+      { name: 'Emma', location: 'London, UK', time: '8 min ago' },
+      { name: 'Ahmed', location: 'Dubai, UAE', time: '10 min ago' },
+      { name: 'Lisa', location: 'Berlin, Germany', time: '12 min ago' },
+      { name: 'Marco', location: 'Rome, Italy', time: '15 min ago' },
+    ];
+    let idx = 0;
+    const showToast = () => {
+      setRecentSignup(names[idx % names.length]);
+      idx++;
+      setTimeout(() => setRecentSignup(null), 4000);
+    };
+    const toastTimer = setTimeout(showToast, 8000);
+    const toastInterval = setInterval(showToast, 15000);
+    return () => { clearTimeout(toastTimer); clearInterval(toastInterval); };
   }, []);
 
   useEffect(() => {
@@ -187,6 +225,44 @@ export default function Home() {
       text: "Sharp satellite imagery that's perfect for urban planning. A reliable platform that consistently delivers real value for our team.",
       initials: 'S',
     },
+  ];
+
+  const faqs = [
+    {
+      q: 'What do I get with the free account?',
+      a: 'You get 2 full-resolution map downloads from any map type — hiking, cycling, satellite, topo, or street. No credit card needed. Just sign up and download.',
+    },
+    {
+      q: 'What map formats are available for download?',
+      a: 'Maps are available in high-resolution PNG, GeoTIFF, and MBTiles formats. All formats work offline on any device or GIS software.',
+    },
+    {
+      q: 'Can I upgrade from Free to Starter or Pro anytime?',
+      a: 'Yes, you can upgrade at any time from your dashboard. Your 2 free maps stay yours forever, and you immediately unlock the full download quota of your new plan.',
+    },
+    {
+      q: 'How does offline map download work?',
+      a: 'Select any region on the map, choose your zoom level and map type, then hit download. The map tiles are packaged into a single file you can use without internet.',
+    },
+    {
+      q: 'Do you offer refunds?',
+      a: 'Yes — all paid plans come with a 30-day money-back guarantee. If you are not satisfied, contact support for a full refund, no questions asked.',
+    },
+    {
+      q: 'What is the resolution of the maps?',
+      a: 'Free accounts get up to Zoom Level 15 (city-level detail). Starter and Professional plans unlock Zoom Level 19 — detailed enough to see individual buildings and trails.',
+    },
+  ];
+
+  const comparisonRows = [
+    { feature: 'Map Downloads', free: '2', starter: '25', pro: '100' },
+    { feature: 'Max Zoom Level', free: '15', starter: '19', pro: '19' },
+    { feature: 'Map Types', free: 'All', starter: 'All', pro: 'All' },
+    { feature: 'Offline Download', free: '✓', starter: '✓', pro: '✓' },
+    { feature: 'API Access', free: '—', starter: 'Unlimited', pro: 'Unlimited' },
+    { feature: 'Analytics', free: 'Basic', starter: 'Basic', pro: 'AI-Powered' },
+    { feature: 'Support', free: 'Email', starter: 'Email', pro: '24/7 + Manager' },
+    { feature: 'Beta Features', free: '—', starter: '—', pro: '✓' },
   ];
 
   const handlePricingClick = (plan) => {
@@ -1020,11 +1096,187 @@ export default function Home() {
           box-shadow: 0 6px 24px rgba(5,150,105,0.4);
         }
 
+        /* ---- NAV LIVE COUNT ---- */
+        .gp-nav-live-count {
+          display: flex; align-items: center; gap: 6px;
+          font-size: 13px; font-weight: 600; color: var(--gp-green-700);
+          padding: 5px 12px;
+          background: var(--gp-green-50);
+          border: 1px solid var(--gp-green-200);
+          border-radius: 50px;
+        }
+        .gp-nav-live-dot {
+          width: 7px; height: 7px; border-radius: 50%;
+          background: var(--gp-green-500);
+          animation: pulse 2s infinite;
+        }
+
+        /* ---- COMPARISON TABLE ---- */
+        .gp-compare-section {
+          padding: 0 clamp(16px,4vw,40px) clamp(32px,5vw,48px);
+          background: var(--gp-cream);
+        }
+        .gp-compare-inner { max-width: 900px; margin: 0 auto; text-align: center; }
+        .gp-compare-toggle {
+          padding: 12px 28px; border: 1px solid var(--gp-light-gray);
+          border-radius: 50px; background: var(--gp-white);
+          color: var(--gp-dark-gray); font-size: 15px; font-weight: 600;
+          cursor: pointer; font-family: var(--gp-font-body);
+          transition: all 0.2s;
+        }
+        .gp-compare-toggle:hover { border-color: var(--gp-green-400); color: var(--gp-green-700); }
+        .gp-compare-table-wrap {
+          margin-top: 24px; overflow-x: auto;
+          animation: fadeUp 0.4s ease-out;
+        }
+        .gp-compare-table {
+          width: 100%; border-collapse: collapse;
+          background: var(--gp-white); border-radius: var(--gp-radius-lg);
+          overflow: hidden;
+          box-shadow: var(--gp-shadow-md);
+        }
+        .gp-compare-table th, .gp-compare-table td {
+          padding: 14px 20px; text-align: center;
+          border-bottom: 1px solid var(--gp-warm-gray);
+          font-size: 14px;
+        }
+        .gp-compare-table th {
+          background: var(--gp-charcoal); color: #fff;
+          font-weight: 700; font-size: 14px;
+        }
+        .gp-compare-table th:first-child { text-align: left; }
+        .gp-compare-table td:first-child { text-align: left; }
+        .gp-compare-feature-name { font-weight: 600; color: var(--gp-charcoal); }
+        .gp-compare-highlight-col { background: var(--gp-green-50); }
+        .gp-compare-table th.gp-compare-highlight-col {
+          background: var(--gp-green-700);
+        }
+        .gp-compare-table tr:last-child td { border-bottom: none; }
+        .gp-compare-table tr:hover td { background: var(--gp-off-white); }
+        .gp-compare-table tr:hover td.gp-compare-highlight-col { background: var(--gp-green-100); }
+
+        /* ---- USE CASES ---- */
+        .gp-usecases-section {
+          padding: clamp(48px,8vw,80px) clamp(16px,4vw,40px);
+          background: var(--gp-white);
+        }
+        .gp-usecases-inner { max-width: 1320px; margin: 0 auto; }
+        .gp-usecases-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+          gap: clamp(16px,3vw,24px);
+        }
+        .gp-usecase-card {
+          background: var(--gp-off-white);
+          border-radius: var(--gp-radius-lg);
+          padding: clamp(24px,3vw,32px);
+          border: 1px solid var(--gp-light-gray);
+          cursor: pointer; transition: all 0.3s;
+          opacity: 0; transform: translateY(16px);
+          animation: fadeUp 0.6s ease-out forwards;
+        }
+        .gp-usecase-card:nth-child(1) { animation-delay: 0.05s; }
+        .gp-usecase-card:nth-child(2) { animation-delay: 0.1s; }
+        .gp-usecase-card:nth-child(3) { animation-delay: 0.15s; }
+        .gp-usecase-card:nth-child(4) { animation-delay: 0.2s; }
+        .gp-usecase-card:nth-child(5) { animation-delay: 0.25s; }
+        .gp-usecase-card:nth-child(6) { animation-delay: 0.3s; }
+        .gp-usecase-card:hover {
+          transform: translateY(-5px);
+          box-shadow: var(--gp-shadow-lg);
+          border-color: var(--gp-green-300);
+        }
+        .gp-usecase-emoji { font-size: 36px; margin-bottom: 12px; }
+        .gp-usecase-role {
+          font-size: 17px; font-weight: 700; color: var(--gp-charcoal);
+          margin-bottom: 6px;
+        }
+        .gp-usecase-desc {
+          font-size: 14px; color: var(--gp-dark-gray); line-height: 1.55;
+          margin-bottom: 12px;
+        }
+        .gp-usecase-cta {
+          font-size: 14px; font-weight: 700; color: var(--gp-green-600);
+          transition: color 0.2s;
+        }
+        .gp-usecase-card:hover .gp-usecase-cta { color: var(--gp-green-800); }
+
+        /* ---- FAQ ---- */
+        .gp-faq-section {
+          padding: clamp(48px,8vw,80px) clamp(16px,4vw,40px);
+          background: var(--gp-cream);
+        }
+        .gp-faq-inner { max-width: 760px; margin: 0 auto; }
+        .gp-faq-list { display: flex; flex-direction: column; gap: 8px; }
+        .gp-faq-item {
+          background: var(--gp-white);
+          border: 1px solid var(--gp-light-gray);
+          border-radius: var(--gp-radius-md);
+          padding: 0; overflow: hidden;
+          cursor: pointer; transition: all 0.2s;
+        }
+        .gp-faq-item:hover { border-color: var(--gp-green-300); }
+        .gp-faq-item.open { border-color: var(--gp-green-400); box-shadow: var(--gp-shadow-sm); }
+        .gp-faq-q {
+          display: flex; justify-content: space-between; align-items: center;
+          padding: 18px 22px;
+          font-size: 16px; font-weight: 600; color: var(--gp-charcoal);
+        }
+        .gp-faq-arrow {
+          font-size: 22px; font-weight: 300; color: var(--gp-green-600);
+          flex-shrink: 0; margin-left: 12px;
+          transition: transform 0.2s;
+        }
+        .gp-faq-item.open .gp-faq-arrow { transform: rotate(180deg); }
+        .gp-faq-a {
+          padding: 0 22px 18px;
+          font-size: 15px; color: var(--gp-dark-gray); line-height: 1.65;
+          animation: fadeUp 0.3s ease-out;
+        }
+        .gp-faq-bottom-cta {
+          text-align: center; margin-top: 32px;
+          font-size: 15px; color: var(--gp-dark-gray);
+        }
+        .gp-faq-contact-link {
+          color: var(--gp-green-600); font-weight: 600; text-decoration: underline;
+        }
+
+        /* ---- RECENT SIGNUP TOAST ---- */
+        .gp-signup-toast {
+          position: fixed; bottom: 24px; left: 24px; z-index: 800;
+          background: var(--gp-white);
+          border: 1px solid var(--gp-light-gray);
+          border-radius: var(--gp-radius-md);
+          padding: 12px 16px;
+          box-shadow: var(--gp-shadow-lg);
+          display: flex; align-items: center; gap: 10px;
+          max-width: 300px;
+          animation: toastIn 0.4s ease-out;
+        }
+        .gp-toast-avatar {
+          width: 36px; height: 36px; border-radius: 50%;
+          background: var(--gp-green-100);
+          display: grid; place-items: center; font-size: 18px;
+          flex-shrink: 0;
+        }
+        .gp-toast-text { font-size: 13px; color: var(--gp-charcoal); line-height: 1.35; }
+        .gp-toast-text strong { font-weight: 700; }
+        .gp-toast-time { font-size: 12px; color: var(--gp-mid-gray); }
+
+        @keyframes toastIn {
+          from { opacity: 0; transform: translateY(16px) translateX(-16px); }
+          to { opacity: 1; transform: translateY(0) translateX(0); }
+        }
+
         /* ---- RESPONSIVE ---- */
         @media (max-width: 768px) {
           .gp-map-grid { grid-template-columns: 1fr !important; }
           .gp-social-proof { gap: 16px; }
           .gp-floating-cta { left: 16px; right: 16px; max-width: none; bottom: 16px; }
+          .gp-signup-toast { left: 16px; right: 16px; max-width: none; bottom: 80px; }
+          .gp-nav-live-count { display: none; }
+          .gp-compare-table th, .gp-compare-table td { padding: 10px 12px; font-size: 13px; }
+          .gp-usecases-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
         }
         @media (max-width: 480px) {
           .gp-nav-inner { gap: 8px; }
@@ -1032,6 +1284,7 @@ export default function Home() {
           .gp-features-grid, .gp-reviews-grid { grid-template-columns: 1fr; }
           .gp-pricing-grid { grid-template-columns: 1fr; max-width: 400px; }
           .gp-footer-links { flex-direction: column; align-items: center; gap: 12px; }
+          .gp-usecases-grid { grid-template-columns: 1fr; }
         }
       `}</style>
 
@@ -1043,6 +1296,10 @@ export default function Home() {
             <span className="gp-logo-text">GeoPulse</span>
           </a>
           <div className="gp-nav-actions">
+            <div className="gp-nav-live-count">
+              <span className="gp-nav-live-dot"></span>
+              {liveCount} viewing now
+            </div>
             <a href="/Documentation" className="gp-nav-link">Docs</a>
             <button onClick={() => setShowModal(true)} className="gp-btn-primary">
               Sign In
@@ -1345,6 +1602,93 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ========= COMPARISON TABLE ========= */}
+      <section className="gp-compare-section">
+        <div className="gp-compare-inner">
+          <button className="gp-compare-toggle" onClick={() => setShowComparison(!showComparison)}>
+            {showComparison ? '▲ Hide' : '▼ Show'} Detailed Plan Comparison
+          </button>
+          {showComparison && (
+            <div className="gp-compare-table-wrap">
+              <table className="gp-compare-table">
+                <thead>
+                  <tr>
+                    <th>Feature</th>
+                    <th>Free</th>
+                    <th className="gp-compare-highlight-col">Starter</th>
+                    <th>Professional</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {comparisonRows.map((row, i) => (
+                    <tr key={i}>
+                      <td className="gp-compare-feature-name">{row.feature}</td>
+                      <td>{row.free}</td>
+                      <td className="gp-compare-highlight-col">{row.starter}</td>
+                      <td>{row.pro}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ========= USE CASES ========= */}
+      <section className="gp-usecases-section">
+        <div className="gp-usecases-inner">
+          <p className="gp-section-label">Who Uses GeoPulse</p>
+          <h2 className="gp-section-title">Built for Every Explorer & Professional</h2>
+          <div className="gp-usecases-grid">
+            {[
+              { emoji: '🥾', role: 'Hikers & Trekkers', desc: 'Download trail maps before heading into areas with no signal. Never get lost again.', cta: 'I want hiking maps' },
+              { emoji: '🚴', role: 'Cyclists & Commuters', desc: 'Plan safer, flatter, traffic-free routes. Download them for your bike computer.', cta: 'I want cycling maps' },
+              { emoji: '📐', role: 'Surveyors & Engineers', desc: 'High-precision topo maps with contour data. Analyze terrain before site visits.', cta: 'I need topo maps' },
+              { emoji: '🏙️', role: 'Urban Planners', desc: 'Satellite and street-level imagery for city development, zoning, and analysis.', cta: 'I need satellite maps' },
+              { emoji: '🎓', role: 'Students & Researchers', desc: 'Free maps for academic projects, geography studies, and environmental research.', cta: 'Get free maps' },
+              { emoji: '🚐', role: 'Travelers & Vanlifers', desc: 'Offline maps for road trips through remote areas. Works without internet.', cta: 'I need offline maps' },
+            ].map((uc, i) => (
+              <div key={i} className="gp-usecase-card" onClick={() => setShowModal(true)}>
+                <div className="gp-usecase-emoji">{uc.emoji}</div>
+                <h4 className="gp-usecase-role">{uc.role}</h4>
+                <p className="gp-usecase-desc">{uc.desc}</p>
+                <span className="gp-usecase-cta">{uc.cta} →</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ========= FAQ ========= */}
+      <section className="gp-faq-section">
+        <div className="gp-faq-inner">
+          <p className="gp-section-label">Questions</p>
+          <h2 className="gp-section-title">Frequently Asked Questions</h2>
+          <div className="gp-faq-list">
+            {faqs.map((faq, i) => (
+              <div
+                key={i}
+                className={`gp-faq-item ${openFaq === i ? 'open' : ''}`}
+                onClick={() => setOpenFaq(openFaq === i ? null : i)}
+              >
+                <div className="gp-faq-q">
+                  <span>{faq.q}</span>
+                  <span className="gp-faq-arrow">{openFaq === i ? '−' : '+'}</span>
+                </div>
+                {openFaq === i && <div className="gp-faq-a">{faq.a}</div>}
+              </div>
+            ))}
+          </div>
+          <div className="gp-faq-bottom-cta">
+            <p>Still have questions? <a href="/contact" className="gp-faq-contact-link">Contact our team</a> — or just sign up free and try it yourself.</p>
+            <button onClick={() => setShowModal(true)} className="gp-hero-btn-primary" style={{ marginTop: '16px' }}>
+              Sign Up Free — 2 Maps on Us
+            </button>
+          </div>
+        </div>
+      </section>
+
       {/* ========= CTA ========= */}
       <section className="gp-cta-section">
         <div className="gp-cta-inner">
@@ -1389,6 +1733,18 @@ export default function Home() {
             <a href="#" onClick={(e) => { e.preventDefault(); setShowModal(true); }} className="gp-floating-cta-link">
               Claim your free maps →
             </a>
+          </div>
+        </div>
+      )}
+
+      {/* ========= RECENT SIGNUP TOAST (social proof) ========= */}
+      {recentSignup && (
+        <div className="gp-signup-toast">
+          <div className="gp-toast-avatar">👤</div>
+          <div className="gp-toast-text">
+            <strong>{recentSignup.name}</strong> from {recentSignup.location}
+            <br />
+            <span className="gp-toast-time">signed up {recentSignup.time}</span>
           </div>
         </div>
       )}
