@@ -3,11 +3,12 @@ import { loadModules } from 'esri-loader';
 import AuthModal from './AuthModal';
 import ChatQuery from './ChatQuery';
 import Head from 'next/head';
+
 export default function Home() {
   const [mapLoaded, setMapLoaded] = useState(false);
   const [currentLocation, setCurrentLocation] = useState({
     lat: 40.7128,
-    lng: -74.0060,
+    lng: -74.006,
     zoom: 14,
   });
   const [basemapType, setBasemapType] = useState('topo-vector');
@@ -15,29 +16,43 @@ export default function Home() {
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showPolicyNotification, setShowPolicyNotification] = useState(false);
+  const [showFloatingCTA, setShowFloatingCTA] = useState(false);
+  const [activeTestimonial, setActiveTestimonial] = useState(0);
 
   useEffect(() => {
     const hasAgreed = localStorage.getItem('privacyPolicyAgreed');
     if (!hasAgreed) {
       setShowPolicyNotification(true);
     }
-
     const timer = setTimeout(() => setMapLoaded(true), 1500);
-    return () => clearTimeout(timer);
+
+    // Show floating CTA after 5 seconds
+    const ctaTimer = setTimeout(() => setShowFloatingCTA(true), 5000);
+
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(ctaTimer);
+    };
   }, []);
 
   useEffect(() => {
     if (mapRef.current && mapLoaded) {
-      loadModules(['esri/WebScene', 'esri/views/SceneView', 'esri/layers/TileLayer'], { css: true })
+      loadModules(
+        ['esri/WebScene', 'esri/views/SceneView', 'esri/layers/TileLayer'],
+        { css: true }
+      )
         .then(([WebScene, SceneView, TileLayer]) => {
           const scene = new WebScene({
-            basemap: basemapType === 'outdoor' ? {
-              baseLayers: [
-                new TileLayer({
-                  url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer'
-                })
-              ]
-            } : basemapType
+            basemap:
+              basemapType === 'outdoor'
+                ? {
+                    baseLayers: [
+                      new TileLayer({
+                        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer',
+                      }),
+                    ],
+                  }
+                : basemapType,
           });
 
           const view = new SceneView({
@@ -47,863 +62,52 @@ export default function Home() {
               position: {
                 longitude: currentLocation.lng,
                 latitude: currentLocation.lat,
-                z: 1000 // Altitude for 3D view
+                z: 1000,
               },
-              tilt: 10, // Tilt for 3D perspective
-              heading: 0
-            }
+              tilt: 10,
+              heading: 0,
+            },
           });
 
-          console.log(`Loading 3D basemap: ${basemapType}`);
-
           return () => {
-            if (view) {
-              view.destroy();
-            }
+            if (view) view.destroy();
           };
         })
         .catch((err) => console.error('Error loading 3D scene:', err));
     }
   }, [mapLoaded, basemapType]);
 
+  // Auto-rotate testimonials
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveTestimonial((prev) => (prev + 1) % 4);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
   const mapTypes = [
-    { id: 'topo-vector', label: 'Terrain' },
-    { id: 'satellite', label: 'Satellite' },
-    { id: 'national-geographic', label: 'Nat Geo' },
-    { id: 'streets-vector', label: 'Street' },
-    { id: 'hybrid', label: 'Hybrid' },
-    { id: 'outdoor', label: 'Outdoor' }
+    { id: 'topo-vector', label: 'Terrain', icon: '⛰️' },
+    { id: 'satellite', label: 'Satellite', icon: '🛰️' },
+    { id: 'national-geographic', label: 'Nat Geo', icon: '🌍' },
+    { id: 'streets-vector', label: 'Street', icon: '🛣️' },
+    { id: 'hybrid', label: 'Hybrid', icon: '🗺️' },
+    { id: 'outdoor', label: 'Outdoor', icon: '🏕️' },
   ];
 
-  const handleMapTypeChange = (type) => {
-    setBasemapType(type);
-  };
+  const handleMapTypeChange = (type) => setBasemapType(type);
 
   const companies = [
-  { icon: '🏢', name: 'TechCorp', color: '#000000' },
-    { icon: '🏭', name: 'MapIndustries', color: '#10B981' },
-    { icon: '🎓', name: 'GeoUniversity', color: '#F59E0B' },
-    { icon: '🏛️', name: 'CityGov', color: '#8B5CF6' },
-    { icon: '🚁', name: 'DroneLogistics', color: '#EF4444' },
-    { icon: '🏗️', name: 'BuildPro', color: '#06B6D4' }
+    { icon: '🏢', name: 'TechCorp', color: '#2563EB' },
+    { icon: '🏭', name: 'MapIndustries', color: '#059669' },
+    { icon: '🎓', name: 'GeoUniversity', color: '#D97706' },
+    { icon: '🏛️', name: 'CityGov', color: '#7C3AED' },
+    { icon: '🚁', name: 'DroneLogistics', color: '#DC2626' },
+    { icon: '🏗️', name: 'BuildPro', color: '#0891B2' },
   ];
 
   const handlePolicyAgree = () => {
     localStorage.setItem('privacyPolicyAgreed', 'true');
     setShowPolicyNotification(false);
-  };
-
-  const mapStyles = {
-    container: {
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #111827 0%, #1F2937 100%)',
-      color: '#F9FAFB',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
-    },
-    nav: {
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      zIndex: 1000,
-      background: 'rgba(17, 24, 39, 0.95)',
-      backdropFilter: 'blur(20px)',
-      borderBottom: '1px solid rgba(55, 65, 81, 0.2)',
-      padding: 'clamp(8px, 2vw, 16px) clamp(16px, 4vw, 32px)'
-    },
-    navContent: {
-      maxWidth: '1400px',
-      margin: '0 auto',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      flexWrap: 'wrap'
-    },
-    logo: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 'clamp(8px, 2vw, 12px)'
-    },
-    logoIcon: {
-      width: 'clamp(36px, 10vw, 48px)',
-      height: 'clamp(36px, 10vw, 48px)',
-      background: 'linear-gradient(135deg, #065F46, #059669)',
-      borderRadius: '12px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontSize: 'clamp(18px, 5vw, 24px)',
-      color: '#ffffff'
-    },
-    logoText: {
-      fontSize: 'clamp(20px, 6vw, 28px)',
-      fontWeight: '800',
-      margin: 0,
-      color: '#F9FAFB'
-    },
-    authBtn: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 'clamp(8px, 2vw, 12px)',
-      padding: 'clamp(8px, 2vw, 12px) clamp(16px, 4vw, 24px)',
-      background: 'linear-gradient(135deg, #059669, #047857)',
-      color: '#ffffff',
-      border: 'none',
-      borderRadius: '50px',
-      fontSize: 'clamp(14px, 4vw, 16px)',
-      fontWeight: '600',
-      cursor: 'pointer',
-      transition: 'all 0.3s ease',
-      boxShadow: '0 4px 15px rgba(5, 150, 105, 0.3)'
-    },
-    navLink: {
-      padding: 'clamp(8px, 2vw, 12px) clamp(16px, 4vw, 24px)',
-      color: '#D1D5DB',
-      fontSize: 'clamp(14px, 4vw, 16px)',
-      fontWeight: '600',
-      cursor: 'pointer',
-      transition: 'all 0.3s ease',
-      textDecoration: 'none'
-    },
-    hero: {
-      paddingTop: 'clamp(80px, 15vw, 120px)',
-      paddingBottom: 'clamp(40px, 10vw, 80px)',
-      paddingLeft: 'clamp(16px, 4vw, 32px)',
-      paddingRight: 'clamp(16px, 4vw, 32px)',
-      position: 'relative',
-      backgroundImage: 'url("https://png.pngtree.com/background/20230520/original/pngtree-the-earth-is-seen-on-a-dark-background-picture-image_2674185.jpg")',
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-      backgroundAttachment: 'fixed'
-    },
-    heroOverlay: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(17, 24, 39, 0.7)',
-      zIndex: 1
-    },
-    heroContainer: {
-      maxWidth: '1400px',
-      margin: '0 auto',
-      position: 'relative',
-      zIndex: 2
-    },
-    heroContent: {
-      textAlign: 'center',
-      marginBottom: 'clamp(40px, 10vw, 80px)',
-      position: 'relative',
-      zIndex: 2,
-      animation: 'fadeInUp 1s ease-out'
-    },
-    heroTitle: {
-      fontSize: 'clamp(36px, 8vw, 72px)',
-      fontWeight: '900',
-      lineHeight: '1.1',
-      margin: '0 0 clamp(16px, 4vw, 32px) 0',
-      letterSpacing: '-2px',
-      color: '#F9FAFB',
-      textShadow: '0 2px 4px rgba(0,0,0,0.5)'
-    },
-    heroGradient: {
-      background: 'linear-gradient(135deg, #065F46, #059669)',
-      WebkitBackgroundClip: 'text',
-      WebkitTextFillColor: 'transparent',
-      backgroundClip: 'text'
-    },
-    heroDesc: {
-      fontSize: 'clamp(16px, 4vw, 20px)',
-      color: '#E5E7EB',
-      maxWidth: '900px',
-      margin: '0 auto clamp(24px, 6vw, 48px)',
-      lineHeight: '1.6',
-      textShadow: '0 1px 2px rgba(0,0,0,0.5)'
-    },
-    buttonGroup: {
-      display: 'flex',
-      gap: 'clamp(12px, 3vw, 24px)',
-      justifyContent: 'center',
-      flexWrap: 'wrap',
-      marginBottom: 'clamp(40px, 10vw, 80px)',
-      position: 'relative',
-      zIndex: 2,
-      animation: 'fadeInUp 1s ease-out 0.2s both'
-    },
-    primaryBtn: {
-      padding: 'clamp(12px, 3vw, 18px) clamp(20px, 5vw, 40px)',
-      background: 'linear-gradient(135deg, #059669, #047857)',
-      color: '#ffffff',
-      border: 'none',
-      borderRadius: '50px',
-      fontSize: 'clamp(16px, 4vw, 20px)',
-      fontWeight: '700',
-      cursor: 'pointer',
-      transition: 'all 0.3s ease',
-      minWidth: 'clamp(180px, 40vw, 220px)',
-      boxShadow: '0 8px 25px rgba(5, 150, 105, 0.3)',
-      transform: 'translateY(0)'
-    },
-    secondaryBtn: {
-      padding: 'clamp(12px, 3vw, 18px) clamp(20px, 5vw, 40px)',
-      background: 'transparent',
-      color: '#F9FAFB',
-      border: '2px solid #059669',
-      borderRadius: '50px',
-      fontSize: 'clamp(16px, 4vw, 20px)',
-      fontWeight: '700',
-      cursor: 'pointer',
-      transition: 'all 0.3s ease',
-      minWidth: 'clamp(180px, 40vw, 220px)'
-    },
-    mapSection: {
-      background: 'rgba(31, 41, 55, 0.9)',
-      backdropFilter: 'blur(20px)',
-      borderRadius: 'clamp(16px, 4vw, 32px)',
-      padding: 'clamp(20px, 5vw, 40px)',
-      border: '1px solid rgba(55, 65, 81, 0.2)',
-      boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
-      marginTop: 'clamp(40px, 10vw, 80px)',
-      animation: 'fadeInUp 1s ease-out 0.4s both'
-    },
-    mapGrid: {
-      display: 'grid',
-      gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr)',
-      gap: 'clamp(16px, 4vw, 32px)',
-      alignItems: 'start'
-    },
-    mapContainer: {
-      background: 'rgba(31, 41, 55, 0.95)',
-      borderRadius: 'clamp(12px, 3vw, 24px)',
-      padding: 'clamp(12px, 3vw, 24px)',
-      border: '1px solid rgba(55, 65, 81, 0.2)',
-      position: 'relative',
-      overflow: 'hidden',
-      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)'
-    },
-    mapHeader: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: 'clamp(10px, 3vw, 20px)'
-    },
-    mapTitle: {
-      fontSize: 'clamp(16px, 4vw, 20px)',
-      fontWeight: '700',
-      margin: 0,
-      color: '#F9FAFB'
-    },
-    liveIndicator: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 'clamp(4px, 1vw, 8px)'
-    },
-    liveDot: {
-      width: 'clamp(8px, 2vw, 12px)',
-      height: 'clamp(8px, 2vw, 12px)',
-      background: '#10B981',
-      borderRadius: '50%',
-      animation: 'pulse 2s infinite'
-    },
-    mapCanvas: {
-      width: '100%',
-      height: 'clamp(300px, 50vw, 400px)',
-      borderRadius: 'clamp(8px, 2vw, 16px)',
-      border: '1px solid rgba(55, 65, 81, 0.2)'
-    },
-    coordinates: {
-      position: 'absolute',
-      top: 'clamp(8px, 2vw, 16px)',
-      left: 'clamp(8px, 2vw, 16px)',
-      background: 'rgba(17, 24, 39, 0.9)',
-      padding: 'clamp(4px, 1vw, 8px) clamp(8px, 2vw, 16px)',
-      borderRadius: '20px',
-      fontSize: 'clamp(12px, 3vw, 14px)',
-      backdropFilter: 'blur(10px)',
-      color: '#F9FAFB'
-    },
-    zoomLevel: {
-      position: 'absolute',
-      bottom: 'clamp(8px, 2vw, 16px)',
-      right: 'clamp(8px, 2vw, 16px)',
-      background: 'rgba(17, 24, 39, 0.9)',
-      padding: 'clamp(4px, 1vw, 8px) clamp(8px, 2vw, 16px)',
-      borderRadius: '20px',
-      fontSize: 'clamp(12px, 3vw, 14px)',
-      backdropFilter: 'blur(10px)',
-      color: '#F9FAFB'
-    },
-    mapTypeSelector: {
-      position: 'absolute',
-      top: 'clamp(3px, 1vw, 3px)',
-      right: '80px',
-      background: 'rgba(31, 41, 55, 0.95)',
-      borderRadius: '20px',
-      padding: 'clamp(5px, 1vw, 10px)',
-      border: '1px solid rgba(55, 65, 81, 0.2)',
-      backdropFilter: 'blur(10px)',
-      display: 'flex',
-      gap: 'clamp(4px, 1vw, 8px)',
-      width: 'clamp(300px, 80vw, 550px)',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      zIndex: 10
-    },
-    mapTypeButton: {
-      flex: '1',
-      padding: 'clamp(4px, 1vw, 8px) clamp(6px, 1.5vw, 12px)',
-      border: 'none',
-      borderRadius: '12px',
-      background: 'transparent',
-      color: '#D1D5DB',
-      fontSize: 'clamp(12px, 3vw, 14px)',
-      fontWeight: '600',
-      cursor: 'pointer',
-      transition: 'all 0.3s ease',
-      textAlign: 'center'
-    },
-    mapTypeButtonActive: {
-      background: 'linear-gradient(135deg, #059669, #047857)',
-      color: '#ffffff'
-    },
-    sidePanel: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 'clamp(12px, 3vw, 24px)'
-    },
-    marketingCard: {
-      background: 'rgba(31, 41, 55, 0.95)',
-      borderRadius: 'clamp(10px, 2.5vw, 20px)',
-      padding: 'clamp(12px, 3vw, 24px)',
-      border: '1px solid rgba(55, 65, 81, 0.2)',
-      textAlign: 'left',
-      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)'
-    },
-    marketingTitle: {
-      fontSize: 'clamp(18px, 5vw, 24px)',
-      fontWeight: '700',
-      marginBottom: 'clamp(8px, 2vw, 16px)',
-      color: '#F9FAFB',
-      textAlign: 'center'
-    },
-    marketingList: {
-      listStyleType: 'none',
-      padding: 0,
-      margin: '0 0 clamp(12px, 3vw, 24px) 0',
-      textAlign: 'left'
-    },
-    marketingItem: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 'clamp(6px, 1.5vw, 12px)',
-      marginBottom: 'clamp(6px, 1.5vw, 12px)',
-      fontSize: 'clamp(14px, 3.5vw, 16px)',
-      color: '#E5E7EB'
-    },
-    marketingIcon: {
-      fontSize: 'clamp(16px, 4vw, 20px)',
-      color: '#10B981'
-    },
-    trustSection: {
-      padding: 'clamp(40px, 10vw, 80px) clamp(16px, 4vw, 32px)',
-      background: 'rgba(17, 24, 39, 0.8)'
-    },
-    trustContainer: {
-      maxWidth: '1400px',
-      margin: '0 auto'
-    },
-    statsBar: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-      gap: 'clamp(16px, 4vw, 32px)',
-      marginBottom: 'clamp(40px, 10vw, 80px)',
-      padding: 'clamp(20px, 5vw, 40px)',
-      background: 'rgba(31, 41, 55, 0.95)',
-      borderRadius: 'clamp(12px, 3vw, 24px)',
-      border: '1px solid rgba(55, 65, 81, 0.2)',
-      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)'
-    },
-    statItem: {
-      textAlign: 'center'
-    },
-    statNumber: {
-      fontSize: 'clamp(32px, 8vw, 48px)',
-      fontWeight: '900',
-      color: '#F9FAFB',
-      marginBottom: 'clamp(4px, 1vw, 8px)'
-    },
-    statLabel: {
-      fontSize: 'clamp(14px, 3.5vw, 16px)',
-      color: '#D1D5DB'
-    },
-    trustTitle: {
-      textAlign: 'center',
-      fontSize: 'clamp(24px, 6vw, 36px)',
-      fontWeight: '700',
-      marginBottom: 'clamp(10px, 2.5vw, 20px)',
-      color: '#F9FAFB'
-    },
-    logosContainer: {
-      overflow: 'hidden',
-      marginBottom: 'clamp(20px, 5vw, 40px)',
-      position: 'relative'
-    },
-    logosTrack: {
-      display: 'flex',
-      gap: 'clamp(12px, 3vw, 24px)',
-      animation: 'scroll 7.6s linear infinite'
-    },
-    logoCard: {
-      background: 'rgba(31, 41, 55, 0.95)',
-      borderRadius: 'clamp(8px, 2vw, 16px)',
-      padding: 'clamp(16px, 4vw, 32px) clamp(12px, 3vw, 24px)',
-      border: '1px solid rgba(55, 65, 81, 0.2)',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      gap: 'clamp(8px, 2vw, 16px)',
-      transition: 'all 0.3s ease',
-      cursor: 'pointer',
-      minWidth: 'clamp(150px, 40vw, 200px)',
-      flexShrink: 0,
-      boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)'
-    },
-    companyLogo: {
-      fontSize: 'clamp(32px, 8vw, 48px)',
-      opacity: 0.9,
-      transition: 'all 0.3s ease'
-    },
-    companyName: {
-      fontSize: 'clamp(14px, 3.5vw, 16px)',
-      fontWeight: '600',
-      color: '#E5E7EB'
-    },
-    featuresSection: {
-      padding: 'clamp(40px, 10vw, 80px) clamp(16px, 4vw, 32px)',
-      background: 'rgba(17, 24, 39, 0.8)'
-    },
-    featuresContainer: {
-      maxWidth: '1400px',
-      margin: '0 auto'
-    },
-    featuresTitle: {
-      textAlign: 'center',
-      fontSize: 'clamp(24px, 6vw, 36px)',
-      marginBottom: 'clamp(24px, 6vw, 48px)',
-      color: '#F9FAFB'
-    },
-    featuresGrid: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-      gap: 'clamp(16px, 4vw, 32px)'
-    },
-    featureCard: {
-      background: 'rgba(31, 41, 55, 0.95)',
-      borderRadius: 'clamp(10px, 2.5vw, 20px)',
-      padding: 'clamp(16px, 4vw, 32px)',
-      border: '1px solid rgba(55, 65, 81, 0.2)',
-      textAlign: 'center',
-      transition: 'all 0.3s ease',
-      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
-      opacity: 0,
-      transform: 'translateY(20px)',
-      animation: 'fadeInUp 0.8s ease-out forwards'
-    },
-    featureIcon: {
-      fontSize: 'clamp(32px, 8vw, 48px)',
-      marginBottom: 'clamp(8px, 2vw, 16px)',
-      background: 'linear-gradient(135deg, #065F46, #10B981)',
-      WebkitBackgroundClip: 'text',
-      WebkitTextFillColor: 'transparent',
-      backgroundClip: 'text'
-    },
-    featureTitle: {
-      fontSize: 'clamp(18px, 5vw, 24px)',
-      fontWeight: '700',
-      marginBottom: 'clamp(8px, 2vw, 16px)',
-      color: '#F9FAFB'
-    },
-    featureDesc: {
-      fontSize: 'clamp(14px, 3.5vw, 16px)',
-      color: '#D1D5DB',
-      lineHeight: '1.6'
-    },
-    reviewsSection: {
-      padding: 'clamp(40px, 10vw, 80px) clamp(16px, 4vw, 32px)',
-      background: 'rgba(17, 24, 39, 0.8)'
-    },
-    reviewsContainer: {
-      maxWidth: '1400px',
-      margin: '0 auto'
-    },
-    reviewsTitle: {
-      textAlign: 'center',
-      fontSize: 'clamp(24px, 6vw, 36px)',
-      marginBottom: 'clamp(24px, 6vw, 48px)',
-      color: '#F9FAFB'
-    },
-    reviewsGrid: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-      gap: 'clamp(16px, 4vw, 32px)'
-    },
-    reviewCard: {
-      background: 'rgba(31, 41, 55, 0.95)',
-      borderRadius: 'clamp(10px, 2.5vw, 20px)',
-      padding: 'clamp(16px, 4vw, 32px)',
-      border: '1px solid rgba(55, 65, 81, 0.2)',
-      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
-      opacity: 0,
-      transform: 'translateY(20px)',
-      animation: 'fadeInUp 0.8s ease-out forwards'
-    },
-    reviewHeader: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 'clamp(8px, 2vw, 16px)',
-      marginBottom: 'clamp(8px, 2vw, 16px)'
-    },
-    reviewAvatar: {
-      width: 'clamp(32px, 8vw, 48px)',
-      height: 'clamp(32px, 8vw, 48px)',
-      borderRadius: '50%',
-      background: 'linear-gradient(135deg, #059669, #047857)'
-    },
-    reviewName: {
-      fontSize: 'clamp(16px, 4vw, 18px)',
-      fontWeight: '600',
-      color: '#F9FAFB'
-    },
-    reviewStars: {
-      color: '#F59E0B',
-      marginBottom: 'clamp(8px, 2vw, 16px)',
-      fontSize: 'clamp(18px, 4.5vw, 20px)'
-    },
-    reviewText: {
-      color: '#D1D5DB',
-      lineHeight: '1.6',
-      fontSize: 'clamp(14px, 3.5vw, 16px)'
-    },
-    pricingSection: {
-      padding: 'clamp(40px, 10vw, 80px) clamp(16px, 4vw, 32px)',
-      background: 'linear-gradient(135deg, #111827 0%, #1F2937 100%)'
-    },
-    pricingContainer: {
-      maxWidth: '1400px',
-      margin: '0 auto',
-      textAlign: 'center'
-    },
-    pricingTitle: {
-      textAlign: 'center',
-      fontSize: 'clamp(24px, 6vw, 36px)',
-      marginBottom: 'clamp(8px, 2vw, 16px)',
-      color: '#F9FAFB',
-      fontWeight: '700'
-    },
-    pricingSubtitle: {
-      textAlign: 'center',
-      fontSize: 'clamp(16px, 4vw, 18px)',
-      color: '#D1D5DB',
-      marginBottom: 'clamp(24px, 6vw, 48px)'
-    },
-    pricingGrid: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-      gap: 'clamp(16px, 4vw, 32px)',
-      justifyContent: 'center',
-      alignItems: 'start',
-      maxWidth: '1200px',
-      margin: '0 auto'
-    },
-    pricingCard: {
-      background: 'rgba(31, 41, 55, 0.95)',
-      borderRadius: 'clamp(12px, 3vw, 24px)',
-      padding: 'clamp(32px, 8vw, 48px)',
-      border: '1px solid rgba(55, 65, 81, 0.2)',
-      textAlign: 'center',
-      transition: 'all 0.3s ease',
-      position: 'relative',
-      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
-      maxWidth: '400px',
-      margin: '0 auto',
-      opacity: 0,
-      transform: 'translateY(20px)',
-      animation: 'fadeInUp 0.8s ease-out forwards'
-    },
-    pricingCardPopular: {
-      border: '2px solid #10B981',
-      transform: 'scale(1.05)',
-      boxShadow: '0 10px 40px rgba(16, 185, 129, 0.2)'
-    },
-    pricingHeader: {
-      marginBottom: 'clamp(16px, 4vw, 24px)'
-    },
-    pricingPlan: {
-      fontSize: 'clamp(18px, 5vw, 24px)',
-      fontWeight: '700',
-      color: '#F9FAFB',
-      margin: 0
-    },
-    pricingPrice: {
-      fontSize: 'clamp(36px, 8vw, 48px)',
-      fontWeight: '900',
-      background: 'linear-gradient(135deg, #10B981, #059669)',
-      WebkitBackgroundClip: 'text',
-      WebkitTextFillColor: 'transparent',
-      backgroundClip: 'text',
-      margin: 'clamp(8px, 2vw, 16px) 0'
-    },
-    pricingPeriod: {
-      fontSize: 'clamp(14px, 3.5vw, 16px)',
-      color: '#D1D5DB',
-      margin: 0
-    },
-    pricingFeatures: {
-      listStyleType: 'none',
-      padding: 0,
-      margin: 'clamp(24px, 6vw, 32px) 0 clamp(24px, 6vw, 32px) 0',
-      textAlign: 'left'
-    },
-    pricingFeature: {
-      fontSize: 'clamp(14px, 3.5vw, 16px)',
-      color: '#E5E7EB',
-      marginBottom: 'clamp(12px, 3vw, 16px)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'flex-start',
-      gap: 'clamp(8px, 2vw, 12px)'
-    },
-    pricingFeatureIcon: {
-      fontSize: 'clamp(16px, 4vw, 20px)',
-      color: '#10B981'
-    },
-    pricingButton: {
-      width: '100%',
-      padding: 'clamp(12px, 3vw, 16px) clamp(20px, 5vw, 32px)',
-      background: 'linear-gradient(135deg, #059669, #047857)',
-      color: '#ffffff',
-      border: 'none',
-      borderRadius: '50px',
-      fontSize: 'clamp(16px, 4vw, 18px)',
-      fontWeight: '700',
-      cursor: 'pointer',
-      transition: 'all 0.3s ease',
-      marginTop: 'clamp(16px, 4vw, 24px)',
-      boxShadow: '0 4px 15px rgba(5, 150, 105, 0.3)'
-    },
-    ctaSection: {
-      padding: 'clamp(40px, 10vw, 80px) clamp(16px, 4vw, 32px)',
-      background: 'linear-gradient(135deg, #065F46 0%, #10B981 100%)',
-      textAlign: 'center',
-      color: '#ffffff'
-    },
-    ctaTitle: {
-      fontSize: 'clamp(24px, 6vw, 36px)',
-      fontWeight: '700',
-      marginBottom: 'clamp(8px, 2vw, 16px)'
-    },
-    ctaDesc: {
-      fontSize: 'clamp(16px, 4vw, 18px)',
-      marginBottom: 'clamp(24px, 6vw, 32px)',
-      opacity: 0.9
-    },
-    ctaButton: {
-      padding: 'clamp(12px, 3vw, 16px) clamp(24px, 6vw, 40px)',
-      background: 'rgba(255, 255, 255, 0.2)',
-      color: '#ffffff',
-      border: '2px solid #ffffff',
-      borderRadius: '50px',
-      fontSize: 'clamp(16px, 4vw, 18px)',
-      fontWeight: '700',
-      cursor: 'pointer',
-      transition: 'all 0.3s ease'
-    },
-    modal: {
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(17, 24, 39, 0.7)',
-      zIndex: 2000,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backdropFilter: 'blur(5px)',
-      animation: 'fadeIn 0.3s ease-in-out'
-    },
-    modalContent: {
-      background: 'rgba(31, 41, 55, 0.95)',
-      borderRadius: 'clamp(10px, 2.5vw, 20px)',
-      padding: 'clamp(16px, 4vw, 32px)',
-      width: 'clamp(300px, 90vw, 400px)',
-      maxWidth: '90%',
-      border: '1px solid rgba(55, 65, 81, 0.2)',
-      boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
-      transform: 'scale(1)',
-      animation: 'slideIn 0.3s ease-in-out',
-      maxHeight: '90vh',
-      overflowY: 'auto',
-      color: '#F9FAFB'
-    },
-    modalTitle: {
-      fontSize: 'clamp(18px, 5vw, 24px)',
-      fontWeight: '700',
-      margin: '0 0 clamp(8px, 2vw, 16px) 0',
-      color: '#F9FAFB',
-      textAlign: 'center'
-    },
-    input: {
-      width: '100%',
-      padding: 'clamp(8px, 2vw, 12px) clamp(10px, 2.5vw, 16px)',
-      borderRadius: '8px',
-      border: '1px solid rgba(55, 65, 81, 0.2)',
-      background: 'rgba(17, 24, 39, 0.8)',
-      color: '#F9FAFB',
-      fontSize: 'clamp(14px, 3.5vw, 16px)',
-      marginBottom: 'clamp(8px, 2vw, 16px)',
-      boxSizing: 'border-box'
-    },
-    select: {
-      width: '100%',
-      padding: 'clamp(8px, 2vw, 12px) clamp(10px, 2.5vw, 16px)',
-      borderRadius: '8px',
-      border: '1px solid rgba(55, 65, 81, 0.2)',
-      background: 'rgba(31, 41, 55, 0.95)',
-      color: '#F9FAFB',
-      fontSize: 'clamp(14px, 3.5vw, 16px)',
-      marginBottom: 'clamp(8px, 2vw, 16px)',
-      boxSizing: 'border-box',
-      appearance: 'none',
-      backgroundImage: 'url("data:image/svg+xml;utf8,<svg fill=\"%23059669\" height=\"24\" viewBox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M7 10l5 5 5-5z\"/></svg>")',
-      backgroundRepeat: 'no-repeat',
-      backgroundPosition: 'right clamp(6px, 1.5vw, 12px) top 50%',
-      backgroundSize: 'clamp(12px, 3vw, 16px)'
-    },
-    error: {
-      color: '#F87171',
-      background: 'rgba(248, 113, 113, 0.1)',
-      padding: 'clamp(4px, 1vw, 8px) clamp(6px, 1.5vw, 12px)',
-      borderRadius: '6px',
-      marginBottom: 'clamp(8px, 2vw, 16px)',
-      fontSize: 'clamp(12px, 3vw, 14px)',
-      border: '1px solid rgba(248, 113, 113, 0.3)'
-    },
-    toggleBtn: {
-      width: '100%',
-      padding: 'clamp(8px, 2vw, 12px)',
-      background: 'transparent',
-      color: '#D1D5DB',
-      border: '1px solid rgba(55, 65, 81, 0.2)',
-      borderRadius: '8px',
-      fontSize: 'clamp(12px, 3vw, 14px)',
-      cursor: 'pointer',
-      transition: 'all 0.3s ease',
-      marginTop: 'clamp(6px, 1.5vw, 12px)'
-    },
-    policyNotification: {
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(17, 24, 39, 0.7)',
-      zIndex: 2000,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backdropFilter: 'blur(5px)',
-      animation: 'fadeIn 0.3s ease-in-out'
-    },
-    policyNotificationContent: {
-      background: 'rgba(31, 41, 55, 0.95)',
-      borderRadius: 'clamp(10px, 2.5vw, 20px)',
-      padding: 'clamp(16px, 4vw, 32px)',
-      width: 'clamp(300px, 90vw, 400px)',
-      maxWidth: '90%',
-      border: '1px solid rgba(55, 65, 81, 0.2)',
-      boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
-      textAlign: 'center',
-      animation: 'slideIn 0.3s ease-in-out',
-      color: '#F9FAFB'
-    },
-    policyNotificationTitle: {
-      fontSize: 'clamp(16px, 4vw, 20px)',
-      fontWeight: '700',
-      marginBottom: 'clamp(8px, 2vw, 16px)',
-      color: '#F9FAFB'
-    },
-    policyNotificationText: {
-      fontSize: 'clamp(14px, 3.5vw, 16px)',
-      color: '#D1D5DB',
-      marginBottom: 'clamp(12px, 3vw, 24px)',
-      lineHeight: '1.6'
-    },
-    policyNotificationLink: {
-      color: '#10B981',
-      textDecoration: 'underline',
-      fontWeight: '600'
-    },
-    policyNotificationButton: {
-      padding: 'clamp(8px, 2vw, 12px) clamp(16px, 4vw, 24px)',
-      background: 'linear-gradient(135deg, #059669, #047857)',
-      color: '#ffffff',
-      border: 'none',
-      borderRadius: '50px',
-      fontSize: 'clamp(14px, 3.5vw, 16px)',
-      fontWeight: '600',
-      cursor: 'pointer',
-      transition: 'all 0.3s ease',
-      boxShadow: '0 4px 15px rgba(5, 150, 105, 0.3)'
-    },
-    footerSection: {
-      padding: 'clamp(40px, 10vw, 80px) clamp(16px, 4vw, 32px)',
-      background: 'rgba(17, 24, 39, 0.95)',
-      borderTop: '1px solid rgba(55, 65, 81, 0.2)',
-      color: '#F9FAFB'
-    },
-    footerContainer: {
-      maxWidth: '1400px',
-      margin: '0 auto',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      gap: 'clamp(16px, 4vw, 32px)'
-    },
-    footerLinks: {
-      display: 'flex',
-      flexWrap: 'wrap',
-      justifyContent: 'center',
-      gap: 'clamp(16px, 4vw, 32px)'
-    },
-    footerLink: {
-      color: '#D1D5DB',
-      fontSize: 'clamp(14px, 3.5vw, 16px)',
-      fontWeight: '600',
-      textDecoration: 'none',
-      transition: 'all 0.3s ease'
-    }
-  };
-
-  const updatedAuthBtnStyle = {
-    ...mapStyles.authBtn,
-    cursor: 'pointer'
-  };
-
-  const updatedPrimaryBtnStyle = {
-    ...mapStyles.primaryBtn,
-    cursor: 'pointer'
-  };
-
-  const updatedMarketingBtnStyle = {
-    ...mapStyles.primaryBtn,
-    padding: 'clamp(8px, 2vw, 12px) clamp(16px, 4vw, 24px)',
-    fontSize: 'clamp(14px, 3.5vw, 16px)',
-    minWidth: 'auto',
-    cursor: 'pointer',
-    background: 'linear-gradient(135deg, #059669, #047857)',
-    boxShadow: '0 4px 15px rgba(5, 150, 105, 0.3)'
   };
 
   const pricingPlans = [
@@ -913,13 +117,13 @@ export default function Home() {
       price: 899,
       popular: false,
       features: [
-        '✅ All map types including Hiking, Cycling, Satellite & Topographic',
-        '✅ High-resolution up to Zoom Level 19 for precise navigation',
-        '✅ Unlimited API calls with blazing-fast response times',
-         '✅ Download 25 Maps',
-        '✅ Offline maps download for seamless adventures anywhere',
-        '✅ Basic analytics dashboard to track usage'
-      ]
+        'All map types: Hiking, Cycling, Satellite & Topo',
+        'High-res up to Zoom Level 19',
+        'Unlimited API calls',
+        'Download 25 Maps',
+        'Offline maps download',
+        'Basic analytics dashboard',
+      ],
     },
     {
       id: 'pro',
@@ -927,17 +131,46 @@ export default function Home() {
       price: 1899,
       popular: true,
       features: [
-        '✅ All map types including Hiking, Cycling, Satellite & Topographic',
-        '✅ High-resolution up to Zoom Level 19 for precise navigation',
-       
-        '✅ Priority 24/7 support with dedicated account manager',
-        '✅ Offline maps download for seamless adventures anywhere',
-        '✅ Download 100 Maps',
-        '✅ Comprehensive analytics with AI-powered insights',
-        '✅ Early access to new features & beta testing',
-        
-      ]
-    }
+        'All map types: Hiking, Cycling, Satellite & Topo',
+        'High-res up to Zoom Level 19',
+        'Priority 24/7 support + dedicated manager',
+        'Download 100 Maps',
+        'Offline maps download',
+        'AI-powered analytics & insights',
+        'Early access to beta features',
+      ],
+    },
+  ];
+
+  const reviews = [
+    {
+      name: 'Alvarez',
+      role: 'Trail Guide, Colorado',
+      stars: 5,
+      text: 'The hiking maps for our Rockies trip were incredibly helpful. Elevation profiles and real-time weather kept us safe and prepared throughout.',
+      initials: 'A',
+    },
+    {
+      name: 'Liam',
+      role: 'Daily Commuter, Portland',
+      stars: 4,
+      text: "Cycling routes are great for finding quiet roads. It's become my daily companion for commuting — highly recommend for urban riders.",
+      initials: 'L',
+    },
+    {
+      name: 'Sarah Chen',
+      role: 'Land Surveyor, Texas',
+      stars: 5,
+      text: 'The topographic maps are a lifesaver. Contour lines and terrain shading let us analyze sites remotely, saving hours per project.',
+      initials: 'SC',
+    },
+    {
+      name: 'Sam',
+      role: 'Urban Planner, NYC',
+      stars: 4,
+      text: "Sharp satellite imagery that's perfect for urban planning. A reliable platform that consistently delivers real value for our team.",
+      initials: 'S',
+    },
   ];
 
   const handlePricingClick = (plan) => {
@@ -945,376 +178,846 @@ export default function Home() {
     setShowModal(true);
   };
 
-  const handleCtaClick = () => {
-    setShowModal(true);
-  };
-
   return (
-    <div style={mapStyles.container}>
-    <Head>
-  <title>Offline Maps Download | GeoPulse – GIS & Satellite Maps</title>
-  <meta name="description" content="Download offline maps including satellite, hiking, cycling and topographic maps. High-resolution GIS maps for offline navigation." />
-  <meta name="keywords" content="offline maps, download offline maps, GIS offline maps, satellite maps offline, hiking maps offline" />
-  <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://geopulesforu.business/" />
+    <div className="gp-root">
+      <Head>
+        <title>Offline Maps Download | GeoPulse – GIS & Satellite Maps</title>
+        <meta
+          name="description"
+          content="Download offline maps including satellite, hiking, cycling and topographic maps. High-resolution GIS maps for offline navigation."
+        />
+        <meta
+          name="keywords"
+          content="offline maps, download offline maps, GIS offline maps, satellite maps offline, hiking maps offline"
+        />
+        <meta name="robots" content="index, follow" />
+        <link rel="canonical" href="https://geopulesforu.business/" />
+        <meta property="og:title" content="Offline Maps Download | GeoPulse" />
+        <meta
+          property="og:description"
+          content="High-resolution offline GIS, hiking and satellite maps."
+        />
+        <meta property="og:url" content="https://geopulesforu.business/" />
+        <meta property="og:type" content="website" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=Playfair+Display:wght@700;800;900&display=swap"
+          rel="stylesheet"
+        />
+      </Head>
 
-  <meta property="og:title" content="Offline Maps Download | GeoPulse" />
-  <meta property="og:description" content="High-resolution offline GIS, hiking and satellite maps." />
-  <meta property="og:url" content="https://geopulesforu.business/" />
-  <meta property="og:type" content="website" />
-</Head>
-
-
-      <style jsx>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-        
-        @keyframes scroll {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        
-        @keyframes slideIn {
-          from { 
-            opacity: 0; 
-            transform: scale(0.95) translateY(-20px); 
-          }
-          to { 
-            opacity: 1; 
-            transform: scale(1) translateY(0); 
-          }
-        }
-
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-10px); }
-        }
-
-        @keyframes rotate3D {
-          0% { transform: rotateY(0deg); }
-          100% { transform: rotateY(360deg); }
-        }
-
-        .hover-scale:hover {
-          transform: translateY(-2px) scale(1.02);
-          transition: all 0.3s ease;
-        }
-        
-        .hover-glow:hover {
-          box-shadow: 0 8px 30px rgba(5, 150, 105, 0.4);
-          transition: all 0.3s ease;
-        }
-        
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+      <style jsx global>{`
+        :root {
+          --gp-white: #FFFFFF;
+          --gp-off-white: #FAFBFC;
+          --gp-cream: #F5F3EF;
+          --gp-warm-gray: #F0EDE8;
+          --gp-light-gray: #E8E5E0;
+          --gp-mid-gray: #9B9590;
+          --gp-dark-gray: #5C5652;
+          --gp-charcoal: #2D2926;
+          --gp-black: #1A1715;
+          --gp-green-50: #ECFDF5;
+          --gp-green-100: #D1FAE5;
+          --gp-green-200: #A7F3D0;
+          --gp-green-400: #34D399;
+          --gp-green-500: #10B981;
+          --gp-green-600: #059669;
+          --gp-green-700: #047857;
+          --gp-green-800: #065F46;
+          --gp-amber: #F59E0B;
+          --gp-coral: #F97316;
+          --gp-blue: #3B82F6;
+          --gp-radius-sm: 8px;
+          --gp-radius-md: 14px;
+          --gp-radius-lg: 22px;
+          --gp-radius-xl: 32px;
+          --gp-shadow-sm: 0 1px 3px rgba(26,23,21,0.06), 0 1px 2px rgba(26,23,21,0.04);
+          --gp-shadow-md: 0 4px 16px rgba(26,23,21,0.08), 0 2px 6px rgba(26,23,21,0.04);
+          --gp-shadow-lg: 0 12px 40px rgba(26,23,21,0.1), 0 4px 12px rgba(26,23,21,0.06);
+          --gp-shadow-xl: 0 20px 60px rgba(26,23,21,0.12), 0 8px 20px rgba(26,23,21,0.06);
+          --gp-font-display: 'Playfair Display', Georgia, serif;
+          --gp-font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
-        .feature-card:nth-child(1) { animation-delay: 0.1s; }
-        .feature-card:nth-child(2) { animation-delay: 0.2s; }
-        .feature-card:nth-child(3) { animation-delay: 0.3s; }
-        .feature-card:nth-child(4) { animation-delay: 0.4s; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .review-card:nth-child(1) { animation-delay: 0.1s; }
-        .review-card:nth-child(2) { animation-delay: 0.2s; }
-        .review-card:nth-child(3) { animation-delay: 0.3s; }
-        .review-card:nth-child(4) { animation-delay: 0.4s; }
-
-        .logo-card {
-          animation: float 3s ease-in-out infinite;
+        .gp-root {
+          min-height: 100vh;
+          background: var(--gp-off-white);
+          color: var(--gp-charcoal);
+          font-family: var(--gp-font-body);
+          overflow-x: hidden;
         }
 
-        .logo-card:nth-child(even) {
-          animation-delay: -1.5s;
+        /* ---- NAV ---- */
+        .gp-nav {
+          position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+          background: rgba(255,255,255,0.92);
+          backdrop-filter: blur(20px);
+          border-bottom: 1px solid var(--gp-light-gray);
+          padding: 0 clamp(16px,4vw,40px);
+          transition: box-shadow 0.3s;
+        }
+        .gp-nav:hover { box-shadow: var(--gp-shadow-sm); }
+        .gp-nav-inner {
+          max-width: 1320px; margin: 0 auto;
+          display: flex; justify-content: space-between; align-items: center;
+          height: clamp(56px,8vw,72px);
+        }
+        .gp-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+        .gp-logo-icon {
+          width: 40px; height: 40px;
+          background: linear-gradient(135deg, var(--gp-green-600), var(--gp-green-400));
+          border-radius: 12px;
+          display: grid; place-items: center;
+          font-size: 20px; color: #fff;
+          box-shadow: 0 2px 8px rgba(5,150,105,0.25);
+        }
+        .gp-logo-text {
+          font-family: var(--gp-font-display);
+          font-size: clamp(22px,3vw,28px); font-weight: 800;
+          color: var(--gp-charcoal);
+        }
+        .gp-nav-actions { display: flex; align-items: center; gap: clamp(8px,2vw,20px); }
+        .gp-nav-link {
+          font-size: 15px; font-weight: 600; color: var(--gp-dark-gray);
+          text-decoration: none; padding: 8px 16px; border-radius: 8px;
+          transition: all 0.2s;
+        }
+        .gp-nav-link:hover { color: var(--gp-green-700); background: var(--gp-green-50); }
+        .gp-btn-primary {
+          display: inline-flex; align-items: center; gap: 8px;
+          padding: 10px 24px;
+          background: linear-gradient(135deg, var(--gp-green-600), var(--gp-green-700));
+          color: #fff; border: none; border-radius: 50px;
+          font-size: 15px; font-weight: 700; font-family: var(--gp-font-body);
+          cursor: pointer; transition: all 0.25s;
+          box-shadow: 0 2px 12px rgba(5,150,105,0.25);
+        }
+        .gp-btn-primary:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 24px rgba(5,150,105,0.35);
+        }
+        .gp-btn-outline {
+          display: inline-flex; align-items: center; gap: 8px;
+          padding: 10px 24px;
+          background: transparent;
+          color: var(--gp-green-700); border: 2px solid var(--gp-green-500);
+          border-radius: 50px;
+          font-size: 15px; font-weight: 700; font-family: var(--gp-font-body);
+          cursor: pointer; transition: all 0.25s;
+        }
+        .gp-btn-outline:hover {
+          background: var(--gp-green-50);
+          transform: translateY(-2px);
         }
 
-        .feature-card:hover {
-          transform: translateY(-5px) rotateX(5deg);
-          box-shadow: 0 8px 30px rgba(5, 150, 105, 0.2);
-          transition: all 0.3s ease;
+        /* ---- HERO ---- */
+        .gp-hero {
+          padding: clamp(100px,16vw,160px) clamp(16px,4vw,40px) clamp(60px,10vw,100px);
+          background:
+            radial-gradient(ellipse 80% 60% at 20% 80%, rgba(167,243,208,0.25), transparent),
+            radial-gradient(ellipse 60% 50% at 80% 20%, rgba(52,211,153,0.15), transparent),
+            var(--gp-cream);
+          position: relative; overflow: hidden;
+        }
+        .gp-hero::before {
+          content: ''; position: absolute; inset: 0;
+          background: url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='1' fill='%23059669' fill-opacity='0.06'/%3E%3C/svg%3E");
+          pointer-events: none;
+        }
+        .gp-hero-inner {
+          max-width: 1320px; margin: 0 auto; position: relative; z-index: 2;
+        }
+        .gp-hero-content { text-align: center; margin-bottom: clamp(48px,8vw,80px); }
+        .gp-hero-badge {
+          display: inline-flex; align-items: center; gap: 8px;
+          padding: 6px 16px; margin-bottom: 24px;
+          background: var(--gp-white);
+          border: 1px solid var(--gp-green-200);
+          border-radius: 50px; font-size: 14px; font-weight: 600;
+          color: var(--gp-green-700);
+          box-shadow: var(--gp-shadow-sm);
+          animation: fadeDown 0.8s ease-out;
+        }
+        .gp-hero-badge-dot {
+          width: 8px; height: 8px; border-radius: 50%;
+          background: var(--gp-green-500);
+          animation: pulse 2s infinite;
+        }
+        .gp-hero-title {
+          font-family: var(--gp-font-display);
+          font-size: clamp(38px,7vw,76px); font-weight: 900;
+          line-height: 1.05; letter-spacing: -2px;
+          color: var(--gp-black);
+          margin-bottom: clamp(16px,3vw,28px);
+          animation: fadeUp 0.8s ease-out 0.1s both;
+        }
+        .gp-hero-title-accent {
+          background: linear-gradient(135deg, var(--gp-green-700), var(--gp-green-400));
+          -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+        .gp-hero-desc {
+          font-size: clamp(17px,2.5vw,21px); color: var(--gp-dark-gray);
+          max-width: 720px; margin: 0 auto clamp(28px,5vw,44px);
+          line-height: 1.65; font-weight: 400;
+          animation: fadeUp 0.8s ease-out 0.2s both;
+        }
+        .gp-hero-buttons {
+          display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+          animation: fadeUp 0.8s ease-out 0.3s both;
+        }
+        .gp-hero-btn-primary {
+          padding: 16px 36px; font-size: clamp(16px,2vw,18px); font-weight: 700;
+          background: linear-gradient(135deg, var(--gp-green-600), var(--gp-green-700));
+          color: #fff; border: none; border-radius: 50px;
+          cursor: pointer; font-family: var(--gp-font-body);
+          box-shadow: 0 4px 20px rgba(5,150,105,0.3);
+          transition: all 0.25s;
+        }
+        .gp-hero-btn-primary:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 8px 30px rgba(5,150,105,0.4);
+        }
+        .gp-hero-btn-outline {
+          padding: 16px 36px; font-size: clamp(16px,2vw,18px); font-weight: 700;
+          background: var(--gp-white); color: var(--gp-green-700);
+          border: 2px solid var(--gp-green-200); border-radius: 50px;
+          cursor: pointer; font-family: var(--gp-font-body);
+          transition: all 0.25s;
+        }
+        .gp-hero-btn-outline:hover {
+          border-color: var(--gp-green-500);
+          background: var(--gp-green-50);
+          transform: translateY(-3px);
+        }
+        /* Free trial urgency nudge */
+        .gp-hero-nudge {
+          margin-top: 16px;
+          font-size: 14px; color: var(--gp-mid-gray); font-weight: 500;
+          animation: fadeUp 0.8s ease-out 0.4s both;
+        }
+        .gp-hero-nudge strong { color: var(--gp-green-700); }
+
+        /* ---- SOCIAL PROOF BAR ---- */
+        .gp-social-proof {
+          display: flex; align-items: center; justify-content: center;
+          gap: 32px; flex-wrap: wrap;
+          padding: 20px 0; margin-top: clamp(32px,5vw,56px);
+          animation: fadeUp 0.8s ease-out 0.5s both;
+        }
+        .gp-social-proof-item {
+          display: flex; align-items: center; gap: 8px;
+          font-size: 14px; font-weight: 600; color: var(--gp-dark-gray);
+        }
+        .gp-social-proof-icon { font-size: 20px; }
+        .gp-social-proof-number { color: var(--gp-green-700); font-weight: 800; font-size: 16px; }
+
+        /* ---- MAP SECTION ---- */
+        .gp-map-section {
+          background: var(--gp-white);
+          border-radius: var(--gp-radius-xl);
+          padding: clamp(20px,4vw,36px);
+          border: 1px solid var(--gp-light-gray);
+          box-shadow: var(--gp-shadow-lg);
+          animation: fadeUp 1s ease-out 0.6s both;
+        }
+        .gp-map-grid {
+          display: grid;
+          grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+          gap: clamp(20px,4vw,32px); align-items: start;
+        }
+        .gp-map-container {
+          background: var(--gp-off-white);
+          border-radius: var(--gp-radius-lg);
+          padding: clamp(16px,3vw,24px);
+          border: 1px solid var(--gp-light-gray);
+          position: relative; overflow: hidden;
+        }
+        .gp-map-header {
+          display: flex; justify-content: space-between; align-items: center;
+          margin-bottom: 16px;
+        }
+        .gp-map-title {
+          font-size: clamp(16px,2.5vw,20px); font-weight: 700; color: var(--gp-charcoal);
+        }
+        .gp-live-badge {
+          display: flex; align-items: center; gap: 6px;
+          padding: 4px 12px; background: var(--gp-green-50);
+          border: 1px solid var(--gp-green-200); border-radius: 50px;
+          font-size: 13px; font-weight: 600; color: var(--gp-green-700);
+        }
+        .gp-live-dot {
+          width: 8px; height: 8px; background: var(--gp-green-500);
+          border-radius: 50%; animation: pulse 2s infinite;
+        }
+        .gp-map-canvas {
+          width: 100%; height: clamp(280px,40vw,420px);
+          border-radius: var(--gp-radius-md);
+          border: 1px solid var(--gp-light-gray);
+          background: var(--gp-warm-gray);
+        }
+        .gp-map-types {
+          display: flex; gap: 6px; flex-wrap: wrap;
+          margin-top: 14px;
+        }
+        .gp-map-type-btn {
+          padding: 8px 14px; border: 1px solid var(--gp-light-gray);
+          border-radius: 10px; background: var(--gp-white);
+          color: var(--gp-dark-gray); font-size: 13px; font-weight: 600;
+          cursor: pointer; transition: all 0.2s;
+          font-family: var(--gp-font-body);
+          display: flex; align-items: center; gap: 4px;
+        }
+        .gp-map-type-btn:hover { border-color: var(--gp-green-400); color: var(--gp-green-700); }
+        .gp-map-type-btn.active {
+          background: linear-gradient(135deg, var(--gp-green-600), var(--gp-green-700));
+          color: #fff; border-color: transparent;
+          box-shadow: 0 2px 8px rgba(5,150,105,0.25);
         }
 
-        .logo-card:hover {
-          transform: translateY(-5px) scale(1.05) rotateY(10deg);
-          border-color: rgba(5, 150, 105, 0.5);
-          transition: all 0.3s ease;
+        /* ---- SIDE PANEL (WHY CHOOSE) ---- */
+        .gp-side-panel { display: flex; flex-direction: column; gap: 20px; }
+        .gp-why-card {
+          background: var(--gp-white);
+          border-radius: var(--gp-radius-lg);
+          padding: clamp(20px,4vw,28px);
+          border: 1px solid var(--gp-light-gray);
+          box-shadow: var(--gp-shadow-sm);
+        }
+        .gp-why-title {
+          font-family: var(--gp-font-display);
+          font-size: clamp(20px,3vw,26px); font-weight: 800;
+          color: var(--gp-charcoal); margin-bottom: 20px;
+        }
+        .gp-why-list { list-style: none; padding: 0; margin: 0 0 20px; }
+        .gp-why-item {
+          display: flex; align-items: flex-start; gap: 12px;
+          padding: 10px 0;
+          border-bottom: 1px solid var(--gp-warm-gray);
+          font-size: 15px; color: var(--gp-dark-gray); line-height: 1.5;
+        }
+        .gp-why-item:last-child { border-bottom: none; }
+        .gp-why-icon {
+          width: 32px; height: 32px; border-radius: 8px;
+          background: var(--gp-green-50); display: grid; place-items: center;
+          font-size: 16px; flex-shrink: 0;
+        }
+        .gp-why-cta-btn {
+          width: 100%; padding: 14px;
+          background: linear-gradient(135deg, var(--gp-green-600), var(--gp-green-700));
+          color: #fff; border: none; border-radius: 12px;
+          font-size: 16px; font-weight: 700; cursor: pointer;
+          font-family: var(--gp-font-body);
+          box-shadow: 0 4px 16px rgba(5,150,105,0.25);
+          transition: all 0.25s;
+        }
+        .gp-why-cta-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 24px rgba(5,150,105,0.35);
         }
 
-        .map-type-button:hover {
-          background: rgba(5, 150, 105, 0.1);
-          color: #F9FAFB;
-          transform: scale(1.05);
-          transition: all 0.3s ease;
+        /* ---- STATS ---- */
+        .gp-stats-section {
+          padding: clamp(48px,8vw,80px) clamp(16px,4vw,40px);
+          background: var(--gp-white);
+        }
+        .gp-stats-inner { max-width: 1320px; margin: 0 auto; }
+        .gp-stats-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          gap: clamp(20px,4vw,32px);
+          padding: clamp(28px,5vw,48px);
+          background: linear-gradient(135deg, var(--gp-green-800), var(--gp-green-600));
+          border-radius: var(--gp-radius-xl);
+          box-shadow: 0 8px 32px rgba(5,150,105,0.2);
+        }
+        .gp-stat { text-align: center; }
+        .gp-stat-number {
+          font-family: var(--gp-font-display);
+          font-size: clamp(36px,6vw,52px); font-weight: 900;
+          color: #fff; line-height: 1;
+        }
+        .gp-stat-label {
+          font-size: 15px; color: var(--gp-green-200); font-weight: 500; margin-top: 6px;
         }
 
-        .nav-link:hover {
-          color: #F9FAFB;
-          background: rgba(5, 150, 105, 0.1);
-          border-radius: 8px;
-          transition: all 0.3s ease;
+        /* ---- TRUST LOGOS ---- */
+        .gp-trust { margin-top: clamp(40px,6vw,64px); text-align: center; }
+        .gp-trust-title {
+          font-size: clamp(14px,2vw,16px); font-weight: 600;
+          color: var(--gp-mid-gray); text-transform: uppercase;
+          letter-spacing: 2px; margin-bottom: 24px;
+        }
+        .gp-logos-wrap { overflow: hidden; position: relative; }
+        .gp-logos-track {
+          display: flex; gap: 20px;
+          animation: scrollLogos 18s linear infinite;
+        }
+        .gp-logo-card {
+          flex-shrink: 0; min-width: 160px;
+          background: var(--gp-off-white); border: 1px solid var(--gp-light-gray);
+          border-radius: var(--gp-radius-md);
+          padding: 20px 24px;
+          display: flex; flex-direction: column; align-items: center; gap: 8px;
+          transition: all 0.25s;
+        }
+        .gp-logo-card:hover {
+          border-color: var(--gp-green-400);
+          box-shadow: var(--gp-shadow-md);
+          transform: translateY(-3px);
+        }
+        .gp-logo-emoji { font-size: 36px; }
+        .gp-logo-name { font-size: 14px; font-weight: 600; color: var(--gp-dark-gray); }
+
+        /* ---- FEATURES ---- */
+        .gp-features-section {
+          padding: clamp(48px,8vw,80px) clamp(16px,4vw,40px);
+          background: var(--gp-cream);
+        }
+        .gp-features-inner { max-width: 1320px; margin: 0 auto; }
+        .gp-section-label {
+          text-align: center; font-size: 14px; font-weight: 700;
+          color: var(--gp-green-600); text-transform: uppercase;
+          letter-spacing: 2px; margin-bottom: 8px;
+        }
+        .gp-section-title {
+          text-align: center;
+          font-family: var(--gp-font-display);
+          font-size: clamp(28px,5vw,44px); font-weight: 800;
+          color: var(--gp-charcoal); margin-bottom: clamp(32px,5vw,56px);
+        }
+        .gp-features-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+          gap: clamp(20px,4vw,28px);
+        }
+        .gp-feature-card {
+          background: var(--gp-white);
+          border-radius: var(--gp-radius-lg);
+          padding: clamp(28px,4vw,36px);
+          border: 1px solid var(--gp-light-gray);
+          box-shadow: var(--gp-shadow-sm);
+          transition: all 0.3s;
+          opacity: 0; transform: translateY(20px);
+          animation: fadeUp 0.7s ease-out forwards;
+        }
+        .gp-feature-card:nth-child(1) { animation-delay: 0.1s; }
+        .gp-feature-card:nth-child(2) { animation-delay: 0.2s; }
+        .gp-feature-card:nth-child(3) { animation-delay: 0.3s; }
+        .gp-feature-card:nth-child(4) { animation-delay: 0.4s; }
+        .gp-feature-card:hover {
+          transform: translateY(-6px);
+          box-shadow: var(--gp-shadow-lg);
+          border-color: var(--gp-green-200);
+        }
+        .gp-feature-icon-wrap {
+          width: 56px; height: 56px;
+          background: linear-gradient(135deg, var(--gp-green-50), var(--gp-green-100));
+          border-radius: 16px; display: grid; place-items: center;
+          font-size: 28px; margin-bottom: 20px;
+        }
+        .gp-feature-title {
+          font-size: clamp(18px,2.5vw,22px); font-weight: 700;
+          color: var(--gp-charcoal); margin-bottom: 10px;
+        }
+        .gp-feature-desc {
+          font-size: 15px; color: var(--gp-dark-gray); line-height: 1.65;
         }
 
-        .footer-link:hover {
-          color: #F9FAFB;
-          text-decoration: underline;
-          transition: all 0.3s ease;
+        /* ---- REVIEWS ---- */
+        .gp-reviews-section {
+          padding: clamp(48px,8vw,80px) clamp(16px,4vw,40px);
+          background: var(--gp-white);
+        }
+        .gp-reviews-inner { max-width: 1320px; margin: 0 auto; }
+        .gp-reviews-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+          gap: clamp(20px,4vw,28px);
+        }
+        .gp-review-card {
+          background: var(--gp-off-white);
+          border-radius: var(--gp-radius-lg);
+          padding: clamp(24px,4vw,32px);
+          border: 1px solid var(--gp-light-gray);
+          transition: all 0.3s;
+          opacity: 0; transform: translateY(20px);
+          animation: fadeUp 0.7s ease-out forwards;
+        }
+        .gp-review-card:nth-child(1) { animation-delay: 0.1s; }
+        .gp-review-card:nth-child(2) { animation-delay: 0.2s; }
+        .gp-review-card:nth-child(3) { animation-delay: 0.3s; }
+        .gp-review-card:nth-child(4) { animation-delay: 0.4s; }
+        .gp-review-card:hover {
+          transform: translateY(-4px);
+          box-shadow: var(--gp-shadow-md);
+          border-color: var(--gp-green-200);
+        }
+        .gp-review-header { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+        .gp-review-avatar {
+          width: 44px; height: 44px; border-radius: 50%;
+          background: linear-gradient(135deg, var(--gp-green-400), var(--gp-green-600));
+          display: grid; place-items: center;
+          font-size: 16px; font-weight: 800; color: #fff;
+        }
+        .gp-review-name { font-size: 16px; font-weight: 700; color: var(--gp-charcoal); }
+        .gp-review-role { font-size: 13px; color: var(--gp-mid-gray); font-weight: 500; }
+        .gp-review-stars { color: var(--gp-amber); font-size: 18px; margin-bottom: 12px; }
+        .gp-review-text { font-size: 15px; color: var(--gp-dark-gray); line-height: 1.65; }
+
+        /* ---- PRICING ---- */
+        .gp-pricing-section {
+          padding: clamp(48px,8vw,80px) clamp(16px,4vw,40px);
+          background: var(--gp-cream);
+        }
+        .gp-pricing-inner { max-width: 1320px; margin: 0 auto; text-align: center; }
+        .gp-pricing-subtitle {
+          font-size: clamp(16px,2.5vw,18px); color: var(--gp-dark-gray);
+          margin-bottom: clamp(32px,5vw,48px); max-width: 600px;
+          margin-left: auto; margin-right: auto;
+        }
+        .gp-pricing-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: clamp(20px,4vw,32px);
+          max-width: 840px; margin: 0 auto;
+        }
+        .gp-pricing-card {
+          background: var(--gp-white);
+          border-radius: var(--gp-radius-xl);
+          padding: clamp(32px,5vw,44px);
+          border: 1px solid var(--gp-light-gray);
+          text-align: left;
+          transition: all 0.3s; position: relative;
+          box-shadow: var(--gp-shadow-md);
+          opacity: 0; transform: translateY(20px);
+          animation: fadeUp 0.8s ease-out forwards;
+        }
+        .gp-pricing-card:nth-child(1) { animation-delay: 0.1s; }
+        .gp-pricing-card:nth-child(2) { animation-delay: 0.2s; }
+        .gp-pricing-card:hover {
+          transform: translateY(-6px);
+          box-shadow: var(--gp-shadow-xl);
+        }
+        .gp-pricing-card.popular {
+          border: 2px solid var(--gp-green-500);
+          box-shadow: var(--gp-shadow-lg), 0 0 0 4px var(--gp-green-100);
+        }
+        .gp-pricing-popular-badge {
+          position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+          background: linear-gradient(135deg, var(--gp-green-500), var(--gp-green-600));
+          color: #fff; padding: 5px 20px; border-radius: 50px;
+          font-size: 13px; font-weight: 700; white-space: nowrap;
+          box-shadow: 0 4px 12px rgba(5,150,105,0.3);
+        }
+        .gp-pricing-plan-name {
+          font-size: 18px; font-weight: 700; color: var(--gp-dark-gray);
+          margin-bottom: 8px;
+        }
+        .gp-pricing-price {
+          font-family: var(--gp-font-display);
+          font-size: clamp(40px,6vw,52px); font-weight: 900;
+          color: var(--gp-charcoal); line-height: 1;
+        }
+        .gp-pricing-price-dollar { font-size: 28px; vertical-align: top; }
+        .gp-pricing-period { font-size: 14px; color: var(--gp-mid-gray); margin-top: 4px; margin-bottom: 24px; }
+        .gp-pricing-features { list-style: none; padding: 0; margin: 0 0 28px; }
+        .gp-pricing-feature {
+          display: flex; align-items: flex-start; gap: 10px;
+          padding: 8px 0; font-size: 15px; color: var(--gp-dark-gray);
+        }
+        .gp-pricing-check {
+          width: 20px; height: 20px; border-radius: 50%;
+          background: var(--gp-green-100); color: var(--gp-green-700);
+          display: grid; place-items: center; flex-shrink: 0;
+          font-size: 12px; font-weight: 800; margin-top: 2px;
+        }
+        .gp-pricing-cta {
+          width: 100%; padding: 16px;
+          background: linear-gradient(135deg, var(--gp-green-600), var(--gp-green-700));
+          color: #fff; border: none; border-radius: 14px;
+          font-size: 16px; font-weight: 700; cursor: pointer;
+          font-family: var(--gp-font-body);
+          box-shadow: 0 4px 16px rgba(5,150,105,0.25);
+          transition: all 0.25s;
+        }
+        .gp-pricing-cta:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 24px rgba(5,150,105,0.35);
+        }
+        .gp-pricing-cta-outline {
+          width: 100%; padding: 16px;
+          background: var(--gp-white);
+          color: var(--gp-green-700); border: 2px solid var(--gp-green-400);
+          border-radius: 14px;
+          font-size: 16px; font-weight: 700; cursor: pointer;
+          font-family: var(--gp-font-body);
+          transition: all 0.25s;
+        }
+        .gp-pricing-cta-outline:hover {
+          background: var(--gp-green-50);
+          transform: translateY(-2px);
+        }
+        .gp-pricing-guarantee {
+          margin-top: 32px; text-align: center;
+          font-size: 14px; color: var(--gp-mid-gray); font-weight: 500;
+        }
+        .gp-pricing-guarantee strong { color: var(--gp-green-700); }
+
+        /* ---- CTA ---- */
+        .gp-cta-section {
+          padding: clamp(48px,8vw,80px) clamp(16px,4vw,40px);
+          background: linear-gradient(135deg, var(--gp-green-800), var(--gp-green-600));
+          text-align: center; color: #fff; position: relative; overflow: hidden;
+        }
+        .gp-cta-section::before {
+          content: ''; position: absolute; inset: 0;
+          background: url("data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='20' r='1.5' fill='white' fill-opacity='0.06'/%3E%3C/svg%3E");
+          pointer-events: none;
+        }
+        .gp-cta-inner { max-width: 680px; margin: 0 auto; position: relative; z-index: 2; }
+        .gp-cta-title {
+          font-family: var(--gp-font-display);
+          font-size: clamp(28px,5vw,44px); font-weight: 800;
+          margin-bottom: 16px;
+        }
+        .gp-cta-desc { font-size: clamp(16px,2.5vw,19px); opacity: 0.9; margin-bottom: 32px; line-height: 1.6; }
+        .gp-cta-btn {
+          padding: 16px 40px;
+          background: var(--gp-white); color: var(--gp-green-700);
+          border: none; border-radius: 50px;
+          font-size: 18px; font-weight: 700; cursor: pointer;
+          font-family: var(--gp-font-body);
+          box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+          transition: all 0.25s;
+        }
+        .gp-cta-btn:hover {
+          transform: translateY(-3px) scale(1.02);
+          box-shadow: 0 8px 30px rgba(0,0,0,0.2);
         }
 
-        .pricing-card:hover {
-          transform: translateY(-5px) rotateX(2deg);
-          box-shadow: 0 8px 30px rgba(5, 150, 105, 0.2);
-          transition: all 0.3s ease;
+        /* ---- FLOATING CTA (conversion booster) ---- */
+        .gp-floating-cta {
+          position: fixed; bottom: 24px; right: 24px; z-index: 900;
+          background: var(--gp-white);
+          border: 1px solid var(--gp-green-200);
+          border-radius: var(--gp-radius-lg);
+          padding: 16px 20px;
+          box-shadow: var(--gp-shadow-xl);
+          display: flex; align-items: center; gap: 12px;
+          animation: slideUp 0.5s ease-out;
+          max-width: 340px;
         }
-
-        .pricing-button:hover {
-          transform: translateY(-2px) scale(1.02);
-          box-shadow: 0 6px 20px rgba(5, 150, 105, 0.4);
-          transition: all 0.3s ease;
+        .gp-floating-cta-close {
+          position: absolute; top: 6px; right: 10px;
+          background: none; border: none; color: var(--gp-mid-gray);
+          font-size: 16px; cursor: pointer; padding: 2px;
         }
-
-        .cta-button:hover {
-          background: rgba(255, 255, 255, 0.3);
-          transform: translateY(-2px) scale(1.05);
-          transition: all 0.3s ease;
+        .gp-floating-cta-icon {
+          width: 44px; height: 44px; border-radius: 12px;
+          background: linear-gradient(135deg, var(--gp-green-400), var(--gp-green-600));
+          display: grid; place-items: center; font-size: 22px; flex-shrink: 0;
         }
-
-        .mapCanvas {
-          transition: transform 0.5s ease;
+        .gp-floating-cta-text { font-size: 14px; color: var(--gp-dark-gray); line-height: 1.4; }
+        .gp-floating-cta-text strong { color: var(--gp-charcoal); display: block; margin-bottom: 2px; }
+        .gp-floating-cta-link {
+          color: var(--gp-green-600); font-weight: 700; text-decoration: none;
+          font-size: 14px;
         }
+        .gp-floating-cta-link:hover { text-decoration: underline; }
 
-        .mapCanvas:hover {
-          transform: rotateX(5deg) scale(1.02);
+        /* ---- FOOTER ---- */
+        .gp-footer {
+          padding: clamp(32px,6vw,56px) clamp(16px,4vw,40px);
+          background: var(--gp-charcoal); color: #fff;
         }
+        .gp-footer-inner {
+          max-width: 1320px; margin: 0 auto;
+          display: flex; flex-direction: column; align-items: center; gap: 20px;
+        }
+        .gp-footer-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 24px; }
+        .gp-footer-link {
+          color: rgba(255,255,255,0.7); font-size: 14px; font-weight: 600;
+          text-decoration: none; transition: color 0.2s;
+        }
+        .gp-footer-link:hover { color: #fff; }
+        .gp-footer-copy { font-size: 13px; color: rgba(255,255,255,0.4); }
 
+        /* ---- POLICY MODAL ---- */
+        .gp-overlay {
+          position: fixed; inset: 0; z-index: 2000;
+          background: rgba(26,23,21,0.4);
+          backdrop-filter: blur(8px);
+          display: grid; place-items: center;
+          animation: fadeIn 0.3s ease;
+        }
+        .gp-policy-modal {
+          background: var(--gp-white);
+          border-radius: var(--gp-radius-xl);
+          padding: clamp(28px,5vw,40px);
+          width: min(420px, 92vw);
+          text-align: center;
+          box-shadow: var(--gp-shadow-xl);
+          animation: slideUp 0.35s ease;
+        }
+        .gp-policy-title {
+          font-family: var(--gp-font-display);
+          font-size: 22px; font-weight: 800; color: var(--gp-charcoal);
+          margin-bottom: 12px;
+        }
+        .gp-policy-text {
+          font-size: 15px; color: var(--gp-dark-gray); line-height: 1.6;
+          margin-bottom: 24px;
+        }
+        .gp-policy-link { color: var(--gp-green-600); font-weight: 600; text-decoration: underline; }
+        .gp-policy-btn {
+          padding: 12px 32px;
+          background: linear-gradient(135deg, var(--gp-green-600), var(--gp-green-700));
+          color: #fff; border: none; border-radius: 50px;
+          font-size: 16px; font-weight: 700; cursor: pointer;
+          font-family: var(--gp-font-body);
+          box-shadow: 0 4px 16px rgba(5,150,105,0.25);
+          transition: all 0.25s;
+        }
+        .gp-policy-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(5,150,105,0.35); }
+
+        /* ---- ANIMATIONS ---- */
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+        @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes fadeDown { from{opacity:0;transform:translateY(-16px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes slideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes scrollLogos { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+
+        /* ---- RESPONSIVE ---- */
         @media (max-width: 768px) {
-          .map-grid {
-            grid-template-columns: 1fr !important;
-          }
-          .map-type-selector {
-            width: 100% !important;
-            flex-wrap: wrap;
-            justify-content: center !important;
-            padding: clamp(4px, 1vw, 8px) !important;
-            top: clamp(-70px, -15vw, -60px) !important;
-          }
-          .map-type-button {
-            flex: 0 0 auto !important;
-            min-width: clamp(60px, 20vw, 80px) !important;
-            font-size: clamp(10px, 3vw, 12px) !important;
-          }
-          .logos-track {
-            animation: scroll 10s linear infinite;
-          }
-          .pricing-grid {
-            grid-template-columns: 1fr;
-            max-width: 400px;
-            margin: 0 auto;
-          }
+          .gp-map-grid { grid-template-columns: 1fr !important; }
+          .gp-social-proof { gap: 16px; }
+          .gp-floating-cta { left: 16px; right: 16px; max-width: none; bottom: 16px; }
         }
-
         @media (max-width: 480px) {
-          .nav-content {
-            flex-direction: column;
-            gap: 8px;
-          }
-          .button-group {
-            flex-direction: column;
-            align-items: center;
-          }
-          .stats-bar {
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-          }
-          .features-grid, .reviews-grid {
-            grid-template-columns: 1fr;
-          }
-          .footer-links {
-            flex-direction: column;
-            align-items: center;
-          }
-        }
-
-        .modal-close {
-          position: absolute;
-          top: clamp(6px, 1.5vw, 12px);
-          right: clamp(8px, 2vw, 16px);
-          background: none;
-          border: none;
-          color: #D1D5DB;
-          font-size: clamp(18px, 5vw, 24px);
-          cursor: pointer;
-          padding: 0;
-          width: clamp(24px, 6vw, 32px);
-          height: clamp(24px, 6vw, 32px);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border-radius: 50%;
-          transition: all 0.3s ease;
-        }
-
-        .modal-close:hover {
-          background: rgba(5, 150, 105, 0.1);
-          color: #F9FAFB;
-          transform: rotate(90deg);
-          transition: all 0.3s ease;
-        }
-
-        .policy-notification-button:hover {
-          transform: translateY(-2px) scale(1.02);
-          box-shadow: 0 6px 20px rgba(5, 150, 105, 0.4);
-          transition: all 0.3s ease;
-        }
-
-        .primaryBtn:hover, .secondaryBtn:hover {
-          transform: translateY(-2px) scale(1.02);
-          box-shadow: 0 12px 30px rgba(5, 150, 105, 0.4);
-          transition: all 0.3s ease;
+          .gp-nav-inner { gap: 8px; }
+          .gp-hero-buttons { flex-direction: column; align-items: center; }
+          .gp-features-grid, .gp-reviews-grid { grid-template-columns: 1fr; }
+          .gp-pricing-grid { grid-template-columns: 1fr; max-width: 400px; }
+          .gp-footer-links { flex-direction: column; align-items: center; gap: 12px; }
         }
       `}</style>
 
-      <nav style={mapStyles.nav}>
-        <div style={mapStyles.navContent} className="nav-content">
-          <div style={mapStyles.logo}>
-            <div style={mapStyles.logoIcon}>🗺️</div>
-            <h1 style={mapStyles.logoText}>GeoPulse</h1>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px, 2vw, 16px)' }}>
-            <a href="/Documentation" style={mapStyles.navLink} className="nav-link">
-              Documentation
-            </a>
-            <button
-              onClick={() => {
-                console.log('Opening modal');
-                setShowModal(true);
-              }}
-              style={updatedAuthBtnStyle}
-              className="hover-scale hover-glow"
-            >
-              <span>Sign In / Sign Up</span>
+      {/* ========= NAV ========= */}
+      <nav className="gp-nav">
+        <div className="gp-nav-inner">
+          <a href="/" className="gp-logo">
+            <div className="gp-logo-icon">🗺️</div>
+            <span className="gp-logo-text">GeoPulse</span>
+          </a>
+          <div className="gp-nav-actions">
+            <a href="/Documentation" className="gp-nav-link">Docs</a>
+            <button onClick={() => setShowModal(true)} className="gp-btn-primary">
+              Sign In
             </button>
           </div>
         </div>
       </nav>
 
-      <section style={mapStyles.hero}>
-        <div style={mapStyles.heroOverlay}></div>
-        <div style={mapStyles.heroContainer}>
-          <div style={mapStyles.heroContent}>
-            <h1 style={mapStyles.heroTitle}>
-              <span>Next-Gen</span>
-              <br />
-              <span style={mapStyles.heroGradient}>Mapping Platform</span>
+      {/* ========= HERO ========= */}
+      <section className="gp-hero">
+        <div className="gp-hero-inner">
+          <div className="gp-hero-content">
+            <div className="gp-hero-badge">
+              <span className="gp-hero-badge-dot"></span>
+              Now with AI-powered route planning
+            </div>
+            <h1 className="gp-hero-title">
+              Maps That Move<br />
+              <span className="gp-hero-title-accent">Your World Forward</span>
             </h1>
-            <p style={mapStyles.heroDesc}>
-              Generate high-quality map tiles, offline maps, and geospatial data with enterprise-grade APIs. 
-              Seamlessly integrated with modern GIS workflows, including adventurous maps for hiking and cycling.
+            <p className="gp-hero-desc">
+              High-quality offline maps, satellite imagery, and geospatial APIs built for
+              adventurers, developers, and enterprises. From hiking trails to city streets.
             </p>
-            <div style={mapStyles.buttonGroup} className="button-group">
-              <button
-                onClick={() => {
-                  console.log('Opening modal from hero');
-                  setShowModal(true);
-                }}
-                style={updatedPrimaryBtnStyle}
-                className="hover-scale hover-glow primaryBtn"
-              >
-                Start Free Trial
+            <div className="gp-hero-buttons">
+              <button onClick={() => setShowModal(true)} className="gp-hero-btn-primary">
+                Start Free — No Card Required
               </button>
-              <button 
-                style={mapStyles.secondaryBtn}
-                className="hover-scale secondaryBtn"
-              >
-                Watch Demo
+              <button className="gp-hero-btn-outline">
+                ▶ Watch 2-Min Demo
               </button>
+            </div>
+            <p className="gp-hero-nudge">
+              <strong>2,340 teams</strong> signed up this month — join them in under 30 seconds
+            </p>
+          </div>
+
+          {/* Social proof micro-bar */}
+          <div className="gp-social-proof">
+            <div className="gp-social-proof-item">
+              <span className="gp-social-proof-icon">⭐</span>
+              <span><span className="gp-social-proof-number">4.9</span> on G2</span>
+            </div>
+            <div className="gp-social-proof-item">
+              <span className="gp-social-proof-icon">🏆</span>
+              <span><span className="gp-social-proof-number">10K+</span> organizations</span>
+            </div>
+            <div className="gp-social-proof-item">
+              <span className="gp-social-proof-icon">🌍</span>
+              <span><span className="gp-social-proof-number">150+</span> countries</span>
+            </div>
+            <div className="gp-social-proof-item">
+              <span className="gp-social-proof-icon">⚡</span>
+              <span><span className="gp-social-proof-number">99.9%</span> uptime</span>
             </div>
           </div>
 
-          <div style={mapStyles.mapSection}>
-            <div style={mapStyles.mapGrid} className="map-grid">
-              <div style={mapStyles.mapContainer}>
-                <div style={mapStyles.mapHeader}>
-                  <h3 style={mapStyles.mapTitle}>Live 3D Map Preview</h3>
-                  <div style={mapStyles.liveIndicator}>
-                    <div style={mapStyles.liveDot}></div>
-                    <span style={{ fontSize: 'clamp(12px, 3vw, 14px)', color: '#10B981' }}>Live</span>
+          {/* Map Section */}
+          <div className="gp-map-section">
+            <div className="gp-map-grid">
+              <div className="gp-map-container">
+                <div className="gp-map-header">
+                  <h3 className="gp-map-title">Live 3D Preview</h3>
+                  <div className="gp-live-badge">
+                    <span className="gp-live-dot"></span>
+                    Live
                   </div>
                 </div>
-                
-                <div ref={mapRef} style={mapStyles.mapCanvas} className="mapCanvas" />
-                
-                <div style={mapStyles.mapTypeSelector} className="map-type-selector">
+                <div ref={mapRef} className="gp-map-canvas" />
+                <div className="gp-map-types">
                   {mapTypes.map((type) => (
                     <button
                       key={type.id}
-                      style={{
-                        ...mapStyles.mapTypeButton,
-                        ...(basemapType === type.id ? mapStyles.mapTypeButtonActive : {})
-                      }}
+                      className={`gp-map-type-btn ${basemapType === type.id ? 'active' : ''}`}
                       onClick={() => handleMapTypeChange(type.id)}
-                      className="map-type-button"
                     >
-                      {type.label}
+                      {type.icon} {type.label}
                     </button>
                   ))}
                 </div>
               </div>
 
-              <div style={mapStyles.sidePanel}>
-                <div style={mapStyles.marketingCard}>
-                  <h3 style={mapStyles.marketingTitle}>Why Choose GeoPulse?</h3>
-                  <ul style={mapStyles.marketingList}>
-                    <li style={mapStyles.marketingItem}>
-                      <span style={mapStyles.marketingIcon}>🥾</span>
-                      Expert Hiking Maps for Epic Adventures – Never Get Lost Again!
-                    </li>
-                    <li style={mapStyles.marketingItem}>
-                      <span style={mapStyles.marketingIcon}>🚴</span>
-                      Optimized Cycling Routes for Every Rider – Save Time & Energy
-                    </li>
-                    <li style={mapStyles.marketingItem}>
-                      <span style={mapStyles.marketingIcon}>🛰️</span>
-                      Crystal-Clear Satellite Imagery – Insights at Your Fingertips
-                    </li>
-                    <li style={mapStyles.marketingItem}>
-                      <span style={mapStyles.marketingIcon}>🏔️</span>
-                      Detailed Topographic Views for Pros – Precision for Professionals
-                    </li>
-                    <li style={mapStyles.marketingItem}>
-                      <span style={mapStyles.marketingIcon}>🔗</span>
-                      Seamless GIS Integration – Boost Your Workflow Efficiency
-                    </li>
-                    <li style={mapStyles.marketingItem}>
-                      <span style={mapStyles.marketingIcon}>⚡</span>
-                      Real-Time Data Updates – Stay Ahead with Live Intelligence
-                    </li>
+              <div className="gp-side-panel">
+                <div className="gp-why-card">
+                  <h3 className="gp-why-title">Why GeoPulse?</h3>
+                  <ul className="gp-why-list">
+                    {[
+                      { icon: '🥾', text: 'Expert hiking maps with elevation & weather' },
+                      { icon: '🚴', text: 'Smart cycling routes that avoid traffic' },
+                      { icon: '🛰️', text: 'Crystal-clear satellite imagery' },
+                      { icon: '🏔️', text: 'Detailed topographic views' },
+                      { icon: '🔗', text: 'Seamless GIS workflow integration' },
+                      { icon: '⚡', text: 'Real-time data updates' },
+                    ].map((item, i) => (
+                      <li key={i} className="gp-why-item">
+                        <div className="gp-why-icon">{item.icon}</div>
+                        <span>{item.text}</span>
+                      </li>
+                    ))}
                   </ul>
-                  <button
-                    onClick={() => {
-                      console.log('Opening modal from marketing');
-                      setShowModal(true);
-                    }}
-                    style={updatedMarketingBtnStyle}
-                    className="hover-scale hover-glow"
-                  >
-                    Get Started Now
+                  <button onClick={() => setShowModal(true)} className="gp-why-cta-btn">
+                    Get Started Free →
                   </button>
                 </div>
               </div>
@@ -1323,247 +1026,283 @@ export default function Home() {
         </div>
       </section>
 
-      <section style={mapStyles.trustSection}>
-        <div style={mapStyles.trustContainer}>
-          <div style={mapStyles.statsBar} className="stats-bar">
-            <div style={mapStyles.statItem}>
-              <div style={mapStyles.statNumber}>500M+</div>
-              <div style={mapStyles.statLabel}>Tiles Served Monthly</div>
-            </div>
-            <div style={mapStyles.statItem}>
-              <div style={mapStyles.statNumber}>10,000+</div>
-              <div style={mapStyles.statLabel}>Active Organizations</div>
-            </div>
-            <div style={mapStyles.statItem}>
-              <div style={mapStyles.statNumber}>99.9%</div>
-              <div style={mapStyles.statLabel}>Uptime SLA</div>
-            </div>
-            <div style={mapStyles.statItem}>
-              <div style={mapStyles.statNumber}>150+</div>
-              <div style={mapStyles.statLabel}>Countries Covered</div>
-            </div>
+      {/* ========= STATS ========= */}
+      <section className="gp-stats-section">
+        <div className="gp-stats-inner">
+          <div className="gp-stats-grid">
+            {[
+              { num: '500M+', label: 'Tiles Served Monthly' },
+              { num: '10,000+', label: 'Active Organizations' },
+              { num: '99.9%', label: 'Uptime SLA' },
+              { num: '150+', label: 'Countries Covered' },
+            ].map((stat, i) => (
+              <div key={i} className="gp-stat">
+                <div className="gp-stat-number">{stat.num}</div>
+                <div className="gp-stat-label">{stat.label}</div>
+              </div>
+            ))}
           </div>
 
-          <section style={mapStyles.featuresSection}>
-            <div style={mapStyles.featuresContainer}>
-              <h2 style={mapStyles.featuresTitle}>Discover Our Premium Maps</h2>
-              <div style={mapStyles.featuresGrid} className="features-grid">
-                <div style={mapStyles.featureCard} className="feature-card">
-                  <div style={mapStyles.featureIcon}>🥾</div>
-                  <h3 style={mapStyles.featureTitle}>Hiking Maps</h3>
-                  <p style={mapStyles.featureDesc}>
-                    Explore trails with detailed elevation profiles, waypoints, and real-time weather integration. Perfect for adventurers seeking the ultimate outdoor experience – turn every hike into a triumph!
-                  </p>
-                </div>
-                <div style={mapStyles.featureCard} className="feature-card">
-                  <div style={mapStyles.featureIcon}>🚴</div>
-                  <h3 style={mapStyles.featureTitle}>Cycling Maps</h3>
-                  <p style={mapStyles.featureDesc}>
-                    Navigate bike routes with traffic-avoiding paths, slope gradients, and custom route planning. Ride smarter and safer with our specialized cycling layers – elevate your cycling game today!
-                  </p>
-                </div>
-                <div style={mapStyles.featureCard} className="feature-card">
-                  <div style={mapStyles.featureIcon}>🛰️</div>
-                  <h3 style={mapStyles.featureTitle}>Satellite Imagery</h3>
-                  <p style={mapStyles.featureDesc}>
-                    Access high-resolution satellite views for accurate land monitoring, urban planning, and environmental analysis. See the world from above like never before – unlock global insights effortlessly!
-                  </p>
-                </div>
-                <div style={mapStyles.featureCard} className="feature-card">
-                  <div style={mapStyles.featureIcon}>🏔️</div>
-                  <h3 style={mapStyles.featureTitle}>Topographic Maps</h3>
-                  <p style={mapStyles.featureDesc}>
-                    Detailed contour line, terrain shading, and hydrological features for precise navigation in rugged landscapes. Ideal for geologists, surveyors, and outdoor enthusiasts – conquer any terrain with confidence!
-                  </p>
-                </div>
+          <div className="gp-trust">
+            <p className="gp-trust-title">Trusted by leading organizations worldwide</p>
+            <div className="gp-logos-wrap">
+              <div className="gp-logos-track">
+                {[...companies, ...companies].map((c, i) => (
+                  <div key={i} className="gp-logo-card">
+                    <span className="gp-logo-emoji">{c.icon}</span>
+                    <span className="gp-logo-name">{c.name}</span>
+                  </div>
+                ))}
               </div>
-            </div>
-          </section>
-
-          <h3 style={mapStyles.trustTitle}>Trusted by Leading Organizations Worldwide</h3>
-          <div style={mapStyles.logosContainer}>
-            <div style={mapStyles.logosTrack} className="logos-track">
-              {companies.map((company, index) => (
-                <div key={`logo-1-${index}`} style={mapStyles.logoCard} className="logo-card">
-                  <div style={{...mapStyles.companyLogo, color: company.color}}>
-                    {company.icon}
-                  </div>
-                  <span style={mapStyles.companyName}>{company.name}</span>
-                </div>
-              ))}
-              {companies.map((company, index) => (
-                <div key={`logo-2-${index}`} style={mapStyles.logoCard} className="logo-card">
-                  <div style={{...mapStyles.companyLogo, color: company.color}}>
-                    {company.icon}
-                  </div>
-                  <span style={mapStyles.companyName}>{company.name}</span>
-                </div>
-              ))}
             </div>
           </div>
         </div>
       </section>
 
-      <section style={mapStyles.reviewsSection}>
-        <div style={mapStyles.reviewsContainer}>
-          <h2 style={mapStyles.reviewsTitle}>What Our Users Say – Join Thousands of Satisfied Customers</h2>
-          <div style={mapStyles.reviewsGrid} className="reviews-grid">
-            <div style={mapStyles.reviewCard} className="review-card">
-              <div style={mapStyles.reviewHeader}>
-                <div style={mapStyles.reviewAvatar}></div>
-                <span style={mapStyles.reviewName}>Alvarez</span>
-              </div>
-              <div style={mapStyles.reviewStars}>★★★★★</div>
-              <p style={mapStyles.reviewText}>
-                "I used the hiking maps for a weekend trip in the Rockies, and the elevation profiles were incredibly helpful for planning our route. The real-time weather updates kept us prepared. GeoPulse changed our adventure game!"
-              </p>
-            </div>
-            <div style={mapStyles.reviewCard} className="review-card">
-              <div style={mapStyles.reviewHeader}>
-                <div style={mapStyles.reviewAvatar}></div>
-                <span style={mapStyles.reviewName}>Liam</span>
-              </div>
-              <div style={mapStyles.reviewStars}>★★★★☆</div>
-              <p style={mapStyles.reviewText}>
-                "The cycling routes are great for finding less busy roads, but I wish there were more options for customizing waypoints. Still, it’s been a solid tool for my daily rides – highly recommend for commuters!"
-              </p>
-            </div>
-            <div style={mapStyles.reviewCard} className="review-card">
-              <div style={mapStyles.reviewHeader}>
-                <div style={mapStyles.reviewAvatar}></div>
-                <span style={mapStyles.reviewName}>John Doe</span>
-              </div>
-              <div style={mapStyles.reviewStars}>★★★★★</div>
-              <p style={mapStyles.reviewText}>
-                "As a surveyor, the topographic maps are a lifesaver. The contour lines and terrain shading make it easy to analyze sites remotely before heading out. Saved us hours on every project!"
-              </p>
-            </div>
-            <div style={mapStyles.reviewCard} className="review-card">
-              <div style={mapStyles.reviewHeader}>
-                <div style={mapStyles.reviewAvatar}></div>
-                <span style={mapStyles.reviewName}>Sam</span>
-              </div>
-              <div style={mapStyles.reviewStars}>★★★★☆</div>
-              <p style={mapStyles.reviewText}>
-                "The satellite imagery is sharp and great for urban planning projects. Loading times can be a bit slow on mobile, but overall, it’s a reliable platform that delivers real value."
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section style={mapStyles.pricingSection}>
-        <div style={mapStyles.pricingContainer}>
-          <h2 style={mapStyles.pricingTitle}>Choose Your Plan – Unlock Unlimited Possibilities</h2>
-          <p style={mapStyles.pricingSubtitle}>Select the perfect package for your mapping needs. Annual billing saves you 20% – start today and transform your projects!</p>
-          <div style={mapStyles.pricingGrid} className="pricing-grid">
-            {pricingPlans.map((plan, index) => (
-              <div
-                key={plan.id}
-                style={{
-                  ...mapStyles.pricingCard,
-                  ...(plan.popular ? mapStyles.pricingCardPopular : {}),
-                  animationDelay: `${index * 0.1}s`
-                }}
-                className="pricing-card"
-              >
-                {plan.popular && (
-                  <div style={{ 
-                    position: 'absolute', 
-                    top: '-10px', 
-                    left: '50%', 
-                    transform: 'translateX(-50%)', 
-                    background: '#10B981', 
-                    color: '#ffffff', 
-                    padding: '4px 16px', 
-                    borderRadius: '20px', 
-                    fontSize: 'clamp(12px, 3vw, 14px)', 
-                    fontWeight: '600',
-                    boxShadow: '0 4px 10px rgba(16, 185, 129, 0.3)'
-                  }}>
-                    Most Popular – 70% Choose This!
-                  </div>
-                )}
-                <div style={mapStyles.pricingHeader}>
-                  <h3 style={mapStyles.pricingPlan}>{plan.name}</h3>
-                  <div style={mapStyles.pricingPrice}>${plan.price}</div>
-                  <p style={mapStyles.pricingPeriod}>billed annually (Save 20%)</p>
-                </div>
-                <ul style={mapStyles.pricingFeatures}>
-                  {plan.features.map((feature, fIndex) => (
-                    <li key={fIndex} style={mapStyles.pricingFeature}>
-                      <span style={mapStyles.pricingFeatureIcon} dangerouslySetInnerHTML={{__html: "&#10004;"}}></span>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-                <button
-                  onClick={() => handlePricingClick(plan)}
-                  style={mapStyles.pricingButton}
-                  className="pricing-button hover-glow"
-                >
-                  Get {plan.name} Now – Limited Time Offer!
-                </button>
+      {/* ========= FEATURES ========= */}
+      <section className="gp-features-section">
+        <div className="gp-features-inner">
+          <p className="gp-section-label">Premium Maps</p>
+          <h2 className="gp-section-title">Built for Every Terrain</h2>
+          <div className="gp-features-grid">
+            {[
+              {
+                icon: '🥾',
+                title: 'Hiking Maps',
+                desc: 'Detailed elevation profiles, waypoints, and real-time weather. Plan every adventure with confidence.',
+              },
+              {
+                icon: '🚴',
+                title: 'Cycling Maps',
+                desc: 'Traffic-avoiding routes, slope gradients, and custom planning. Ride smarter, every single day.',
+              },
+              {
+                icon: '🛰️',
+                title: 'Satellite Imagery',
+                desc: 'High-resolution views for land monitoring, urban planning, and environmental analysis.',
+              },
+              {
+                icon: '🏔️',
+                title: 'Topographic Maps',
+                desc: 'Contour lines, terrain shading, and hydrological features for precise navigation.',
+              },
+            ].map((f, i) => (
+              <div key={i} className="gp-feature-card">
+                <div className="gp-feature-icon-wrap">{f.icon}</div>
+                <h3 className="gp-feature-title">{f.title}</h3>
+                <p className="gp-feature-desc">{f.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section style={mapStyles.ctaSection}>
-        <div style={mapStyles.pricingContainer}>
-          <h2 style={mapStyles.ctaTitle}>Ready to Revolutionize Your Mapping?</h2>
-          <p style={mapStyles.ctaDesc}>Join 10,000+ organizations powering their success with GeoPulse. Start your free trial today – no credit card required!</p>
-          <button
-            onClick={handleCtaClick}
-            style={mapStyles.ctaButton}
-            className="cta-button hover-glow"
-          >
-            Start Free Trial Now
+      {/* ========= REVIEWS ========= */}
+      <section className="gp-reviews-section">
+        <div className="gp-reviews-inner">
+          <p className="gp-section-label">Testimonials</p>
+          <h2 className="gp-section-title">Loved by Thousands</h2>
+          <div className="gp-reviews-grid">
+            {reviews.map((r, i) => (
+              <div key={i} className="gp-review-card">
+                <div className="gp-review-header">
+                  <div className="gp-review-avatar">{r.initials}</div>
+                  <div>
+                    <div className="gp-review-name">{r.name}</div>
+                    <div className="gp-review-role">{r.role}</div>
+                  </div>
+                </div>
+                <div className="gp-review-stars">{'★'.repeat(r.stars)}{'☆'.repeat(5 - r.stars)}</div>
+                <p className="gp-review-text">{r.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ========= PRICING ========= */}
+      <section className="gp-pricing-section">
+        <div className="gp-pricing-inner">
+          <p className="gp-section-label">Pricing</p>
+          <h2 className="gp-section-title">Simple, Transparent Plans</h2>
+          <p className="gp-pricing-subtitle">
+            Annual billing saves 20%. Start free, upgrade when you're ready.
+          </p>
+          <div className="gp-pricing-grid">
+            {pricingPlans.map((plan) => (
+              <div
+                key={plan.id}
+                className={`gp-pricing-card ${plan.popular ? 'popular' : ''}`}
+              >
+                {plan.popular && (
+                  <div className="gp-pricing-popular-badge">Most Popular</div>
+                )}
+                <div className="gp-pricing-plan-name">{plan.name}</div>
+                <div className="gp-pricing-price">
+                  <span className="gp-pricing-price-dollar">$</span>
+                  {plan.price}
+                </div>
+                <div className="gp-pricing-period">per year, billed annually</div>
+                <ul className="gp-pricing-features">
+                  {plan.features.map((f, i) => (
+                    <li key={i} className="gp-pricing-feature">
+                      <span className="gp-pricing-check">✓</span>
+                      <span>{f}</span>
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  onClick={() => handlePricingClick(plan)}
+                  className={plan.popular ? 'gp-pricing-cta' : 'gp-pricing-cta-outline'}
+                >
+                  {plan.popular ? 'Get Professional' : 'Get Starter'}
+                </button>
+              </div>
+            ))}
+          </div>
+          <p className="gp-pricing-guarantee">
+            🛡️ <strong>30-day money-back guarantee</strong> — try risk-free
+          </p>
+        </div>
+      </section>
+
+      {/* ========= CTA ========= */}
+      <section className="gp-cta-section">
+        <div className="gp-cta-inner">
+          <h2 className="gp-cta-title">Ready to Map Smarter?</h2>
+          <p className="gp-cta-desc">
+            Join 10,000+ teams already using GeoPulse. Free trial, no credit card, instant access.
+          </p>
+          <button onClick={() => setShowModal(true)} className="gp-cta-btn">
+            Start Free Trial →
           </button>
         </div>
       </section>
 
-      <section style={mapStyles.footerSection}>
-        <div style={mapStyles.footerContainer}>
-          <div style={mapStyles.footerLinks} className="footer-links">
-            <a href="/terms" style={mapStyles.footerLink} className="footer-link">Terms of Service</a>
-            <a href="/cancel" style={mapStyles.footerLink} className="footer-link">Cancellation & Refund Policy</a>
-            <a href="/shipping" style={mapStyles.footerLink} className="footer-link">Shipping Policy</a>
-            <a href="/contact" style={mapStyles.footerLink} className="footer-link">Contact Us</a>
-            <a href="/PrivacyPolicy" style={mapStyles.footerLink} className="footer-link">Privacy Policy</a>
+      {/* ========= FOOTER ========= */}
+      <footer className="gp-footer">
+        <div className="gp-footer-inner">
+          <div className="gp-footer-links">
+            <a href="/terms" className="gp-footer-link">Terms of Service</a>
+            <a href="/cancel" className="gp-footer-link">Cancellation & Refund</a>
+            <a href="/shipping" className="gp-footer-link">Shipping Policy</a>
+            <a href="/contact" className="gp-footer-link">Contact Us</a>
+            <a href="/PrivacyPolicy" className="gp-footer-link">Privacy Policy</a>
           </div>
-          <p style={{ color: '#9CA3AF', fontSize: 'clamp(12px, 3vw, 14px)', margin: 0 }}>© 2025 GeoPulse. All rights reserved.</p>
+          <p className="gp-footer-copy">© 2025 GeoPulse. All rights reserved.</p>
         </div>
-      </section>
+      </footer>
 
+      {/* ========= FLOATING CTA (conversion booster) ========= */}
+      {showFloatingCTA && (
+        <div className="gp-floating-cta">
+          <button
+            className="gp-floating-cta-close"
+            onClick={() => setShowFloatingCTA(false)}
+          >
+            ✕
+          </button>
+          <div className="gp-floating-cta-icon">🎁</div>
+          <div className="gp-floating-cta-text">
+            <strong>Free for 14 days</strong>
+            No credit card needed. Cancel anytime.
+            <br />
+            <a href="#" onClick={(e) => { e.preventDefault(); setShowModal(true); }} className="gp-floating-cta-link">
+              Start now →
+            </a>
+          </div>
+        </div>
+      )}
+
+      {/* ========= PRIVACY POLICY MODAL ========= */}
       {showPolicyNotification && (
-        <div style={mapStyles.policyNotification}>
-          <div style={mapStyles.policyNotificationContent}>
-            <h3 style={mapStyles.policyNotificationTitle}>Privacy Policy Agreement</h3>
-            <p style={mapStyles.policyNotificationText}>
-              We use cookies to enhance your experience on GeoPulse. By continuing, you agree to our{' '}
-              <a href="/PrivacyPolicy" style={mapStyles.policyNotificationLink}>Privacy Policy</a>.
+        <div className="gp-overlay">
+          <div className="gp-policy-modal">
+            <h3 className="gp-policy-title">🍪 Quick Privacy Note</h3>
+            <p className="gp-policy-text">
+              We use cookies to improve your experience. By continuing, you agree to our{' '}
+              <a href="/PrivacyPolicy" className="gp-policy-link">Privacy Policy</a>.
             </p>
-            <button
-              onClick={handlePolicyAgree}
-              style={mapStyles.policyNotificationButton}
-              className="policy-notification-button"
-            >
-              Agree & Continue
+            <button onClick={handlePolicyAgree} className="gp-policy-btn">
+              Got It
             </button>
           </div>
         </div>
       )}
 
-      <AuthModal 
-        showModal={showModal} 
-        setShowModal={setShowModal} 
-        mapStyles={mapStyles} 
+      {/* ========= AUTH MODAL (existing component) ========= */}
+      <AuthModal
+        showModal={showModal}
+        setShowModal={setShowModal}
+        mapStyles={{
+          modal: {
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            background: 'rgba(26,23,21,0.4)', zIndex: 2000,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            backdropFilter: 'blur(8px)',
+          },
+          modalContent: {
+            background: '#fff', borderRadius: '22px', padding: 'clamp(24px,5vw,36px)',
+            width: 'min(420px, 92vw)', border: '1px solid #E8E5E0',
+            boxShadow: '0 20px 60px rgba(26,23,21,0.12)', color: '#2D2926',
+          },
+          modalTitle: {
+            fontSize: '22px', fontWeight: '800', color: '#2D2926',
+            textAlign: 'center', margin: '0 0 16px',
+            fontFamily: "'Playfair Display', Georgia, serif",
+          },
+          input: {
+            width: '100%', padding: '12px 16px', borderRadius: '10px',
+            border: '1px solid #E8E5E0', background: '#FAFBFC',
+            color: '#2D2926', fontSize: '15px', marginBottom: '12px',
+            boxSizing: 'border-box', fontFamily: "'DM Sans', sans-serif",
+            transition: 'border-color 0.2s',
+          },
+          select: {
+            width: '100%', padding: '12px 16px', borderRadius: '10px',
+            border: '1px solid #E8E5E0', background: '#FAFBFC',
+            color: '#2D2926', fontSize: '15px', marginBottom: '12px',
+            boxSizing: 'border-box', appearance: 'none',
+            fontFamily: "'DM Sans', sans-serif",
+          },
+          error: {
+            color: '#DC2626', background: 'rgba(220,38,38,0.06)',
+            padding: '8px 12px', borderRadius: '8px', marginBottom: '12px',
+            fontSize: '14px', border: '1px solid rgba(220,38,38,0.15)',
+          },
+          primaryBtn: {
+            width: '100%', padding: '14px',
+            background: 'linear-gradient(135deg, #059669, #047857)',
+            color: '#fff', border: 'none', borderRadius: '12px',
+            fontSize: '16px', fontWeight: '700', cursor: 'pointer',
+            fontFamily: "'DM Sans', sans-serif",
+          },
+          toggleBtn: {
+            width: '100%', padding: '10px', background: 'transparent',
+            color: '#5C5652', border: '1px solid #E8E5E0', borderRadius: '10px',
+            fontSize: '14px', cursor: 'pointer', marginTop: '8px',
+            fontFamily: "'DM Sans', sans-serif",
+          },
+        }}
       />
 
-      <ChatQuery mapStyles={mapStyles} />
+      <ChatQuery
+        mapStyles={{
+          input: {
+            width: '100%', padding: '12px 16px', borderRadius: '10px',
+            border: '1px solid #E8E5E0', background: '#FAFBFC',
+            color: '#2D2926', fontSize: '15px',
+            boxSizing: 'border-box', fontFamily: "'DM Sans', sans-serif",
+          },
+          primaryBtn: {
+            padding: '10px 20px',
+            background: 'linear-gradient(135deg, #059669, #047857)',
+            color: '#fff', border: 'none', borderRadius: '10px',
+            fontSize: '15px', fontWeight: '700', cursor: 'pointer',
+            fontFamily: "'DM Sans', sans-serif",
+          },
+        }}
+      />
     </div>
   );
 }
-
