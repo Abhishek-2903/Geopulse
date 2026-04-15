@@ -112,10 +112,25 @@ export default function Home() {
 
   const pricingPlans = [
     {
+      id: 'free',
+      name: 'Free',
+      price: 0,
+      popular: false,
+      isFree: true,
+      features: [
+        '2 free map downloads',
+        'All map types available',
+        'High-res up to Zoom Level 15',
+        'Preview any map before purchase',
+        'Basic analytics',
+      ],
+    },
+    {
       id: 'basic',
       name: 'Starter',
       price: 899,
       popular: false,
+      isFree: false,
       features: [
         'All map types: Hiking, Cycling, Satellite & Topo',
         'High-res up to Zoom Level 19',
@@ -130,6 +145,7 @@ export default function Home() {
       name: 'Professional',
       price: 1899,
       popular: true,
+      isFree: false,
       features: [
         'All map types: Hiking, Cycling, Satellite & Topo',
         'High-res up to Zoom Level 19',
@@ -893,6 +909,117 @@ export default function Home() {
         @keyframes slideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
         @keyframes scrollLogos { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
 
+        /* ---- HOW IT WORKS ---- */
+        .gp-how-section {
+          padding: clamp(48px,8vw,80px) clamp(16px,4vw,40px);
+          background: var(--gp-white);
+        }
+        .gp-how-inner { max-width: 1320px; margin: 0 auto; }
+        .gp-how-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+          gap: clamp(20px,4vw,32px);
+          margin-bottom: 12px;
+        }
+        .gp-how-card {
+          text-align: center;
+          padding: clamp(28px,4vw,40px) clamp(20px,3vw,28px);
+          background: var(--gp-off-white);
+          border-radius: var(--gp-radius-lg);
+          border: 1px solid var(--gp-light-gray);
+          position: relative;
+          transition: all 0.3s;
+          opacity: 0; transform: translateY(20px);
+          animation: fadeUp 0.7s ease-out forwards;
+        }
+        .gp-how-card:nth-child(1) { animation-delay: 0.1s; }
+        .gp-how-card:nth-child(2) { animation-delay: 0.25s; }
+        .gp-how-card:nth-child(3) { animation-delay: 0.4s; }
+        .gp-how-card:hover {
+          transform: translateY(-4px);
+          box-shadow: var(--gp-shadow-md);
+          border-color: var(--gp-green-200);
+        }
+        .gp-how-step-number {
+          position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+          width: 28px; height: 28px; border-radius: 50%;
+          background: linear-gradient(135deg, var(--gp-green-500), var(--gp-green-600));
+          color: #fff; font-size: 14px; font-weight: 800;
+          display: grid; place-items: center;
+          box-shadow: 0 2px 8px rgba(5,150,105,0.3);
+        }
+        .gp-how-icon { font-size: 40px; margin-bottom: 16px; margin-top: 8px; }
+        .gp-how-card-title {
+          font-size: clamp(18px,2.5vw,22px); font-weight: 700;
+          color: var(--gp-charcoal); margin-bottom: 8px;
+        }
+        .gp-how-card-desc {
+          font-size: 15px; color: var(--gp-dark-gray); line-height: 1.6;
+        }
+        .gp-how-cta-row {
+          text-align: center; margin-top: 20px;
+        }
+
+        /* ---- FREE TIER BADGE ---- */
+        .gp-pricing-free-badge {
+          position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+          background: var(--gp-charcoal);
+          color: #fff; padding: 5px 20px; border-radius: 50px;
+          font-size: 13px; font-weight: 700; white-space: nowrap;
+          box-shadow: var(--gp-shadow-md);
+        }
+        .gp-pricing-card.free-tier {
+          border: 2px dashed var(--gp-green-400);
+        }
+        .gp-pricing-card.free-tier:hover {
+          border-style: solid;
+          border-color: var(--gp-green-500);
+        }
+
+        /* ---- 3-COL PRICING ---- */
+        .gp-pricing-grid.three-col {
+          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+          max-width: 1100px;
+        }
+
+        /* ---- FREE DOWNLOAD BANNER ---- */
+        .gp-free-banner {
+          padding: clamp(32px,6vw,52px) clamp(16px,4vw,40px);
+          background: linear-gradient(135deg, var(--gp-green-50), var(--gp-green-100));
+          border-top: 1px solid var(--gp-green-200);
+          border-bottom: 1px solid var(--gp-green-200);
+        }
+        .gp-free-banner-inner {
+          max-width: 1000px; margin: 0 auto;
+          display: flex; align-items: center; gap: clamp(16px,3vw,28px);
+          flex-wrap: wrap; justify-content: center;
+        }
+        .gp-free-banner-icon {
+          font-size: 48px; flex-shrink: 0;
+        }
+        .gp-free-banner-content { flex: 1; min-width: 280px; }
+        .gp-free-banner-title {
+          font-family: var(--gp-font-display);
+          font-size: clamp(20px,3vw,26px); font-weight: 800;
+          color: var(--gp-green-800); margin-bottom: 6px;
+        }
+        .gp-free-banner-desc {
+          font-size: 15px; color: var(--gp-green-700); line-height: 1.5; opacity: 0.85;
+        }
+        .gp-free-banner-btn {
+          padding: 14px 32px; flex-shrink: 0;
+          background: linear-gradient(135deg, var(--gp-green-600), var(--gp-green-700));
+          color: #fff; border: none; border-radius: 50px;
+          font-size: 16px; font-weight: 700; cursor: pointer;
+          font-family: var(--gp-font-body);
+          box-shadow: 0 4px 16px rgba(5,150,105,0.3);
+          transition: all 0.25s;
+        }
+        .gp-free-banner-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 24px rgba(5,150,105,0.4);
+        }
+
         /* ---- RESPONSIVE ---- */
         @media (max-width: 768px) {
           .gp-map-grid { grid-template-columns: 1fr !important; }
@@ -942,14 +1069,14 @@ export default function Home() {
             </p>
             <div className="gp-hero-buttons">
               <button onClick={() => setShowModal(true)} className="gp-hero-btn-primary">
-                Start Free — No Card Required
+                Sign Up — Get 2 Free Map Downloads
               </button>
-              <button className="gp-hero-btn-outline">
-                ▶ Watch 2-Min Demo
+              <button onClick={() => { document.getElementById('gp-features')?.scrollIntoView({ behavior: 'smooth' }); }} className="gp-hero-btn-outline">
+                ↓ See What You Get
               </button>
             </div>
             <p className="gp-hero-nudge">
-              <strong>2,340 teams</strong> signed up this month — join them in under 30 seconds
+              <strong>2,340 teams</strong> signed up this month · No credit card · 2 maps free instantly
             </p>
           </div>
 
@@ -1017,7 +1144,7 @@ export default function Home() {
                     ))}
                   </ul>
                   <button onClick={() => setShowModal(true)} className="gp-why-cta-btn">
-                    Get Started Free →
+                    Get 2 Free Maps →
                   </button>
                 </div>
               </div>
@@ -1059,8 +1186,35 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ========= HOW IT WORKS ========= */}
+      <section className="gp-how-section" id="gp-how">
+        <div className="gp-how-inner">
+          <p className="gp-section-label">How It Works</p>
+          <h2 className="gp-section-title">From Sign-Up to Download in 60 Seconds</h2>
+          <div className="gp-how-grid">
+            {[
+              { step: '1', icon: '✍️', title: 'Create Free Account', desc: 'Sign up with your email — no credit card, no commitments. Takes 15 seconds.' },
+              { step: '2', icon: '🗺️', title: 'Pick Your Maps', desc: 'Browse satellite, hiking, cycling, topo & more. Preview any map before downloading.' },
+              { step: '3', icon: '⬇️', title: 'Download Instantly', desc: 'Get 2 free high-res maps right away. Need more? Upgrade to a paid plan anytime.' },
+            ].map((s, i) => (
+              <div key={i} className="gp-how-card">
+                <div className="gp-how-step-number">{s.step}</div>
+                <div className="gp-how-icon">{s.icon}</div>
+                <h3 className="gp-how-card-title">{s.title}</h3>
+                <p className="gp-how-card-desc">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+          <div className="gp-how-cta-row">
+            <button onClick={() => setShowModal(true)} className="gp-hero-btn-primary" style={{ marginTop: '12px' }}>
+              Sign Up & Get 2 Free Maps
+            </button>
+          </div>
+        </div>
+      </section>
+
       {/* ========= FEATURES ========= */}
-      <section className="gp-features-section">
+      <section className="gp-features-section" id="gp-features">
         <div className="gp-features-inner">
           <p className="gp-section-label">Premium Maps</p>
           <h2 className="gp-section-title">Built for Every Terrain</h2>
@@ -1097,6 +1251,20 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ========= FREE DOWNLOAD BANNER (mid-page conversion hook) ========= */}
+      <section className="gp-free-banner">
+        <div className="gp-free-banner-inner">
+          <div className="gp-free-banner-icon">🎁</div>
+          <div className="gp-free-banner-content">
+            <h3 className="gp-free-banner-title">Still exploring? Grab 2 free maps now.</h3>
+            <p className="gp-free-banner-desc">Create a free account, pick any 2 maps from our entire catalog, and download them in full resolution. No strings attached.</p>
+          </div>
+          <button onClick={() => setShowModal(true)} className="gp-free-banner-btn">
+            Claim Free Maps
+          </button>
+        </div>
+      </section>
+
       {/* ========= REVIEWS ========= */}
       <section className="gp-reviews-section">
         <div className="gp-reviews-inner">
@@ -1126,23 +1294,34 @@ export default function Home() {
           <p className="gp-section-label">Pricing</p>
           <h2 className="gp-section-title">Simple, Transparent Plans</h2>
           <p className="gp-pricing-subtitle">
-            Annual billing saves 20%. Start free, upgrade when you're ready.
+            Every account starts with 2 free map downloads. Upgrade anytime. Annual billing saves 20%.
           </p>
-          <div className="gp-pricing-grid">
+          <div className="gp-pricing-grid three-col">
             {pricingPlans.map((plan) => (
               <div
                 key={plan.id}
-                className={`gp-pricing-card ${plan.popular ? 'popular' : ''}`}
+                className={`gp-pricing-card ${plan.popular ? 'popular' : ''} ${plan.isFree ? 'free-tier' : ''}`}
               >
                 {plan.popular && (
                   <div className="gp-pricing-popular-badge">Most Popular</div>
                 )}
+                {plan.isFree && (
+                  <div className="gp-pricing-free-badge">No Card Required</div>
+                )}
                 <div className="gp-pricing-plan-name">{plan.name}</div>
                 <div className="gp-pricing-price">
-                  <span className="gp-pricing-price-dollar">$</span>
-                  {plan.price}
+                  {plan.isFree ? (
+                    <span>Free</span>
+                  ) : (
+                    <>
+                      <span className="gp-pricing-price-dollar">$</span>
+                      {plan.price}
+                    </>
+                  )}
                 </div>
-                <div className="gp-pricing-period">per year, billed annually</div>
+                <div className="gp-pricing-period">
+                  {plan.isFree ? '2 map downloads included' : 'per year, billed annually'}
+                </div>
                 <ul className="gp-pricing-features">
                   {plan.features.map((f, i) => (
                     <li key={i} className="gp-pricing-feature">
@@ -1153,9 +1332,9 @@ export default function Home() {
                 </ul>
                 <button
                   onClick={() => handlePricingClick(plan)}
-                  className={plan.popular ? 'gp-pricing-cta' : 'gp-pricing-cta-outline'}
+                  className={plan.isFree ? 'gp-pricing-cta' : plan.popular ? 'gp-pricing-cta' : 'gp-pricing-cta-outline'}
                 >
-                  {plan.popular ? 'Get Professional' : 'Get Starter'}
+                  {plan.isFree ? 'Sign Up Free' : `Get ${plan.name}`}
                 </button>
               </div>
             ))}
@@ -1171,10 +1350,10 @@ export default function Home() {
         <div className="gp-cta-inner">
           <h2 className="gp-cta-title">Ready to Map Smarter?</h2>
           <p className="gp-cta-desc">
-            Join 10,000+ teams already using GeoPulse. Free trial, no credit card, instant access.
+            Join 10,000+ teams already using GeoPulse. Sign up now and get 2 free map downloads — no credit card, instant access.
           </p>
           <button onClick={() => setShowModal(true)} className="gp-cta-btn">
-            Start Free Trial →
+            Get 2 Free Downloads →
           </button>
         </div>
       </section>
@@ -1202,13 +1381,13 @@ export default function Home() {
           >
             ✕
           </button>
-          <div className="gp-floating-cta-icon">🎁</div>
+          <div className="gp-floating-cta-icon">🗺️</div>
           <div className="gp-floating-cta-text">
-            <strong>Free for 14 days</strong>
-            No credit card needed. Cancel anytime.
+            <strong>2 Free Map Downloads</strong>
+            Sign up and download instantly. No card needed.
             <br />
             <a href="#" onClick={(e) => { e.preventDefault(); setShowModal(true); }} className="gp-floating-cta-link">
-              Start now →
+              Claim your free maps →
             </a>
           </div>
         </div>
